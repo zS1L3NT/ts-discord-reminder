@@ -23,5 +23,11 @@ export default (FullDateMatch: RegExpMatchArray, error: (message: string) => voi
 
 	if (minuteInt > 59) return error("Minute must not exceed 59")
 
+	// Handle timezone change
+	if (new Date().getUTCHours() == new Date().getHours()) {
+		let UTChour = hourInt - 8
+		if (UTChour < 0) UTChour += 24
+		return new Date(yearInt, monthInt - 1, dayInt, UTChour, minuteInt)
+	}
 	return new Date(yearInt, monthInt - 1, dayInt, hourInt, minuteInt)
 }
