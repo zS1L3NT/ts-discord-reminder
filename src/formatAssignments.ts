@@ -7,7 +7,8 @@ export default (assignments: Assignment[]) =>
 			const lines: string[] = []
 			lines.push(`**${assignment.name}**`)
 			lines.push(`Due: **${formatDate(assignment.date)}**`)
-			if (assignment.details) {
+			lines.push(`ID: \`${assignment.id}\``)
+			if (assignment.details.length > 0) {
 				lines.push(`Information:`)
 				assignment.details.forEach((detail, i) => lines.push(`${i + 1}: ${detail}`))
 			}
