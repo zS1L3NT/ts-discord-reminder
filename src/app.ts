@@ -27,7 +27,7 @@ bot.on("message", async message => {
 	if (NotifyHereRegex) {
 		await message.react(CHECK_MARK)
 		const main = await send("...")
-		cache.setModifyTimer(
+		cache.setNotifyTimer(
 			setInterval(() => {
 				if (cache.getAssignments().length > 0) {
 					main.edit(formatAssignments(cache.getAssignments()))
@@ -43,10 +43,12 @@ bot.on("message", async message => {
 		await message.react(CHECK_MARK)
 		const main = await send("...")
 		cache.setModifyChannelId(message.channel.id)
-		cache.setNotifyTimer(
+		cache.setModifyTimer(
 			setInterval(() => {
 				const draft = cache.getDraft()
-				main.edit((draft ? "**Draft**:\n" + formatAssignments([draft]) : "**No draft**") + "\n\n" + modifyText())
+				main.edit(
+					(draft ? "**Draft**:\n" + formatAssignments([draft]) : "**No draft**") + "\n\n" + modifyText()
+				)
 			}, 5 * 1000)
 		)
 
@@ -73,6 +75,7 @@ bot.on("message", async message => {
 	const EditRegex = match(message, "^--edit")
 	const DeleteRegex = match(message, "^--delete")
 	const DiscardRegex = match(message, "^--discard")
+	const NameRegex = match(message, "^--name")
 	const DateRegex = match(message, "^--date")
 	const InfoRegex = match(message, "^--info")
 	const DoneRegex = match(message, "^--done$")
@@ -172,6 +175,31 @@ bot.on("message", async message => {
 		// *
 		clear(5000)
 		message.react(CHECK_MARK)
+	} else if (NameRegex) {
+		if (!cache.getDraft()) {
+			// !
+			clear(5000)
+			sendMessage("Try using `--create` to create an assignment draft first", 6000)
+			return
+		}
+
+		const FullNameRegex = match(message, "^--name (.+)")
+
+		if (!FullNameRegex) {
+			// !
+			clear(5000)
+			sendMessage("Make sure to add the name after the `--name`", 6000)
+			return
+		}
+
+		const [_, name] = FullNameRegex
+		const assignment = cache.getDraft()!
+		assignment.name = name
+		await cache.setDraft(assignment)
+
+		// *
+		clear(5000)
+		message.react(CHECK_MARK)
 	} else if (DateRegex) {
 		if (!cache.getDraft()) {
 			// !
@@ -199,6 +227,7 @@ bot.on("message", async message => {
 			assignment.date = date.getTime()
 			await cache.setDraft(assignment)
 
+			// *
 			clear(12000)
 			sendMessage("Got it. The assignment is due on " + date, 13000)
 			if (!cache.getDraft()!.details.length)

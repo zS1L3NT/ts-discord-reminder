@@ -4,6 +4,7 @@ export default (): string => {
 	lines.push("`--edit <task id>`")
 	lines.push("`--delete <task id>`")
 	lines.push("`--discard`")
+	lines.push("`--name <task name>`")
 	lines.push("`--date <DD>/<MM>/<YYYY> <hh>:<mm>`")
 	lines.push("`--info ++ <information to add>`")
 	lines.push("`--info -- <index of information to remove>`")
