@@ -1,24 +1,24 @@
-import { Client, Message } from "discord.js"
-import verifyDate from "./verifyDate"
-import formatAssignments from "./formatAssignments"
-import modifyText from "./modifyText"
-import LocalStorage from "./repository"
+import { Client, Message, TextChannel } from "discord.js"
+import { verifyDate, BotCache, Draft, updateNotifyChannel, updateChannels } from "./all"
 
 const bot = new Client()
-const localStorage = new LocalStorage()
+const localStorage = new BotCache()
 const time = (ms: number) => new Promise(res => setTimeout(res, ms))
 const CHECK_MARK = "✅"
 
 bot.login(require("../discordToken.json"))
 bot.on("ready", () => {
 	console.log("Logged in as Assignment Bot#2744")
-	bot.guilds.cache.forEach(guild => {
-		localStorage.getLocalCache(guild.id)
+	bot.guilds.cache.forEach(async guild => {
+		const cache = await localStorage.getLocalCache(guild.id)
+		console.log(`Restored state for Guild(${guild.name})`)
+
+		await updateChannels(guild, cache)
+		setInterval(async () => await updateChannels(guild, cache), 30 * 1000)
 	})
 })
 
 bot.on("message", async message => {
-	const send = message.channel.send.bind(message.channel)
 	const cache = await localStorage.getLocalCache(message.guild!.id)
 
 	const NotifyHereRegex = match(message, "^--notify-here$")
@@ -26,38 +26,18 @@ bot.on("message", async message => {
 
 	if (NotifyHereRegex) {
 		await message.react(CHECK_MARK)
-		const main = await send("...")
-		cache.setNotifyTimer(
-			setInterval(() => {
-				if (cache.getAssignments().length > 0) {
-					main.edit(formatAssignments(cache.getAssignments()))
-				} else {
-					main.edit("No assignments due")
-				}
-			}, 5 * 1000)
-		)
-
+		await cache.setNotifyChannelId(message.channel.id)
 		await time(3000)
 		await message.delete()
 	} else if (ModifyHereRegex) {
 		await message.react(CHECK_MARK)
-		const main = await send("...")
-		cache.setModifyChannelId(message.channel.id)
-		cache.setModifyTimer(
-			setInterval(() => {
-				const draft = cache.getDraft()
-				main.edit(
-					(draft ? "**Draft**:\n" + formatAssignments([draft]) : "**No draft**") + "\n\n" + modifyText()
-				)
-			}, 5 * 1000)
-		)
-
+		await cache.setModifyChannelId(message.channel.id)
 		await time(3000)
 		await message.delete()
 	}
 })
 
-// ? Handle the modify channel
+// Handle the modify channel
 bot.on("message", async message => {
 	const cache = await localStorage.getLocalCache(message.guild!.id)
 	const clear = (ms: number) => setTimeout(message.delete.bind(message), ms)
@@ -80,9 +60,17 @@ bot.on("message", async message => {
 	const InfoRegex = match(message, "^--info")
 	const DoneRegex = match(message, "^--done$")
 
+	const draft = cache.getDraft()
+	const updateNotifyChannelInline = async () => {
+		const channel = message.guild!.channels.cache.get(cache.getNotifyChannelId())
+		if (channel) {
+			await updateNotifyChannel(cache, channel as TextChannel)
+		}
+	}
+
 	if (CreateRegex) {
 		if (cache.getDraft()) {
-			// !
+			// :
 			clear(5000)
 			sendMessage("Try using `--discard` to discard current assignment an create a new one", 6000)
 			return
@@ -91,19 +79,16 @@ bot.on("message", async message => {
 		const CreateNameRegex = match(message, "^--create (.+)")
 
 		if (!CreateNameRegex) {
-			// !
+			// :
 			clear(5000)
 			sendMessage("Try adding the assignment name after the `--create` command", 6000)
 			return
 		}
 
 		const [_, name] = CreateNameRegex
-		await cache.setDraft({
-			id: cache.generateAssignmentId(),
-			name,
-			date: new Date().getTime(),
-			details: []
-		})
+		const assignment = new Draft(cache, cache.generateAssignmentId(), "", name, new Date().getTime(), [])
+		await assignment.init()
+		cache.setDraft(assignment)
 
 		// *
 		clear(8000)
@@ -111,7 +96,7 @@ bot.on("message", async message => {
 		sendMessage("When is this assignment due (24h format)? `--date DD/MM/YYYY hh:mm`", 9000)
 	} else if (EditRegex) {
 		if (cache.getDraft()) {
-			// !
+			// :
 			clear(5000)
 			sendMessage("Try using `--discard` to discard current assignment an create a new one", 6000)
 			return
@@ -120,7 +105,7 @@ bot.on("message", async message => {
 		const EditIdRegex = match(message, "^--edit (.+)")
 
 		if (!EditIdRegex) {
-			// !
+			// :
 			clear(5000)
 			sendMessage("Try adding the assignment id after the `--edit` command", 6000)
 			return
@@ -130,14 +115,17 @@ bot.on("message", async message => {
 		const assignment = cache.getAssignment(id)
 
 		if (!assignment) {
-			// !
+			// :
 			clear(5000)
 			sendMessage("No such assignment", 6000)
 			return
 		}
 
-		await cache.removeAssignment(id)
-		await cache.setDraft(assignment)
+		const draft = await assignment.toDraft(cache)
+		await draft.init()
+		cache.setDraft(draft)
+		await updateNotifyChannelInline()
+
 		// *
 		clear(6000)
 		sendMessage("Try using `--date`, `--info ++ ...` or `--info -- 1` to edit info about assignment", 7000)
@@ -145,7 +133,7 @@ bot.on("message", async message => {
 		const DeleteIdRegex = match(message, "^--delete (.+)")
 
 		if (!DeleteIdRegex) {
-			// !
+			// :
 			clear(5000)
 			sendMessage("Try adding the assignment id after the `--delete` command", 6000)
 			return
@@ -155,18 +143,20 @@ bot.on("message", async message => {
 		const assignment = cache.getAssignment(id)
 
 		if (!assignment) {
-			// !
+			// :
 			clear(5000)
 			sendMessage("No such assignment", 6000)
 			return
 		}
 
 		await cache.removeAssignment(id)
+		await updateNotifyChannelInline()
+
 		// *
 		clear(5000)
 		message.react(CHECK_MARK)
 	} else if (DiscardRegex) {
-		if (!cache.getDraft()) {
+		if (!draft) {
 			clear(5000)
 			sendMessage("No draft to discard", 6000)
 			return
@@ -176,8 +166,8 @@ bot.on("message", async message => {
 		clear(5000)
 		message.react(CHECK_MARK)
 	} else if (NameRegex) {
-		if (!cache.getDraft()) {
-			// !
+		if (!draft) {
+			// :
 			clear(5000)
 			sendMessage("Try using `--create` to create an assignment draft first", 6000)
 			return
@@ -186,23 +176,21 @@ bot.on("message", async message => {
 		const FullNameRegex = match(message, "^--name (.+)")
 
 		if (!FullNameRegex) {
-			// !
+			// :
 			clear(5000)
 			sendMessage("Make sure to add the name after the `--name`", 6000)
 			return
 		}
 
 		const [_, name] = FullNameRegex
-		const assignment = cache.getDraft()!
-		assignment.name = name
-		await cache.setDraft(assignment)
+		await draft.setName(name)
 
 		// *
 		clear(5000)
 		message.react(CHECK_MARK)
 	} else if (DateRegex) {
-		if (!cache.getDraft()) {
-			// !
+		if (!draft) {
+			// :
 			clear(5000)
 			sendMessage("Try using `--create` to create an assignment draft first", 6000)
 			return
@@ -211,7 +199,7 @@ bot.on("message", async message => {
 		const FullDateRegex = match(message, "^--date (\\d{2})\\/(\\d{2})\\/(\\d{4}) (\\d{2}):(\\d{2})")
 
 		if (!FullDateRegex) {
-			// !
+			// :
 			clear(5000)
 			sendMessage("Make sure the date is in the format `DD/MM/YYYY hh:mm`", 6000)
 			return
@@ -223,22 +211,20 @@ bot.on("message", async message => {
 		})
 
 		if (date instanceof Date) {
-			const assignment = cache.getDraft()!
-			assignment.date = date.getTime()
-			await cache.setDraft(assignment)
+			await draft.setDate(date.getTime())
 
 			// *
 			clear(12000)
 			sendMessage("Got it. The assignment is due on " + date, 13000)
-			if (!cache.getDraft()!.details.length)
+			if (!cache.getDraft()!.getDetails().length)
 				sendMessage(
 					"Add details about this assignment line by line with `--info ++ ...`\nWhen you're done, use `--done` to finish",
 					13000
 				)
 		}
 	} else if (InfoRegex) {
-		if (!cache.getDraft()) {
-			// !
+		if (!draft) {
+			// :
 			clear(5000)
 			sendMessage("Try using `--create` to create an assignment draft first", 6000)
 			return
@@ -250,9 +236,9 @@ bot.on("message", async message => {
 		if (AddInfoRegex) {
 			const [_, info] = AddInfoRegex
 
-			const assignment = cache.getDraft()!
-			assignment.details.push(info)
-			await cache.setDraft(assignment)
+			const draft = cache.getDraft()!
+			draft.pushDetail(info)
+
 			// *
 			clear(5000)
 			message.react(CHECK_MARK)
@@ -260,41 +246,41 @@ bot.on("message", async message => {
 			const [_, index] = RemoveInfoRegex
 
 			const indexInt = parseInt(index) - 1
-			if (indexInt < cache.getDraft()!.details.length) {
-				const assignment = cache.getDraft()!
-				assignment.details.splice(indexInt, 1)
-				await cache.setDraft(assignment)
+			if (indexInt < cache.getDraft()!.getDetails().length) {
+				draft.removeDetail(indexInt)
+
 				// *
 				clear(5000)
 				message.react(CHECK_MARK)
 			} else {
-				// !
+				// :
 				clear(5000)
 				sendMessage("Info #" + indexInt + " doesn't exist", 6000)
 			}
 		} else {
-			// !
+			// :
 			clear(5000)
 			sendMessage("Try using `--info ++ ...` or `--info -- 1` to add or remove info", 6000)
 		}
 	} else if (DoneRegex) {
-		const assignment = cache.getDraft()
-		if (!assignment) {
-			// !
+		if (!draft) {
+			// :
 			clear(5000)
 			sendMessage("Try using `--create` to create an assignment draft first", 6000)
 			return
 		}
 
-		if (assignment.date < new Date().getTime()) {
-			// !
+		if (draft.getDate() < new Date().getTime()) {
+			// :
 			clear(5000)
 			sendMessage("Try using `--date DD/MM/YYYY hh:mm` to add a date to the assignment", 6000)
 			return
 		}
 
-		await cache.setAssignment(assignment)
+		await cache.pushAssignment(draft)
 		await cache.removeDraft()
+		await updateNotifyChannelInline()
+
 		// *
 		clear(5000)
 		sendMessage("Assignment added! :white_check_mark:", 6000)
