@@ -8,16 +8,18 @@ export interface Assignment {
 }
 
 export interface GlobalGuildCache {
-	builder: Assignment
+	draft: Assignment
 	modify: string
 	shout: string
 }
 export class LocalGuildCache {
 	private ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
 	private assignments: Assignment[]
-	private timer: NodeJS.Timeout | undefined
-	private builder: Assignment | null
+	private modify_timer: NodeJS.Timeout | undefined
+	private notify_timer: NodeJS.Timeout | undefined
+	private draft: Assignment | null
 
+	private modify: string
 	private init: number
 
 	public constructor(
@@ -27,12 +29,14 @@ export class LocalGuildCache {
 		this.init = 0
 		this.ref = ref
 		this.assignments = []
-		this.builder = null
+		this.draft = null
+		this.modify = ""
 
 		this.ref.onSnapshot(snap => {
 			if (snap.exists) {
 				const assignment = snap.data() as GlobalGuildCache
-				this.builder = assignment.builder
+				this.draft = assignment.draft
+				this.modify = assignment.modify
 
 				if (this.init < 3) this.init++
 				if (this.init === 2) resolve(this)
@@ -47,6 +51,15 @@ export class LocalGuildCache {
 		})
 	}
 
+	public getModifyChannelId() {
+		return this.modify
+	}
+
+	public async setModifyChannelId(modify: string) {
+		this.modify = modify
+		await this.ref.update({ modify })
+	}
+
 	public generateAssignmentId() {
 		return this.ref.collection("assignments").doc().id
 	}
@@ -59,40 +72,49 @@ export class LocalGuildCache {
 		return this.assignments
 	}
 
-	public setAssignment(assignment: Assignment) {
+	public async setAssignment(assignment: Assignment) {
 		this.assignments.push(assignment)
-		this.ref.collection("assignments").doc(assignment.id).set(assignment)
+		await this.ref.collection("assignments").doc(assignment.id).set(assignment)
 	}
 
-	public removeAssignment(id: string) {
+	public async removeAssignment(id: string) {
 		this.assignments = this.assignments.filter(a => a.id !== id)
-		this.ref.collection("assignments").doc(id).delete()
+		await this.ref.collection("assignments").doc(id).delete()
 	}
 
-	public getTimer() {
-		return this.timer
+	public getModifyTimer() {
+		return this.modify_timer
 	}
 
-	public setTimer(timer: NodeJS.Timeout) {
-		if (this.timer) clearInterval(this.timer)
-		this.timer = timer
+	public setModifyTimer(modify_timer: NodeJS.Timeout) {
+		if (this.modify_timer) clearInterval(this.modify_timer)
+		this.modify_timer = modify_timer
 	}
 
-	public getBuilder() {
-		return this.builder
+	public getNotifyTimer() {
+		return this.notify_timer
 	}
 
-	public setBuilder(assignment: Assignment) {
-		this.builder = assignment
-		this.ref.update({
-			builder: assignment
+	public setNotifyTimer(notify_timer: NodeJS.Timeout) {
+		if (this.notify_timer) clearInterval(this.notify_timer)
+		this.notify_timer = notify_timer
+	}
+
+	public getDraft() {
+		return this.draft
+	}
+
+	public async setDraft(assignment: Assignment) {
+		this.draft = assignment
+		await this.ref.update({
+			draft: assignment
 		})
 	}
 
-	public removeBuilder() {
-		this.builder = null
-		this.ref.update({
-			builder: null
+	public async removeDraft() {
+		this.draft = null
+		await this.ref.update({
+			draft: null
 		})
 	}
 }

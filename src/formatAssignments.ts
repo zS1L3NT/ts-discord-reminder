@@ -10,7 +10,7 @@ export default (assignments: Assignment[]) =>
 			lines.push(`ID: \`${assignment.id}\``)
 			if (assignment.details.length > 0) {
 				lines.push(`Information:`)
-				assignment.details.forEach((detail, i) => lines.push(`${i + 1}: ${detail}`))
+				assignment.details.forEach((detail, i) => lines.push(`(${i + 1}) ${detail}`))
 			}
 			return lines.join("\n")
 		})
