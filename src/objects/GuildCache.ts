@@ -54,6 +54,11 @@ export default class GuildCache {
 			const { id, message_id, name, date, details } = doc.data()
 			if (doc.id === "draft") continue
 
+			if (date < new Date().getTime()) {
+				this.ref.collection("assignments").doc(doc.id).delete()
+				continue
+			}
+
 			items.push(new Assignment(this.getAssignmentRef(id), id, message_id, name, date, details))
 		}
 
