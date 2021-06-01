@@ -2,7 +2,6 @@ import { Guild, TextChannel } from "discord.js"
 import { updateNotifyChannel, GuildCache, updateModifyChannel } from "../all"
 
 export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
-	console.log(`Updated Channels for Guild(${guild.name}) [${debugCount}]: .....s`)
 	console.time(`Updated Channels for Guild(${guild.name}) [${debugCount}]`)
 
 	// Update notify channel
@@ -61,7 +60,5 @@ export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 		}
 	}
 
-	process.stdout.moveCursor(0, -1) // up one line
-	process.stdout.clearLine(1)
 	console.timeEnd(`Updated Channels for Guild(${guild.name}) [${debugCount}]`)
 }
