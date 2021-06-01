@@ -29,4 +29,23 @@ export default class BotCache {
 			}
 		})
 	}
+
+	public async createGuildCache(guildId: string) {
+		const doc = await this.ref.doc(guildId).get()
+		if (!doc.exists) {
+			await this.ref.doc(guildId).set({
+				modify_channel_id: "",
+				modify_message_id: "",
+				notify_channel_id: ""
+			})
+		}
+		await this.getGuildCache(guildId)
+	}
+
+	public async deleteGuildCache(guildId: string) {
+		const doc = await this.ref.doc(guildId).get()
+		if (doc.exists) {
+			await this.ref.doc(guildId).delete()
+		}
+	}
 }

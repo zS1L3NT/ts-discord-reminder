@@ -2,7 +2,7 @@ import { Client, Message, TextChannel } from "discord.js"
 import { verifyDate, BotCache, Draft, updateNotifyChannel, updateChannels, updateModifyChannel } from "./all"
 
 const bot = new Client()
-const localStorage = new BotCache()
+const botCache = new BotCache()
 const time = (ms: number) => new Promise(res => setTimeout(res, ms))
 const CHECK_MARK = "✅"
 
@@ -10,7 +10,7 @@ bot.login(require("../discordToken.json"))
 bot.on("ready", () => {
 	console.log("Logged in as Assignment Bot#2744")
 	bot.guilds.cache.forEach(async guild => {
-		const cache = await localStorage.getGuildCache(guild.id)
+		const cache = await botCache.getGuildCache(guild.id)
 		console.log(`Restored state for Guild(${guild.name})`)
 
 		let debugCount = 0
@@ -20,7 +20,7 @@ bot.on("ready", () => {
 })
 
 bot.on("message", async message => {
-	const cache = await localStorage.getGuildCache(message.guild!.id)
+	const cache = await botCache.getGuildCache(message.guild!.id)
 
 	const NotifyHereRegex = match(message, "^--notify-here$")
 	const ModifyHereRegex = match(message, "^--modify-here$")
@@ -40,7 +40,7 @@ bot.on("message", async message => {
 
 // Handle the modify channel
 bot.on("message", async message => {
-	const cache = await localStorage.getGuildCache(message.guild!.id)
+	const cache = await botCache.getGuildCache(message.guild!.id)
 	const clear = (ms: number) => setTimeout(message.delete.bind(message), ms)
 	if (message.channel.id !== cache.getModifyChannelId()) return
 	if (message.author.bot) return
@@ -312,6 +312,16 @@ bot.on("message", async message => {
 		clear(3000)
 		sendMessage("Invalid command", 4000)
 	}
+})
+
+bot.on("guildCreate", async guild => {
+	console.log(`Added to Guild(${guild.name})`)
+	await botCache.createGuildCache(guild.id)
+})
+
+bot.on("guildDelete", async guild => {
+	console.log(`Removed from Guild(${guild.name})`)
+	await botCache.deleteGuildCache(guild.id)
 })
 
 const match = (message: Message, regexp: string) => message.content.match(new RegExp(regexp))
