@@ -1,5 +1,5 @@
 import { Client, Message, TextChannel } from "discord.js"
-import { verifyDate, BotCache, Draft, updateNotifyChannel, updateChannels } from "./all"
+import { verifyDate, BotCache, Draft, updateNotifyChannel, updateChannels, updateModifyChannel } from "./all"
 
 const bot = new Client()
 const localStorage = new BotCache()
@@ -10,16 +10,17 @@ bot.login(require("../discordToken.json"))
 bot.on("ready", () => {
 	console.log("Logged in as Assignment Bot#2744")
 	bot.guilds.cache.forEach(async guild => {
-		const cache = await localStorage.getLocalCache(guild.id)
+		const cache = await localStorage.getGuildCache(guild.id)
 		console.log(`Restored state for Guild(${guild.name})`)
 
-		await updateChannels(guild, cache)
-		setInterval(async () => await updateChannels(guild, cache), 30 * 1000)
+		let debugCount = 0
+		await updateChannels(guild, cache, ++debugCount)
+		setInterval(async () => await updateChannels(guild, cache, ++debugCount), 30 * 1000)
 	})
 })
 
 bot.on("message", async message => {
-	const cache = await localStorage.getLocalCache(message.guild!.id)
+	const cache = await localStorage.getGuildCache(message.guild!.id)
 
 	const NotifyHereRegex = match(message, "^--notify-here$")
 	const ModifyHereRegex = match(message, "^--modify-here$")
@@ -39,7 +40,7 @@ bot.on("message", async message => {
 
 // Handle the modify channel
 bot.on("message", async message => {
-	const cache = await localStorage.getLocalCache(message.guild!.id)
+	const cache = await localStorage.getGuildCache(message.guild!.id)
 	const clear = (ms: number) => setTimeout(message.delete.bind(message), ms)
 	if (message.channel.id !== cache.getModifyChannelId()) return
 	if (message.author.bot) return
@@ -61,16 +62,22 @@ bot.on("message", async message => {
 	const DoneRegex = match(message, "^--done$")
 
 	const draft = cache.getDraft()
+	const notifyChannel = message.guild!.channels.cache.get(cache.getNotifyChannelId())
+	const modifyChannel = message.guild!.channels.cache.get(cache.getModifyChannelId())
 	const updateNotifyChannelInline = async () => {
-		const channel = message.guild!.channels.cache.get(cache.getNotifyChannelId())
-		if (channel) {
-			await updateNotifyChannel(cache, channel as TextChannel)
+		if (notifyChannel) {
+			await updateNotifyChannel(cache, notifyChannel as TextChannel)
+		}
+	}
+	const updateModifyChannelInline = async () => {
+		if (modifyChannel) {
+			await updateModifyChannel(cache, modifyChannel as TextChannel)
 		}
 	}
 
 	if (CreateRegex) {
 		if (cache.getDraft()) {
-			// :
+			// : Cannot create draft because draft already exists
 			clear(5000)
 			sendMessage("Try using `--discard` to discard current assignment an create a new one", 6000)
 			return
@@ -79,7 +86,7 @@ bot.on("message", async message => {
 		const CreateNameRegex = match(message, "^--create (.+)")
 
 		if (!CreateNameRegex) {
-			// :
+			// : No name given to new draft
 			clear(5000)
 			sendMessage("Try adding the assignment name after the `--create` command", 6000)
 			return
@@ -87,16 +94,17 @@ bot.on("message", async message => {
 
 		const [_, name] = CreateNameRegex
 		const assignment = new Draft(cache, cache.generateAssignmentId(), "", name, new Date().getTime(), [])
-		await assignment.init()
+		await assignment.saveToFirestore()
 		cache.setDraft(assignment)
+		await updateModifyChannelInline()
 
 		// *
 		clear(8000)
 		sendMessage("Created draft assignment", 9000)
-		sendMessage("When is this assignment due (24h format)? `--date DD/MM/YYYY hh:mm`", 9000)
+		sendMessage("When is this assignment due (24h format)? `--date <DD>/<MM>/<YYYY> <hh>:<mm>`", 9000)
 	} else if (EditRegex) {
 		if (cache.getDraft()) {
-			// :
+			// : Cannot edit draft because draft already exists
 			clear(5000)
 			sendMessage("Try using `--discard` to discard current assignment an create a new one", 6000)
 			return
@@ -105,7 +113,7 @@ bot.on("message", async message => {
 		const EditIdRegex = match(message, "^--edit (.+)")
 
 		if (!EditIdRegex) {
-			// :
+			// : No id given to reference an assignment
 			clear(5000)
 			sendMessage("Try adding the assignment id after the `--edit` command", 6000)
 			return
@@ -115,25 +123,29 @@ bot.on("message", async message => {
 		const assignment = cache.getAssignment(id)
 
 		if (!assignment) {
-			// :
+			// : No assignment exists for given id
 			clear(5000)
 			sendMessage("No such assignment", 6000)
 			return
 		}
 
 		const draft = await assignment.toDraft(cache)
-		await draft.init()
+		await draft.saveToFirestore()
 		cache.setDraft(draft)
 		await updateNotifyChannelInline()
+		await updateModifyChannelInline()
 
 		// *
 		clear(6000)
-		sendMessage("Try using `--date`, `--info ++ ...` or `--info -- 1` to edit info about assignment", 7000)
+		sendMessage(
+			"Try using `--date`, `--info ++ <detail to add>` or `--info -- <index to remove>` to edit info about assignment",
+			7000
+		)
 	} else if (DeleteRegex) {
 		const DeleteIdRegex = match(message, "^--delete (.+)")
 
 		if (!DeleteIdRegex) {
-			// :
+			// : No id given to reference an assignment
 			clear(5000)
 			sendMessage("Try adding the assignment id after the `--delete` command", 6000)
 			return
@@ -143,7 +155,7 @@ bot.on("message", async message => {
 		const assignment = cache.getAssignment(id)
 
 		if (!assignment) {
-			// :
+			// : No assignment exists for given id
 			clear(5000)
 			sendMessage("No such assignment", 6000)
 			return
@@ -157,17 +169,20 @@ bot.on("message", async message => {
 		message.react(CHECK_MARK)
 	} else if (DiscardRegex) {
 		if (!draft) {
+			// : No draft to discard
 			clear(5000)
 			sendMessage("No draft to discard", 6000)
 			return
 		}
 		await cache.removeDraft()
+		await updateModifyChannelInline()
+
 		// *
 		clear(5000)
 		message.react(CHECK_MARK)
 	} else if (NameRegex) {
 		if (!draft) {
-			// :
+			// : Cannot edit draft because draft doesn't exists
 			clear(5000)
 			sendMessage("Try using `--create` to create an assignment draft first", 6000)
 			return
@@ -176,7 +191,7 @@ bot.on("message", async message => {
 		const FullNameRegex = match(message, "^--name (.+)")
 
 		if (!FullNameRegex) {
-			// :
+			// : No new name given to draft
 			clear(5000)
 			sendMessage("Make sure to add the name after the `--name`", 6000)
 			return
@@ -184,13 +199,14 @@ bot.on("message", async message => {
 
 		const [_, name] = FullNameRegex
 		await draft.setName(name)
+		await updateModifyChannelInline()
 
 		// *
 		clear(5000)
 		message.react(CHECK_MARK)
 	} else if (DateRegex) {
 		if (!draft) {
-			// :
+			// : Cannot edit draft because draft doesn't exists
 			clear(5000)
 			sendMessage("Try using `--create` to create an assignment draft first", 6000)
 			return
@@ -199,32 +215,34 @@ bot.on("message", async message => {
 		const FullDateRegex = match(message, "^--date (\\d{2})\\/(\\d{2})\\/(\\d{4}) (\\d{2}):(\\d{2})")
 
 		if (!FullDateRegex) {
-			// :
+			// : No new date given to draft
 			clear(5000)
-			sendMessage("Make sure the date is in the format `DD/MM/YYYY hh:mm`", 6000)
+			sendMessage("Make sure the date is in the format `<DD>/<MM>/<YYYY> <hh>:<mm>`", 6000)
 			return
 		}
 
 		const date = verifyDate(FullDateRegex, err => {
+			// : Invalid date given to draft
 			clear(5000)
 			sendMessage(err, 6000)
 		})
 
 		if (date instanceof Date) {
 			await draft.setDate(date.getTime())
+			await updateModifyChannelInline()
 
 			// *
 			clear(12000)
 			sendMessage("Got it. The assignment is due on " + date, 13000)
 			if (!cache.getDraft()!.getDetails().length)
 				sendMessage(
-					"Add details about this assignment line by line with `--info ++ ...`\nWhen you're done, use `--done` to finish",
+					"Add details about this assignment line by line with `--info ++ <detail to add>`\nWhen you're done, use `--done` to finish",
 					13000
 				)
 		}
 	} else if (InfoRegex) {
 		if (!draft) {
-			// :
+			// : Cannot edit draft because draft doesn't exists
 			clear(5000)
 			sendMessage("Try using `--create` to create an assignment draft first", 6000)
 			return
@@ -237,7 +255,8 @@ bot.on("message", async message => {
 			const [_, info] = AddInfoRegex
 
 			const draft = cache.getDraft()!
-			draft.pushDetail(info)
+			await draft.pushDetail(info)
+			await updateModifyChannelInline()
 
 			// *
 			clear(5000)
@@ -247,20 +266,24 @@ bot.on("message", async message => {
 
 			const indexInt = parseInt(index) - 1
 			if (indexInt < cache.getDraft()!.getDetails().length) {
-				draft.removeDetail(indexInt)
+				await draft.removeDetail(indexInt)
+				await updateModifyChannelInline()
 
 				// *
 				clear(5000)
 				message.react(CHECK_MARK)
 			} else {
-				// :
+				// : Item doesn't exist
 				clear(5000)
-				sendMessage("Info #" + indexInt + " doesn't exist", 6000)
+				sendMessage("Info at index " + indexInt + " doesn't exist", 6000)
 			}
 		} else {
-			// :
+			// : Invalid command
 			clear(5000)
-			sendMessage("Try using `--info ++ ...` or `--info -- 1` to add or remove info", 6000)
+			sendMessage(
+				"Try using `--info ++ <detail to add>` or `--info -- <index to remove>` to add or remove info",
+				6000
+			)
 		}
 	} else if (DoneRegex) {
 		if (!draft) {
@@ -273,13 +296,14 @@ bot.on("message", async message => {
 		if (draft.getDate() < new Date().getTime()) {
 			// :
 			clear(5000)
-			sendMessage("Try using `--date DD/MM/YYYY hh:mm` to add a date to the assignment", 6000)
+			sendMessage("Try using `--date <DD>/<MM>/<YYYY> <hh>:<mm>` to add a date to the assignment", 6000)
 			return
 		}
 
 		await cache.pushAssignment(draft)
 		await cache.removeDraft()
 		await updateNotifyChannelInline()
+		await updateModifyChannelInline()
 
 		// *
 		clear(5000)

@@ -12,7 +12,7 @@ export default class Draft extends Assignment {
 		super(cache.getAssignmentRef("draft"), id, message_id, name, date, details)
 	}
 
-	public async init() {
+	public async saveToFirestore() {
 		await this.ref.set({
 			id: this.id,
 			message_id: this.message_id,
@@ -37,30 +37,34 @@ export default class Draft extends Assignment {
 		await this.ref.update({ date })
 	}
 
-	public setDetails(details: string[]) {
+	public async setDetails(details: string[]) {
 		this.details = details
-		this.ref.update({ details })
+		await this.ref.update({ details })
 	}
 
-	public pushDetail(detail: string) {
+	public async pushDetail(detail: string) {
 		this.details.push(detail)
-		this.ref.update({ details: this.details })
+		await this.ref.update({ details: this.details })
 	}
 
-	public removeDetail(index: number) {
+	public async removeDetail(index: number) {
 		this.details.splice(index, 1)
-		this.ref.update({ details: this.details })
+		await this.ref.update({ details: this.details })
 	}
 
+	/**
+	 * Formats draft into a string
+	 * @returns {string} Formatted draft
+	 */
 	public static getFormatted(draft: Draft | undefined) {
 		const lines: string[] = []
 		if (draft) {
-			lines.push("**Draft**")
+			lines.push("**Draft:**")
 			lines.push(draft.getFormatted())
 		} else {
 			lines.push("**No draft**")
 		}
-		
+
 		lines.push("\n")
 		lines.push("`--create <task name>`")
 		lines.push("`--edit <task id>`")
@@ -69,7 +73,7 @@ export default class Draft extends Assignment {
 		lines.push("`--name <task name>`")
 		lines.push("`--date <DD>/<MM>/<YYYY> <hh>:<mm>`")
 		lines.push("`--info ++ <information to add>`")
-		lines.push("`--info -- <index of information to remove>`")
+		lines.push("`--info -- <index to remove>`")
 		lines.push("`--done`")
 
 		return lines.join("\n")

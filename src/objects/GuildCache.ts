@@ -7,28 +7,22 @@ interface GlobalGuildCache {
 }
 export default class GuildCache {
 	private ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
-	private assignments: Assignment[]
+	private assignments: Assignment[] = []
 	private draft: Draft | undefined
 
-	private modify_channel_id: string
-	private modify_message_id: string
-	private notify_channel_id: string
-	private init: number
+	private modify_channel_id = ""
+	private modify_message_id = ""
+	private notify_channel_id = ""
+	private init: number = 0
 
 	public constructor(
 		ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
 		resolve: (localCache: GuildCache) => void
 	) {
-		this.init = 0
 		this.ref = ref
-		this.assignments = []
-		this.draft = undefined
-		this.modify_channel_id = ""
-		this.modify_message_id = ""
-		this.notify_channel_id = ""
-
 		this.ref.onSnapshot(snap => {
 			if (snap.exists) {
+				// Set the cache from Firestore
 				const assignment = snap.data() as GlobalGuildCache
 				this.modify_channel_id = assignment.modify_channel_id || ""
 				this.modify_message_id = assignment.modify_message_id || ""
@@ -39,6 +33,7 @@ export default class GuildCache {
 			}
 		})
 		this.ref.collection("assignments").onSnapshot(snap => {
+			// Set the cache from Firestore
 			this.assignments = this.docsToAssignments(snap.docs)
 			this.draft = this.docsToDraft(snap.docs)
 
@@ -47,6 +42,11 @@ export default class GuildCache {
 		})
 	}
 
+	/**
+	 * Filter all assignments in snapshot documents
+	 * @param docs Snapshot documents
+	 * @returns Assignments without the Draft object
+	 */
 	private docsToAssignments(docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[]) {
 		const items: Assignment[] = []
 		for (let i = 0, il = docs.length; i < il; i++) {
@@ -60,6 +60,11 @@ export default class GuildCache {
 		return items
 	}
 
+	/**
+	 * Filter the Draft object in snapshot documents
+	 * @param docs Snapshot documents
+	 * @returns Draft object
+	 */
 	private docsToDraft(docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[]) {
 		for (let i = 0, il = docs.length; i < il; i++) {
 			const doc = docs[i]
@@ -68,6 +73,11 @@ export default class GuildCache {
 		}
 	}
 
+	/**
+	 * Get the reference to the object in Firestore
+	 * @param id Assignment ID
+	 * @returns Reference to object in Firestore
+	 */
 	public getAssignmentRef(id: string) {
 		return this.ref.collection("assignments").doc(id)
 	}
@@ -111,6 +121,10 @@ export default class GuildCache {
 		return this.assignments
 	}
 
+	/**
+	 * @async Creates a new Assignment in the Guild Cache
+	 * @param assignment Assignment to add to Firestore
+	 */
 	public async pushAssignment(assignment: Assignment) {
 		this.assignments.push(assignment)
 		await this.ref.collection("assignments").doc(assignment.getId()).set({

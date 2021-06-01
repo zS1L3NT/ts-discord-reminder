@@ -24,6 +24,11 @@ export default class Assignment {
 		this.details = details
 	}
 
+	/**
+	 * @async Convert this Assignment to the Draft object which is a editable assignment
+	 * @param cache Current cache object
+	 * @returns {Draft} Converted Draft object
+	 */
 	public async toDraft(cache: GuildCache) {
 		await cache.removeAssignment(this.id)
 		return new Draft(cache, this.id, this.message_id, this.name, this.date, this.details)
@@ -56,6 +61,10 @@ export default class Assignment {
 		return this.details
 	}
 
+	/**
+	 * Formats assignment into a string
+	 * @returns {string} Formatted assignment
+	 */
 	public getFormatted() {
 		const lines: string[] = []
 		lines.push(`**${this.getName()}**`)

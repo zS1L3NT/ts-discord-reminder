@@ -1,7 +1,10 @@
 import { Guild, TextChannel } from "discord.js"
-import { updateNotifyChannel, GuildCache, Draft } from "../all"
+import { updateNotifyChannel, GuildCache, updateModifyChannel } from "../all"
 
-export default async (guild: Guild, cache: GuildCache) => {
+export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
+	console.log(`Updated Channels for Guild(${guild.name}) [${debugCount}]: .....s`)
+	console.time(`Updated Channels for Guild(${guild.name}) [${debugCount}]`)
+
 	// Update notify channel
 	const notifyChannelId = cache.getNotifyChannelId()
 	if (notifyChannelId) {
@@ -46,38 +49,19 @@ export default async (guild: Guild, cache: GuildCache) => {
 
 	// Update modify channel
 	const modifyChannelId = cache.getModifyChannelId()
-	const modifyMessageId = cache.getModifyMessageId()
 	if (modifyChannelId) {
 		const channel = guild.channels.cache.get(modifyChannelId)
 		if (channel) {
 			const modifyChannel = channel as TextChannel
-			const draft = cache.getDraft()
-
-			// Deletes any unnecessary messages from modify channel
-			const messages = (await modifyChannel.messages.fetch({ limit: 100 })).array()
-			for (let i = 0, il = messages.length; i < il; i++) {
-				const message = messages[i]
-				if (message.id !== modifyMessageId) {
-					// ! Unidentified message
-					console.log(`Message(${message.content}) exists in Channel(${modifyChannel.name})`)
-					message.delete()
-				} else {
-					// * Edited modify message
-					message.edit(Draft.getFormatted(draft))
-				}
-			}
-
-			// Sends the message to modify channel if it doesnt exist
-			if (messages.filter(message => message.id === modifyMessageId).length === 0) {
-				// ! Modify message doesn't exist
-				console.log(`Channel(${modifyChannel.name}) has no Message(${modifyMessageId})`)
-				const main = await modifyChannel.send(Draft.getFormatted(draft))
-				await cache.setModifyMessageId(main.id)
-			}
+			await updateModifyChannel(cache, modifyChannel)
 		} else {
 			// ! Channel doesn't exist
 			console.log(`Guild(${guild.name}) has no Channel(${modifyChannelId})`)
 			await cache.setModifyChannelId("")
 		}
 	}
+
+	process.stdout.moveCursor(0, -1) // up one line
+	process.stdout.clearLine(1)
+	console.timeEnd(`Updated Channels for Guild(${guild.name}) [${debugCount}]`)
 }

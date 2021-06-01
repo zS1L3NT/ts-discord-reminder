@@ -1,8 +1,9 @@
 import { TextChannel } from "discord.js"
 import { GuildCache } from "../all"
 
+// : Assume that the notify channel exists
 export default async (cache: GuildCache, channel: TextChannel) => {
-	const assignments = cache.getAssignments().sort((a, b) => a.getDate() - b.getDate())
+	const assignments = cache.getAssignments().sort((a, b) => b.getDate() - a.getDate())
 
 	// Clear last 100 messages from chat
 	const messages = await channel.messages.fetch({ limit: 100 })
