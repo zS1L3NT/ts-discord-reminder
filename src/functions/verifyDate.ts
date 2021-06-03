@@ -1,5 +1,5 @@
 export default (FullDateMatch: RegExpMatchArray, error: (message: string) => void): Date | void => {
-	const [_, day, month, year, hour, minute] = FullDateMatch
+	const [day, month, year, hour, minute] = FullDateMatch
 	const LongerMonths = [1, 3, 5, 7, 8, 10, 12]
 
 	const dayInt = parseInt(day)
@@ -25,9 +25,9 @@ export default (FullDateMatch: RegExpMatchArray, error: (message: string) => voi
 
 	// Handle timezone change
 	if (new Date().getUTCHours() == new Date().getHours()) {
-		let UTChour = hourInt - 8
-		if (UTChour < 0) UTChour += 24
-		return new Date(yearInt, monthInt - 1, dayInt, UTChour, minuteInt)
+		let UTC_hour = hourInt - 8
+		if (UTC_hour < 0) UTC_hour += 24
+		return new Date(yearInt, monthInt - 1, dayInt, UTC_hour, minuteInt)
 	}
 	return new Date(yearInt, monthInt - 1, dayInt, hourInt, minuteInt)
 }

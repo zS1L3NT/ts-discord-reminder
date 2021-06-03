@@ -1,4 +1,4 @@
-import { Assignment, GuildCache } from "../all"
+import {Assignment, GuildCache} from "../all"
 
 export default class Draft extends Assignment {
 	public constructor(
@@ -10,46 +10,6 @@ export default class Draft extends Assignment {
 		details: string[]
 	) {
 		super(cache.getAssignmentRef("draft"), id, message_id, name, date, details)
-	}
-
-	public async saveToFirestore() {
-		await this.ref.set({
-			id: this.id,
-			message_id: this.message_id,
-			name: this.name,
-			date: this.date,
-			details: this.details
-		})
-	}
-
-	public async setMessageId(message_id: string) {
-		this.message_id = message_id
-		await this.ref.update({ message_id })
-	}
-
-	public async setName(name: string) {
-		this.name = name
-		await this.ref.update({ name })
-	}
-
-	public async setDate(date: number) {
-		this.date = date
-		await this.ref.update({ date })
-	}
-
-	public async setDetails(details: string[]) {
-		this.details = details
-		await this.ref.update({ details })
-	}
-
-	public async pushDetail(detail: string) {
-		this.details.push(detail)
-		await this.ref.update({ details: this.details })
-	}
-
-	public async removeDetail(index: number) {
-		this.details.splice(index, 1)
-		await this.ref.update({ details: this.details })
 	}
 
 	/**
@@ -77,5 +37,40 @@ export default class Draft extends Assignment {
 		lines.push("`--done`")
 
 		return lines.join("\n")
+	}
+
+	public async saveToFirestore() {
+		await this.ref.set({
+			id: this.id,
+			message_id: this.message_id,
+			name: this.name,
+			date: this.date,
+			details: this.details
+		})
+	}
+
+	public async setMessageId(message_id: string) {
+		this.message_id = message_id
+		await this.ref.update({message_id})
+	}
+
+	public async setName(name: string) {
+		this.name = name
+		await this.ref.update({name})
+	}
+
+	public async setDate(date: number) {
+		this.date = date
+		await this.ref.update({date})
+	}
+
+	public async pushDetail(detail: string) {
+		this.details.push(detail)
+		await this.ref.update({details: this.details})
+	}
+
+	public async removeDetail(index: number) {
+		this.details.splice(index, 1)
+		await this.ref.update({details: this.details})
 	}
 }

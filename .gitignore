@@ -4,3 +4,4 @@ nodemon.json
 *.js.map
 **/*Key.json
 **/*Token.json
+.idea

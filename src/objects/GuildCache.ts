@@ -1,10 +1,11 @@
-import { Assignment, Draft } from "../all"
+import {Assignment, Draft} from "../all"
 
 interface GlobalGuildCache {
 	modify_channel_id: string
 	modify_message_id: string
 	notify_channel_id: string
 }
+
 export default class GuildCache {
 	private ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
 	private assignments: Assignment[] = []
@@ -43,42 +44,6 @@ export default class GuildCache {
 	}
 
 	/**
-	 * Filter all assignments in snapshot documents
-	 * @param docs Snapshot documents
-	 * @returns Assignments without the Draft object
-	 */
-	private docsToAssignments(docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[]) {
-		const items: Assignment[] = []
-		for (let i = 0, il = docs.length; i < il; i++) {
-			const doc = docs[i]
-			const { id, message_id, name, date, details } = doc.data()
-			if (doc.id === "draft") continue
-
-			if (date < new Date().getTime()) {
-				this.ref.collection("assignments").doc(doc.id).delete()
-				continue
-			}
-
-			items.push(new Assignment(this.getAssignmentRef(id), id, message_id, name, date, details))
-		}
-
-		return items
-	}
-
-	/**
-	 * Filter the Draft object in snapshot documents
-	 * @param docs Snapshot documents
-	 * @returns Draft object
-	 */
-	private docsToDraft(docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[]) {
-		for (let i = 0, il = docs.length; i < il; i++) {
-			const doc = docs[i]
-			const { id, message_id, name, date, details } = doc.data()
-			if (doc.id === "draft") return new Draft(this, id, message_id, name, date, details)
-		}
-	}
-
-	/**
 	 * Get the reference to the object in Firestore
 	 * @param id Assignment ID
 	 * @returns Reference to object in Firestore
@@ -93,7 +58,7 @@ export default class GuildCache {
 
 	public async setModifyChannelId(modify_channel_id: string) {
 		this.modify_channel_id = modify_channel_id
-		await this.ref.update({ modify_channel_id })
+		await this.ref.update({modify_channel_id})
 	}
 
 	public getModifyMessageId() {
@@ -102,7 +67,7 @@ export default class GuildCache {
 
 	public async setModifyMessageId(modify_message_id: string) {
 		this.modify_message_id = modify_message_id
-		await this.ref.update({ modify_message_id })
+		await this.ref.update({modify_message_id})
 	}
 
 	public getNotifyChannelId() {
@@ -111,7 +76,7 @@ export default class GuildCache {
 
 	public async setNotifyChannelId(notify_channel_id: string) {
 		this.notify_channel_id = notify_channel_id
-		await this.ref.update({ notify_channel_id })
+		await this.ref.update({notify_channel_id})
 	}
 
 	public generateAssignmentId() {
@@ -158,6 +123,42 @@ export default class GuildCache {
 		if (this.draft) {
 			await this.draft.delete()
 			this.draft = undefined
+		}
+	}
+
+	/**
+	 * Filter all assignments in snapshot documents
+	 * @param docs Snapshot documents
+	 * @returns Assignments without the Draft object
+	 */
+	private docsToAssignments(docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[]) {
+		const items: Assignment[] = []
+		for (let i = 0, il = docs.length; i < il; i++) {
+			const doc = docs[i]
+			const {id, message_id, name, date, details} = doc.data()
+			if (doc.id === "draft") continue
+
+			if (date < new Date().getTime()) {
+				this.ref.collection("assignments").doc(doc.id).delete().then()
+				continue
+			}
+
+			items.push(new Assignment(this.getAssignmentRef(id), id, message_id, name, date, details))
+		}
+
+		return items
+	}
+
+	/**
+	 * Filter the Draft object in snapshot documents
+	 * @param docs Snapshot documents
+	 * @returns Draft object
+	 */
+	private docsToDraft(docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[]) {
+		for (let i = 0, il = docs.length; i < il; i++) {
+			const doc = docs[i]
+			const {id, message_id, name, date, details} = doc.data()
+			if (doc.id === "draft") return new Draft(this, id, message_id, name, date, details)
 		}
 	}
 }

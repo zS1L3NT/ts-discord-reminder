@@ -1,4 +1,4 @@
-import { GuildCache } from "../all"
+import {GuildCache} from "../all"
 import admin from "firebase-admin"
 
 export default class BotCache {

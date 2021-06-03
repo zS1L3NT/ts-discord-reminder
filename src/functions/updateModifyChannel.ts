@@ -1,5 +1,5 @@
-import { TextChannel } from "discord.js";
-import { Draft, GuildCache } from "../all";
+import {TextChannel} from "discord.js"
+import {Draft, GuildCache} from "../all"
 
 // : Assume that the modify channel exists
 export default async (cache: GuildCache, channel: TextChannel) => {
@@ -7,16 +7,19 @@ export default async (cache: GuildCache, channel: TextChannel) => {
 	const draft = cache.getDraft()
 
 	// Deletes any unnecessary messages from modify channel
-	const messages = (await channel.messages.fetch({ limit: 100 })).array()
+	const messages = (await channel.messages.fetch({limit: 100})).array()
 	for (let i = 0, il = messages.length; i < il; i++) {
 		const message = messages[i]
 		if (message.id !== modifyMessageId) {
-			// ! Unidentified message
-			console.log(`Message(${message.content}) exists in Channel(${channel.name})`)
-			message.delete()
+			// : Message that isn't main message detected
+			if (!message.content.match(/^--/) && !message.author.bot) {
+				// ! Unidentified user message
+				console.log(`Message(${message.content}) exists in Channel(${channel.name})`)
+				await message.delete()
+			}
 		} else {
 			// * Edited modify message
-			message.edit(Draft.getFormatted(draft))
+			await message.edit(Draft.getFormatted(draft))
 		}
 	}
 

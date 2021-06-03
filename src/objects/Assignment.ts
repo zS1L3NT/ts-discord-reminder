@@ -1,4 +1,4 @@
-import { Draft, formatDate, GuildCache } from "../all"
+import {Draft, formatDate, GuildCache} from "../all"
 
 export default class Assignment {
 	protected ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>

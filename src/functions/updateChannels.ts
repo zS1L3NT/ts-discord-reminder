@@ -1,5 +1,5 @@
-import { Guild, TextChannel } from "discord.js"
-import { updateNotifyChannel, GuildCache, updateModifyChannel } from "../all"
+import {Guild, TextChannel} from "discord.js"
+import {GuildCache, updateModifyChannel, updateNotifyChannel} from "../all"
 
 export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 	console.time(`Updated Channels for Guild(${guild.name}) [${debugCount}]`)
@@ -13,7 +13,7 @@ export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 			const assignments = cache.getAssignments()
 
 			// Deletes any unnecessary messages from notify channel
-			const messages = (await notifyChannel.messages.fetch({ limit: 100 })).array()
+			const messages = (await notifyChannel.messages.fetch({limit: 100})).array()
 			const assignmentMessageIds = assignments.map(a => a.getMessageId())
 			for (let i = 0, il = messages.length; i < il; i++) {
 				const message = messages[i]
