@@ -1,4 +1,4 @@
-import {Draft, formatDate, GuildCache} from "../all"
+import {Draft, formatDueDate, formatDueIn, GuildCache} from "../all"
 import {MessageEmbed} from "discord.js";
 
 export default class Assignment {
@@ -77,10 +77,10 @@ export default class Assignment {
 		return new MessageEmbed()
 			.setColor(colors[this.getSubject()] || "#FFFFFF")
 			.setTitle(this.getSubject() + " " + this.getName())
-			.addField("ID", this.getId())
 			.setDescription(this.getDetails().join("\n"))
-			.addField("Due date", new Date(this.getDate()))
-			.addField("Due in", formatDate(this.getDate()))
+			.addField("ID", this.getId())
+			.addField("Due date", formatDueDate(this.getDate()))
+			.addField("Due in", formatDueIn(this.getDate()))
 	}
 
 	public async delete() {
