@@ -1,4 +1,5 @@
 import {Assignment, GuildCache} from "../all"
+import {MessageEmbed} from "discord.js";
 
 export default class Draft extends Assignment {
 	public constructor(
@@ -6,10 +7,11 @@ export default class Draft extends Assignment {
 		id: string,
 		message_id: string,
 		name: string,
+		subject: string,
 		date: number,
 		details: string[]
 	) {
-		super(cache.getAssignmentRef("draft"), id, message_id, name, date, details)
+		super(cache.getAssignmentRef("draft"), id, message_id, name, subject, date, details)
 	}
 
 	/**
@@ -17,26 +19,52 @@ export default class Draft extends Assignment {
 	 * @returns {string} Formatted draft
 	 */
 	public static getFormatted(draft: Draft | undefined) {
-		const lines: string[] = []
+		const embed = new MessageEmbed()
+			.setColor("#ED4245")
+			.setTitle(draft ? "Draft" : "No draft")
+
 		if (draft) {
-			lines.push("**Draft:**")
-			lines.push(draft.getFormatted())
-		} else {
-			lines.push("**No draft**")
+			embed.addField("Name", draft.getName())
+			embed.addField("Subject", draft.getSubject())
+			embed.addField("Date", draft.getDate())
+			embed.addField("Details", draft.getDetails().join("\n"))
 		}
 
-		lines.push("\n")
-		lines.push("`--create <task name>`")
-		lines.push("`--edit <task id>`")
-		lines.push("`--delete <task id>`")
-		lines.push("`--discard`")
-		lines.push("`--name <task name>`")
-		lines.push("`--date <DD>/<MM>/<YYYY> <hh>:<mm>`")
-		lines.push("`--info ++ <information to add>`")
-		lines.push("`--info -- <index to remove>`")
-		lines.push("`--done`")
+		embed.addField("\u200B", "\u200B")
+		embed.addField("Create new task", "`--create <task name>`")
+		embed.addField("Edit task by id", "`--edit <task id>`")
+		embed.addField("Delete task by id", "`--delete <task id>`")
+		embed.addField("Discard draft task", "`--discard`")
+		embed.addField("Edit draft name", "`--name <task name>`")
+		embed.addField("Edit draft subject", `\`--subject <subject name>\``)
+		embed.addField("Edit draft date", "`--date <DD>/<MM>/<YYYY> <hh>:<mm>`")
+		embed.addField("Add to draft info", "`--info ++ <information to add>`")
+		embed.addField("Remove from draft info", "`--info -- <index to remove>`")
+		embed.addField("Finish draft", "`--done`")
 
-		return lines.join("\n")
+		return embed
+
+		// const lines: string[] = []
+		// if (draft) {
+		// 	lines.push("**Draft:**")
+		// 	lines.push(draft.getFormatted(draft.getCache().getColors()))
+		// } else {
+		// 	lines.push("**No draft**")
+		// }
+		//
+		// lines.push("\n")
+		// lines.push("`--create <task name>`")
+		// lines.push("`--edit <task id>`")
+		// lines.push("`--delete <task id>`")
+		// lines.push("`--discard`")
+		// lines.push("`--name <task name>`")
+		// lines.push(`\`--subject <subject name>\``)
+		// lines.push("`--date <DD>/<MM>/<YYYY> <hh>:<mm>`")
+		// lines.push("`--info ++ <information to add>`")
+		// lines.push("`--info -- <index to remove>`")
+		// lines.push("`--done`")
+		//
+		// return lines.join("\n")
 	}
 
 	public async saveToFirestore() {
@@ -57,6 +85,11 @@ export default class Draft extends Assignment {
 	public async setName(name: string) {
 		this.name = name
 		await this.ref.update({name})
+	}
+
+	public async setSubject(subject: string) {
+		this.subject = subject
+		await this.ref.update({subject})
 	}
 
 	public async setDate(date: number) {

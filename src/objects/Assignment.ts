@@ -1,10 +1,12 @@
 import {Draft, formatDate, GuildCache} from "../all"
+import {MessageEmbed} from "discord.js";
 
 export default class Assignment {
 	protected ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
 	protected id: string
 	protected message_id: string
 	protected name: string
+	protected subject: string
 	protected date: number
 	protected details: string[]
 
@@ -13,6 +15,7 @@ export default class Assignment {
 		id: string,
 		message_id: string,
 		name: string,
+		subject: string,
 		date: number,
 		details: string[]
 	) {
@@ -20,6 +23,7 @@ export default class Assignment {
 		this.id = id
 		this.message_id = message_id
 		this.name = name
+		this.subject = subject
 		this.date = date
 		this.details = details
 	}
@@ -31,7 +35,7 @@ export default class Assignment {
 	 */
 	public async toDraft(cache: GuildCache) {
 		await cache.removeAssignment(this.id)
-		return new Draft(cache, this.id, this.message_id, this.name, this.date, this.details)
+		return new Draft(cache, this.id, this.message_id, this.name, this.subject, this.date, this.details)
 	}
 
 	public async setMessageId(message_id: string) {
@@ -53,6 +57,10 @@ export default class Assignment {
 		return this.name
 	}
 
+	public getSubject() {
+		return this.subject;
+	}
+
 	public getDate() {
 		return this.date
 	}
@@ -65,16 +73,14 @@ export default class Assignment {
 	 * Formats assignment into a string
 	 * @returns {string} Formatted assignment
 	 */
-	public getFormatted() {
-		const lines: string[] = []
-		lines.push(`**${this.getName()}**`)
-		lines.push(`Due: **${formatDate(this.getDate())}**`)
-		lines.push(`ID: \`${this.getId()}\``)
-		if (this.getDetails().length > 0) {
-			lines.push(`Information:`)
-			this.getDetails().forEach((detail, i) => lines.push(`(${i + 1}) ${detail}`))
-		}
-		return lines.join("\n")
+	public getFormatted(colors: { [subject_name: string]: string }) {
+		return new MessageEmbed()
+			.setColor(colors[this.getSubject()] || "#FFFFFF")
+			.setTitle(this.getSubject() + " " + this.getName())
+			.addField("ID", this.getId())
+			.setDescription(this.getDetails().join("\n"))
+			.addField("Due date", new Date(this.getDate()))
+			.addField("Due in", formatDate(this.getDate()))
 	}
 
 	public async delete() {

@@ -31,7 +31,7 @@ export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 				try {
 					// * Edited assignment message
 					const message = await notifyChannel.messages.fetch(assignment.getMessageId())
-					await message.edit(assignment.getFormatted())
+					await message.edit(assignment.getFormatted(cache.getColors()))
 				} catch (e) {
 					// ! Assignment message doesn't exist
 					console.warn(`Channel(${notifyChannel.name}) has no Message(${assignment.getMessageId()})`)

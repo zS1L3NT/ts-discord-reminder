@@ -1,5 +1,12 @@
 import {Client, Message, TextChannel} from "discord.js"
-import {BotCache, Draft, updateChannels, updateModifyChannel, updateNotifyChannel, verifyDate} from "./all"
+import {
+	BotCache,
+	Draft,
+	updateChannels,
+	updateModifyChannel,
+	updateNotifyChannel,
+	verifyDate
+} from "./all"
 
 const bot = new Client()
 const botCache = new BotCache()
@@ -30,7 +37,8 @@ bot.on("message", async message => {
 		await cache.setNotifyChannelId(message.channel.id)
 		await time(3000)
 		await message.delete()
-	} else if (ModifyHereRegex) {
+	}
+	else if (ModifyHereRegex) {
 		await message.react(CHECK_MARK)
 		await cache.setModifyChannelId(message.channel.id)
 		await time(3000)
@@ -57,6 +65,7 @@ bot.on("message", async message => {
 	const DeleteRegex = match(message, "^--delete")
 	const DiscardRegex = match(message, "^--discard")
 	const NameRegex = match(message, "^--name")
+	const SubjectRegex = match(message, "^--subject")
 	const DateRegex = match(message, "^--date")
 	const InfoRegex = match(message, "^--info")
 	const DoneRegex = match(message, "^--done$")
@@ -93,7 +102,7 @@ bot.on("message", async message => {
 		}
 
 		const [, name] = CreateNameRegex
-		const assignment = new Draft(cache, cache.generateAssignmentId(), "", name, new Date().getTime(), [])
+		const assignment = new Draft(cache, cache.generateAssignmentId(), "", name, "", new Date().getTime(), [])
 		await assignment.saveToFirestore()
 		cache.setDraft(assignment)
 		await updateModifyChannelInline()
@@ -102,7 +111,8 @@ bot.on("message", async message => {
 		clear(8000)
 		await sendMessage("Created draft assignment", 9000)
 		await sendMessage("When is this assignment due (24h format)? `--date <DD>/<MM>/<YYYY> <hh>:<mm>`", 9000)
-	} else if (EditRegex) {
+	}
+	else if (EditRegex) {
 		if (cache.getDraft()) {
 			// : Cannot edit draft because draft already exists
 			clear(5000)
@@ -141,7 +151,8 @@ bot.on("message", async message => {
 			"Try using `--date`, `--info ++ <detail to add>` or `--info -- <index to remove>` to edit info about assignment",
 			7000
 		)
-	} else if (DeleteRegex) {
+	}
+	else if (DeleteRegex) {
 		const DeleteIdRegex = match(message, "^--delete (.+)")
 
 		if (!DeleteIdRegex) {
@@ -167,7 +178,8 @@ bot.on("message", async message => {
 		// *
 		clear(5000)
 		await message.react(CHECK_MARK)
-	} else if (DiscardRegex) {
+	}
+	else if (DiscardRegex) {
 		if (!draft) {
 			// : No draft to discard
 			clear(5000)
@@ -180,7 +192,8 @@ bot.on("message", async message => {
 		// *
 		clear(5000)
 		await message.react(CHECK_MARK)
-	} else if (NameRegex) {
+	}
+	else if (NameRegex) {
 		if (!draft) {
 			// : Cannot edit draft because draft doesn't exists
 			clear(5000)
@@ -204,7 +217,33 @@ bot.on("message", async message => {
 		// *
 		clear(5000)
 		await message.react(CHECK_MARK)
-	} else if (DateRegex) {
+	}
+	else if (SubjectRegex) {
+		if (!draft) {
+			// : Cannot edit draft because draft doesn't exists
+			clear(5000)
+			await sendMessage("Try using `--create` to create an assignment draft first", 6000)
+			return
+		}
+
+		const FullSubjectRegex = match(message, `^--subject (${cache.getSubjects().join("|")})`)
+
+		if (!FullSubjectRegex) {
+			// : No new subject given to draft
+			clear(5000)
+			await sendMessage(`Make sure the subject is an existing subject`, 6000)
+			return
+		}
+
+		const [, subject] = FullSubjectRegex
+		await draft.setSubject(subject)
+		await updateModifyChannelInline()
+
+		// *
+		clear(5000)
+		await message.react(CHECK_MARK)
+	}
+	else if (DateRegex) {
 		if (!draft) {
 			// : Cannot edit draft because draft doesn't exists
 			clear(5000)
@@ -240,7 +279,8 @@ bot.on("message", async message => {
 					13000
 				)
 		}
-	} else if (InfoRegex) {
+	}
+	else if (InfoRegex) {
 		if (!draft) {
 			// : Cannot edit draft because draft doesn't exists
 			clear(5000)
@@ -261,7 +301,8 @@ bot.on("message", async message => {
 			// *
 			clear(5000)
 			await message.react(CHECK_MARK)
-		} else if (RemoveInfoRegex) {
+		}
+		else if (RemoveInfoRegex) {
 			const [, index] = RemoveInfoRegex
 
 			const indexInt = parseInt(index) - 1
@@ -272,12 +313,14 @@ bot.on("message", async message => {
 				// *
 				clear(5000)
 				await message.react(CHECK_MARK)
-			} else {
+			}
+			else {
 				// : Item doesn't exist
 				clear(5000)
 				await sendMessage("Info at index " + indexInt + " doesn't exist", 6000)
 			}
-		} else {
+		}
+		else {
 			// : Invalid command
 			clear(5000)
 			await sendMessage(
@@ -285,7 +328,8 @@ bot.on("message", async message => {
 				6000
 			)
 		}
-	} else if (DoneRegex) {
+	}
+	else if (DoneRegex) {
 		if (!draft) {
 			// :
 			clear(5000)
@@ -300,6 +344,12 @@ bot.on("message", async message => {
 			return
 		}
 
+		if (draft.getSubject() == "") {
+			clear(5000)
+			await sendMessage("Try using `--subject <subject name>` to add a subject to the assignment", 6000)
+			return
+		}
+
 		await cache.pushAssignment(draft)
 		await cache.removeDraft()
 		await updateNotifyChannelInline()
@@ -308,7 +358,8 @@ bot.on("message", async message => {
 		// *
 		clear(5000)
 		await sendMessage("Assignment added! :white_check_mark:", 6000)
-	} else if (!ModifyHereRegex) {
+	}
+	else if (!ModifyHereRegex) {
 		clear(3000)
 		await sendMessage("Invalid command", 4000)
 	}

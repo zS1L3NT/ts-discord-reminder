@@ -13,7 +13,7 @@ export default async (cache: GuildCache, channel: TextChannel) => {
 		const assignment = assignments[i]
 
 		// * Sent assignment info notify channel
-		const message = await channel.send(assignment.getFormatted())
+		const message = await channel.send(assignment.getFormatted(cache.getColors()))
 		await assignment.setMessageId(message.id)
 	}
 }

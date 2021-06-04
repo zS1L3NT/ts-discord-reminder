@@ -4,6 +4,7 @@ interface GlobalGuildCache {
 	modify_channel_id: string
 	modify_message_id: string
 	notify_channel_id: string
+	colors: { [subject_name: string]: string }
 }
 
 export default class GuildCache {
@@ -14,6 +15,7 @@ export default class GuildCache {
 	private modify_channel_id = ""
 	private modify_message_id = ""
 	private notify_channel_id = ""
+	private colors: { [subject_name: string]: string } = {}
 	private init: number = 0
 
 	public constructor(
@@ -25,9 +27,10 @@ export default class GuildCache {
 			if (snap.exists) {
 				// Set the cache from Firestore
 				const assignment = snap.data() as GlobalGuildCache
-				this.modify_channel_id = assignment.modify_channel_id || ""
-				this.modify_message_id = assignment.modify_message_id || ""
-				this.notify_channel_id = assignment.notify_channel_id || ""
+				this.modify_channel_id = assignment.modify_channel_id
+				this.modify_message_id = assignment.modify_message_id
+				this.notify_channel_id = assignment.notify_channel_id
+				this.colors = assignment.colors
 
 				if (this.init < 3) this.init++
 				if (this.init === 2) resolve(this)
@@ -126,6 +129,14 @@ export default class GuildCache {
 		}
 	}
 
+	public getColors() {
+		return this.colors
+	}
+
+	public getSubjects() {
+		return Object.keys(this.colors)
+	}
+
 	/**
 	 * Filter all assignments in snapshot documents
 	 * @param docs Snapshot documents
@@ -135,7 +146,7 @@ export default class GuildCache {
 		const items: Assignment[] = []
 		for (let i = 0, il = docs.length; i < il; i++) {
 			const doc = docs[i]
-			const {id, message_id, name, date, details} = doc.data()
+			const {id, message_id, name, subject, date, details} = doc.data()
 			if (doc.id === "draft") continue
 
 			if (date < new Date().getTime()) {
@@ -143,7 +154,7 @@ export default class GuildCache {
 				continue
 			}
 
-			items.push(new Assignment(this.getAssignmentRef(id), id, message_id, name, date, details))
+			items.push(new Assignment(this.getAssignmentRef(id), id, message_id, name, subject, date, details))
 		}
 
 		return items
@@ -157,8 +168,8 @@ export default class GuildCache {
 	private docsToDraft(docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[]) {
 		for (let i = 0, il = docs.length; i < il; i++) {
 			const doc = docs[i]
-			const {id, message_id, name, date, details} = doc.data()
-			if (doc.id === "draft") return new Draft(this, id, message_id, name, date, details)
+			const {id, message_id, name, subject, date, details} = doc.data()
+			if (doc.id === "draft") return new Draft(this, id, message_id, name, subject, date, details)
 		}
 	}
 }
