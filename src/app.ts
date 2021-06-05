@@ -91,18 +91,7 @@ bot.on("message", async message => {
 			await sendMessage("Try using `--discard` to discard current assignment an create a new one", 6000)
 			return
 		}
-
-		const CreateNameRegex = match(message, "^--create (.+)")
-
-		if (!CreateNameRegex) {
-			// : No name given to new draft
-			clear(5000)
-			await sendMessage("Try adding the assignment name after the `--create` command", 6000)
-			return
-		}
-
-		const [, name] = CreateNameRegex
-		const assignment = new Draft(cache, cache.generateAssignmentId(), "", name, "", new Date().getTime(), [])
+		const assignment = new Draft(cache, cache.generateAssignmentId(), "", "", "", new Date().getTime(), [])
 		await assignment.saveToFirestore()
 		cache.setDraft(assignment)
 		await updateModifyChannelInline()
@@ -110,7 +99,6 @@ bot.on("message", async message => {
 		// *
 		clear(8000)
 		await sendMessage("Created draft assignment", 9000)
-		await sendMessage("When is this assignment due (24h format)? `--date <DD>/<MM>/<YYYY> <hh>:<mm>`", 9000)
 	}
 	else if (EditRegex) {
 		if (cache.getDraft()) {
@@ -271,13 +259,8 @@ bot.on("message", async message => {
 			await updateModifyChannelInline()
 
 			// *
-			clear(12000)
-			await sendMessage("Got it. The assignment is due on " + date, 13000)
-			if (!cache.getDraft()!.getDetails().length)
-				await sendMessage(
-					"Add details about this assignment line by line with `--info ++ <detail to add>`\nWhen you're done, use `--done` to finish",
-					13000
-				)
+			clear(5000)
+			await message.react(CHECK_MARK)
 		}
 	}
 	else if (InfoRegex) {
@@ -344,7 +327,13 @@ bot.on("message", async message => {
 			return
 		}
 
-		if (draft.getSubject() == "") {
+		if (draft.getName() === "") {
+			clear(5000)
+			await sendMessage("Try using `--name <task name>` to add a name to the assignment", 6000)
+			return
+		}
+
+		if (draft.getSubject() === "") {
 			clear(5000)
 			await sendMessage("Try using `--subject <subject name>` to add a subject to the assignment", 6000)
 			return

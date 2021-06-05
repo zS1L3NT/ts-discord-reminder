@@ -1,4 +1,4 @@
-import {Assignment, GuildCache} from "../all"
+import {Assignment, formatDueDate, GuildCache} from "../all"
 import {MessageEmbed} from "discord.js";
 
 export default class Draft extends Assignment {
@@ -24,14 +24,14 @@ export default class Draft extends Assignment {
 			.setTitle(draft ? "Draft" : "No draft")
 
 		if (draft) {
-			embed.addField("Name", draft.getName())
-			embed.addField("Subject", draft.getSubject())
-			embed.addField("Date", draft.getDate())
-			embed.addField("Details", draft.getDetails().join("\n"))
+			embed.addField("Name", draft.getName() || "\u200B")
+			embed.addField("Subject", draft.getSubject() || "\u200B")
+			embed.addField("Date", formatDueDate(draft.getDate()))
+			embed.addField("Details", draft.getDetails().join("\n") || "\u200B")
 		}
 
 		embed.addField("\u200B", "\u200B")
-		embed.addField("Create new task", "`--create <task name>`")
+		embed.addField("Create new task", "`--create`")
 		embed.addField("Edit task by id", "`--edit <task id>`")
 		embed.addField("Delete task by id", "`--delete <task id>`")
 		embed.addField("Discard draft task", "`--discard`")

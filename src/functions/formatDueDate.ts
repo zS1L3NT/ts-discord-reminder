@@ -31,7 +31,8 @@ export default (due: number) => {
 	if (date.getUTCHours() === date.getHours()) {
 		// Wrong timezone, in UK
 		localDate = new Date(due + 28800000)
-	} else {
+	}
+	else {
 		localDate = date
 	}
 
@@ -42,7 +43,12 @@ export default (due: number) => {
 
 	const hours = localDate.getHours()
 	const minutes = localDate.getMinutes()
-	const time = hours > 12 ? `${hours - 12}:${minutes}pm` : `${hours}:${minutes}am`
+
+	const time = hours > 12
+		? `${doubleStringFormat(hours - 12)}:${doubleStringFormat(minutes)}pm`
+		: `${doubleStringFormat(hours)}:${doubleStringFormat(minutes)}am`
 
 	return `${day_of_week}, ${date_in_month} ${name_of_month} ${year} at ${time}`
 }
+
+const doubleStringFormat = (num: number) => num < 10 ? ("0" + num) : num
