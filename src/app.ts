@@ -1,19 +1,13 @@
 import {Client, Message, TextChannel} from "discord.js"
-import {
-	BotCache,
-	Draft,
-	updateChannels,
-	updateModifyChannel,
-	updateNotifyChannel,
-	verifyDate
-} from "./all"
+import {BotCache, Draft, updateChannels, updateModifyChannel, updateNotifyChannel, verifyDate} from "./all"
+const config = require("../config.json")
 
 const bot = new Client()
 const botCache = new BotCache()
 const time = (ms: number) => new Promise(res => setTimeout(res, ms))
 const CHECK_MARK = "✅"
 
-bot.login(require("../discordToken.json")).then()
+bot.login(config.discord).then()
 bot.on("ready", () => {
 	console.log("Logged in as Assignment Bot#2744")
 	bot.guilds.cache.forEach(async guild => {

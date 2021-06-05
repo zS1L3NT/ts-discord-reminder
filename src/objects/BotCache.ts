@@ -1,5 +1,6 @@
 import {GuildCache} from "../all"
 import admin from "firebase-admin"
+const config = require("../../config.json")
 
 export default class BotCache {
 	private ref: FirebaseFirestore.CollectionReference<FirebaseFirestore.DocumentData>
@@ -9,8 +10,8 @@ export default class BotCache {
 
 	public constructor() {
 		admin.initializeApp({
-			credential: admin.credential.cert(require("../../serviceAccountKey.json")),
-			databaseURL: "https://zectan-projects-default-rtdb.firebaseio.com"
+			credential: admin.credential.cert(config.firebase.service_account),
+			databaseURL: config.firebase.database_url
 		})
 		this.ref = admin.firestore().collection("ts-assignmentbot")
 	}
