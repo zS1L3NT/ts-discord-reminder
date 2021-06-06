@@ -37,7 +37,8 @@ export default class BotCache {
 			await this.ref.doc(guildId).set({
 				modify_channel_id: "",
 				modify_message_id: "",
-				notify_channel_id: ""
+				notify_channel_id: "",
+				colors: {}
 			})
 		}
 		await this.getGuildCache(guildId)

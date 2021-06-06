@@ -102,8 +102,9 @@ export default class GuildCache {
 		this.assignments.push(assignment)
 		await this.ref.collection("assignments").doc(assignment.getId()).set({
 			id: assignment.getId(),
-			message: assignment.getMessageId(),
+			message_id: assignment.getMessageId(),
 			name: assignment.getName(),
+			subject: assignment.getSubject(),
 			date: assignment.getDate(),
 			details: assignment.getDetails()
 		})

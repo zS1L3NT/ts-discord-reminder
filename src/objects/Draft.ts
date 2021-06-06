@@ -43,28 +43,6 @@ export default class Draft extends Assignment {
 		embed.addField("Finish draft", "`--done`")
 
 		return embed
-
-		// const lines: string[] = []
-		// if (draft) {
-		// 	lines.push("**Draft:**")
-		// 	lines.push(draft.getFormatted(draft.getCache().getColors()))
-		// } else {
-		// 	lines.push("**No draft**")
-		// }
-		//
-		// lines.push("\n")
-		// lines.push("`--create <task name>`")
-		// lines.push("`--edit <task id>`")
-		// lines.push("`--delete <task id>`")
-		// lines.push("`--discard`")
-		// lines.push("`--name <task name>`")
-		// lines.push(`\`--subject <subject name>\``)
-		// lines.push("`--date <DD>/<MM>/<YYYY> <hh>:<mm>`")
-		// lines.push("`--info ++ <information to add>`")
-		// lines.push("`--info -- <index to remove>`")
-		// lines.push("`--done`")
-		//
-		// return lines.join("\n")
 	}
 
 	public async saveToFirestore() {
@@ -72,6 +50,7 @@ export default class Draft extends Assignment {
 			id: this.id,
 			message_id: this.message_id,
 			name: this.name,
+			subject: this.subject,
 			date: this.date,
 			details: this.details
 		})

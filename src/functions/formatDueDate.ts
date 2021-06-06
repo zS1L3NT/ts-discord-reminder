@@ -44,8 +44,10 @@ export default (due: number) => {
 	const hours = localDate.getHours()
 	const minutes = localDate.getMinutes()
 
-	const time = hours > 12
-		? `${doubleStringFormat(hours - 12)}:${doubleStringFormat(minutes)}pm`
+	const time = hours >= 12
+		? hours === 12
+			? `12:${doubleStringFormat(minutes)}pm`
+			: `${doubleStringFormat(hours - 12)}:${doubleStringFormat(minutes)}pm`
 		: `${doubleStringFormat(hours)}:${doubleStringFormat(minutes)}am`
 
 	return `${day_of_week}, ${date_in_month} ${name_of_month} ${year} at ${time}`

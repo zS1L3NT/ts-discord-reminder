@@ -1,5 +1,5 @@
 export default (FullDateMatch: RegExpMatchArray, error: (message: string) => void): Date | void => {
-	const [day, month, year, hour, minute] = FullDateMatch
+	const [, day, month, year, hour, minute] = FullDateMatch
 	const LongerMonths = [1, 3, 5, 7, 8, 10, 12]
 
 	const dayInt = parseInt(day)
