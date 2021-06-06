@@ -1,33 +1,20 @@
-import {TextChannel} from "discord.js"
-import {Draft, GuildCache} from "../all"
+import { TextChannel } from "discord.js"
+import { Draft, GuildCache } from "../all"
 
 // : Assume that the modify channel exists
-export default async (cache: GuildCache, channel: TextChannel) => {
-	const modifyMessageId = cache.getModifyMessageId()
+export default async (cache: GuildCache, mChannel: TextChannel) => {
 	const draft = cache.getDraft()
+	const modifyMessageId = cache.getModifyMessageId()
+	const message = mChannel.messages.cache.get(modifyMessageId)
 
-	// Deletes any unnecessary messages from modify channel
-	const messages = (await channel.messages.fetch({limit: 100})).array()
-	for (let i = 0, il = messages.length; i < il; i++) {
-		const message = messages[i]
-		if (message.id !== modifyMessageId) {
-			// : Message that isn't main message detected
-			if (!message.content.match(/^--/) && !message.author.bot) {
-				// ! Unidentified user message
-				console.log(`Message(${message.content}) exists in Channel(${channel.name})`)
-				await message.delete()
-			}
-		} else {
-			// * Edited modify message
-			await message.edit(Draft.getFormatted(draft))
-		}
-	}
-
-	// Sends the message to modify channel if it doesnt exist
-	if (messages.filter(message => message.id === modifyMessageId).length === 0) {
+	if (message) {
+		await message.edit(Draft.getFormatted(draft))
+	} else {
 		// ! Modify message doesn't exist
-		console.log(`Channel(${channel.name}) has no Message(${modifyMessageId})`)
-		const main = await channel.send(Draft.getFormatted(draft))
+		console.log(
+			`Channel(${mChannel.name}) has no Message(${modifyMessageId})`
+		)
+		const main = await mChannel.send(Draft.getFormatted(draft))
 		await cache.setModifyMessageId(main.id)
 	}
 }

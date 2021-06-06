@@ -1,4 +1,4 @@
-import { Client } from "discord.js"
+import { Client, TextChannel } from "discord.js"
 import {
 	__create,
 	__date,
