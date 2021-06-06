@@ -22,21 +22,36 @@ bot.on("ready", () => {
 
 bot.on("message", async message => {
 	const cache = await botCache.getGuildCache(message.guild!.id)
+	const clear = (ms: number) => setTimeout(message.delete.bind(message), ms)
 
 	const NotifyHereRegex = match(message, "^--notify-here$")
 	const ModifyHereRegex = match(message, "^--modify-here$")
 
+	const sendMessage = async (text: string, ms: number) => {
+		const temporary = await message.channel.send(text)
+		await time(ms)
+		await temporary.delete()
+	}
+
 	if (NotifyHereRegex) {
-		await message.react(CHECK_MARK)
-		await cache.setNotifyChannelId(message.channel.id)
-		await time(3000)
-		await message.delete()
+		clear(5000)
+		if (cache.getModifyChannelId() === message.channel.id) {
+			await sendMessage("This channel is already the modify channel!", 5000)
+		}
+		else {
+			await message.react(CHECK_MARK)
+			await cache.setNotifyChannelId(message.channel.id)
+		}
 	}
 	else if (ModifyHereRegex) {
-		await message.react(CHECK_MARK)
-		await cache.setModifyChannelId(message.channel.id)
-		await time(3000)
-		await message.delete()
+		clear(5000)
+		if (cache.getNotifyChannelId() === message.channel.id) {
+			await sendMessage("This channel is already the notify channel!", 5000)
+		}
+		else {
+			await message.react(CHECK_MARK)
+			await cache.setModifyChannelId(message.channel.id)
+		}
 	}
 })
 
