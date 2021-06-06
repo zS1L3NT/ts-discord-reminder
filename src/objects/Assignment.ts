@@ -1,5 +1,5 @@
-import {Draft, formatDueDate, formatDueIn, GuildCache} from "../all"
-import {MessageEmbed} from "discord.js";
+import { Draft, formatDueDate, formatDueIn, GuildCache } from "../all"
+import { MessageEmbed } from "discord.js"
 
 export default class Assignment {
 	protected ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
@@ -35,7 +35,15 @@ export default class Assignment {
 	 */
 	public async toDraft(cache: GuildCache) {
 		await cache.removeAssignment(this.id)
-		return new Draft(cache, this.id, this.message_id, this.name, this.subject, this.date, this.details)
+		return new Draft(
+			cache,
+			this.id,
+			this.message_id,
+			this.name,
+			this.subject,
+			this.date,
+			this.details
+		)
 	}
 
 	public async setMessageId(message_id: string) {
@@ -58,7 +66,7 @@ export default class Assignment {
 	}
 
 	public getSubject() {
-		return this.subject;
+		return this.subject
 	}
 
 	public getDate() {

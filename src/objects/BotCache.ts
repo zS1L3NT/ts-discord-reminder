@@ -1,5 +1,6 @@
-import {GuildCache} from "../all"
+import { GuildCache } from "../all"
 import admin from "firebase-admin"
+
 const config = require("../../config.json")
 
 export default class BotCache {
@@ -24,7 +25,10 @@ export default class BotCache {
 	public getGuildCache(guildId: string): Promise<GuildCache> {
 		return new Promise<GuildCache>(resolve => {
 			if (!this.guilds[guildId]) {
-				this.guilds[guildId] = new GuildCache(this.ref.doc(guildId), resolve)
+				this.guilds[guildId] = new GuildCache(
+					this.ref.doc(guildId),
+					resolve
+				)
 			} else {
 				resolve(this.guilds[guildId])
 			}

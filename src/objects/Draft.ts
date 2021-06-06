@@ -1,5 +1,5 @@
-import {Assignment, formatDueDate, GuildCache} from "../all"
-import {MessageEmbed} from "discord.js";
+import { Assignment, formatDueDate, GuildCache } from "../all"
+import { MessageEmbed } from "discord.js"
 
 export default class Draft extends Assignment {
 	public constructor(
@@ -11,7 +11,15 @@ export default class Draft extends Assignment {
 		date: number,
 		details: string[]
 	) {
-		super(cache.getAssignmentRef("draft"), id, message_id, name, subject, date, details)
+		super(
+			cache.getAssignmentRef("draft"),
+			id,
+			message_id,
+			name,
+			subject,
+			date,
+			details
+		)
 	}
 
 	/**
@@ -39,7 +47,10 @@ export default class Draft extends Assignment {
 		embed.addField("Edit draft subject", `\`--subject <subject name>\``)
 		embed.addField("Edit draft date", "`--date <DD>/<MM>/<YYYY> <hh>:<mm>`")
 		embed.addField("Add to draft info", "`--info ++ <information to add>`")
-		embed.addField("Remove from draft info", "`--info -- <index to remove>`")
+		embed.addField(
+			"Remove from draft info",
+			"`--info -- <index to remove>`"
+		)
 		embed.addField("Finish draft", "`--done`")
 
 		return embed
@@ -58,31 +69,31 @@ export default class Draft extends Assignment {
 
 	public async setMessageId(message_id: string) {
 		this.message_id = message_id
-		await this.ref.update({message_id})
+		await this.ref.update({ message_id })
 	}
 
 	public async setName(name: string) {
 		this.name = name
-		await this.ref.update({name})
+		await this.ref.update({ name })
 	}
 
 	public async setSubject(subject: string) {
 		this.subject = subject
-		await this.ref.update({subject})
+		await this.ref.update({ subject })
 	}
 
 	public async setDate(date: number) {
 		this.date = date
-		await this.ref.update({date})
+		await this.ref.update({ date })
 	}
 
 	public async pushDetail(detail: string) {
 		this.details.push(detail)
-		await this.ref.update({details: this.details})
+		await this.ref.update({ details: this.details })
 	}
 
 	public async removeDetail(index: number) {
 		this.details.splice(index, 1)
-		await this.ref.update({details: this.details})
+		await this.ref.update({ details: this.details })
 	}
 }
