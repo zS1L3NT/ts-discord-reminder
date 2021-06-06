@@ -10,14 +10,20 @@ const CHECK_MARK = "✅"
 bot.login(config.discord).then()
 bot.on("ready", () => {
 	console.log("Logged in as Assignment Bot#2744")
+	let debugCount = 0
+
 	bot.guilds.cache.forEach(async guild => {
 		const cache = await botCache.getGuildCache(guild.id)
 		console.log(`Restored state for Guild(${guild.name})`)
-
-		let debugCount = 0
-		await updateChannels(guild, cache, ++debugCount)
-		setInterval(async () => await updateChannels(guild, cache, ++debugCount), 30 * 1000)
+		await updateChannels(guild, cache, debugCount)
 	})
+	setInterval(() => {
+		debugCount++
+		bot.guilds.cache.forEach(async guild => {
+			const cache = await botCache.getGuildCache(guild.id)
+			await updateChannels(guild, cache, debugCount)
+		})
+	}, 30 * 1000)
 })
 
 bot.on("message", async message => {
