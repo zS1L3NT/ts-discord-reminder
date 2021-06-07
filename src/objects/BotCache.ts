@@ -42,6 +42,7 @@ export default class BotCache {
 				modify_channel_id: "",
 				modify_message_id: "",
 				notify_channel_id: "",
+				notify_message_ids: [],
 				colors: {}
 			})
 		}

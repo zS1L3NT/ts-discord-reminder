@@ -21,7 +21,7 @@ export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 				if (!notifyMessageIds.includes(message.id)) {
 					// ! Unidentified message
 					console.warn(
-						`Message(${message.embeds[0].title}) exists in Channel(${nChannel.name})`
+						`Message(${message.id}) exists in Channel(${nChannel.name})`
 					)
 					await message.delete()
 				}
@@ -58,7 +58,7 @@ export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 					if (!message.content.match(/^--/) && !message.author.bot) {
 						// ! Unidentified user message
 						console.warn(
-							`Message(${message.embeds[0].title}) exists in Channel(${mChannel.name})`
+							`Message(${message.id}) exists in Channel(${mChannel.name})`
 						)
 						await message.delete()
 					}
