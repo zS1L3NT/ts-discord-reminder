@@ -175,11 +175,6 @@ export default class GuildCache {
 			const { id, name, subject, date, details } = doc.data()
 			if (doc.id === "draft") continue
 
-			if (date < new Date().getTime()) {
-				this.ref.collection("assignments").doc(doc.id).delete().then()
-				continue
-			}
-
 			items.push(
 				new Assignment(
 					this.getAssignmentRef(id),

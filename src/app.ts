@@ -42,8 +42,9 @@ bot.on("ready", () => {
 
 // Handle the modify channel
 bot.on("message", async message => {
-	const cache = await botCache.getGuildCache(message.guild!.id)
 	if (message.author.bot) return
+	if (!message.guild) return
+	const cache = await botCache.getGuildCache(message.guild!.id)
 
 	const parameters = commandParams(cache, message)
 	let dips: string[] = []

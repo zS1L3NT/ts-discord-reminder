@@ -5,6 +5,13 @@ import { GuildCache } from "../all"
 export default async (cache: GuildCache, nChannel: TextChannel) => {
 	const assignments = cache
 		.getAssignments()
+		.filter(assignment => {
+			if (assignment.getDate() < new Date().getTime()) {
+				cache.removeAssignment(assignment.getId())
+				return false
+			}
+			return true
+		})
 		.sort((a, b) => b.getDate() - a.getDate())
 	const notifyMessageIds = cache.getNotifyMessageIds()
 
