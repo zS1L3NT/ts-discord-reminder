@@ -30,7 +30,6 @@ export default async (...params: commandParams) => {
 		cache.generateAssignmentId(),
 		"",
 		"",
-		"",
 		new Date().getTime(),
 		[]
 	)

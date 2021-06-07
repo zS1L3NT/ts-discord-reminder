@@ -11,7 +11,7 @@ export default async (cache: GuildCache, mChannel: TextChannel) => {
 		await message.edit(Draft.getFormatted(draft))
 	} else {
 		// ! Modify message doesn't exist
-		console.log(
+		console.warn(
 			`Channel(${mChannel.name}) has no Message(${modifyMessageId})`
 		)
 		const main = await mChannel.send(Draft.getFormatted(draft))

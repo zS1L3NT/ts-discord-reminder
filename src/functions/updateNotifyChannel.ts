@@ -6,18 +6,41 @@ export default async (cache: GuildCache, nChannel: TextChannel) => {
 	const assignments = cache
 		.getAssignments()
 		.sort((a, b) => b.getDate() - a.getDate())
+	const notifyMessageIds = cache.getNotifyMessageIds()
 
-	// Clear last 100 messages from chat
-	const messages = await nChannel.messages.fetch({ limit: 100 })
-	if (messages.size > 0) await nChannel.bulkDelete(messages.size)
+	// Check if a message exists for each id
+	for (let i = 0, il = notifyMessageIds.length; i < il; i++) {
+		const notifyMessageId = notifyMessageIds[i]
+		try {
+			// * Edited assignment message
+			await nChannel.messages.fetch(notifyMessageId)
+		} catch (e) {
+			// ! Assignment message doesn't exist
+			console.warn(
+				`Channel(${nChannel.name}) has no Message(${notifyMessageId})`
+			)
+			await cache.removeNotifyMessageId(notifyMessageId)
+		}
+	}
 
-	for (let i = 0, il = assignments.length; i < il; i++) {
+	const requiredMessages =
+		assignments.length - cache.getNotifyMessageIds().length
+	for (let i = 0; i < requiredMessages; i++) {
+		const main = await nChannel.send("\u200B")
+		await cache.pushNotifyMessageId(main.id)
+	}
+
+	const colors = cache.getColors()
+	for (let i = 0, il = notifyMessageIds.length; i < il; i++) {
+		const notifyMessageId = notifyMessageIds[i]
 		const assignment = assignments[i]
-
-		// * Sent assignment info notify channel
-		const message = await nChannel.send(
-			assignment.getFormatted(cache.getColors())
-		)
-		await assignment.setMessageId(message.id)
+		const message = await nChannel.messages.cache.get(notifyMessageId)
+		if (message) {
+			if (assignment) {
+				await message.edit(assignment.getFormatted(colors))
+			} else {
+				await cache.removeNotifyMessageId(notifyMessageId)
+			}
+		}
 	}
 }

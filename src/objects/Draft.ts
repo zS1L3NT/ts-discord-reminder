@@ -5,21 +5,12 @@ export default class Draft extends Assignment {
 	public constructor(
 		cache: GuildCache,
 		id: string,
-		message_id: string,
 		name: string,
 		subject: string,
 		date: number,
 		details: string[]
 	) {
-		super(
-			cache.getAssignmentRef("draft"),
-			id,
-			message_id,
-			name,
-			subject,
-			date,
-			details
-		)
+		super(cache.getAssignmentRef("draft"), id, name, subject, date, details)
 	}
 
 	/**
@@ -59,17 +50,11 @@ export default class Draft extends Assignment {
 	public async saveToFirestore() {
 		await this.ref.set({
 			id: this.id,
-			message_id: this.message_id,
 			name: this.name,
 			subject: this.subject,
 			date: this.date,
 			details: this.details
 		})
-	}
-
-	public async setMessageId(message_id: string) {
-		this.message_id = message_id
-		await this.ref.update({ message_id })
 	}
 
 	public async setName(name: string) {

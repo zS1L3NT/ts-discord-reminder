@@ -4,7 +4,6 @@ import { MessageEmbed } from "discord.js"
 export default class Assignment {
 	protected ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
 	protected id: string
-	protected message_id: string
 	protected name: string
 	protected subject: string
 	protected date: number
@@ -13,7 +12,6 @@ export default class Assignment {
 	public constructor(
 		ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
 		id: string,
-		message_id: string,
 		name: string,
 		subject: string,
 		date: number,
@@ -21,7 +19,6 @@ export default class Assignment {
 	) {
 		this.ref = ref
 		this.id = id
-		this.message_id = message_id
 		this.name = name
 		this.subject = subject
 		this.date = date
@@ -38,7 +35,6 @@ export default class Assignment {
 		return new Draft(
 			cache,
 			this.id,
-			this.message_id,
 			this.name,
 			this.subject,
 			this.date,
@@ -46,19 +42,8 @@ export default class Assignment {
 		)
 	}
 
-	public async setMessageId(message_id: string) {
-		this.message_id = message_id
-		await this.ref.update({
-			message_id
-		})
-	}
-
 	public getId() {
 		return this.id
-	}
-
-	public getMessageId() {
-		return this.message_id
 	}
 
 	public getName() {

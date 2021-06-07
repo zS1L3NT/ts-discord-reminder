@@ -4,6 +4,7 @@ interface GlobalGuildCache {
 	modify_channel_id: string
 	modify_message_id: string
 	notify_channel_id: string
+	notify_message_ids: string[]
 	colors: { [subject_name: string]: string }
 }
 
@@ -15,6 +16,7 @@ export default class GuildCache {
 	private modify_channel_id = ""
 	private modify_message_id = ""
 	private notify_channel_id = ""
+	private notify_message_ids: string[] = []
 	private colors: { [subject_name: string]: string } = {}
 	private init: number = 0
 
@@ -30,6 +32,7 @@ export default class GuildCache {
 				this.modify_channel_id = assignment.modify_channel_id
 				this.modify_message_id = assignment.modify_message_id
 				this.notify_channel_id = assignment.notify_channel_id
+				this.notify_message_ids = assignment.notify_message_ids
 				this.colors = assignment.colors
 
 				if (this.init < 3) this.init++
@@ -82,6 +85,27 @@ export default class GuildCache {
 		await this.ref.update({ notify_channel_id })
 	}
 
+	public getNotifyMessageIds() {
+		return this.notify_message_ids
+	}
+
+	public async setNotifyMessageIds(notify_message_ids: string[]) {
+		this.notify_message_ids = notify_message_ids
+		await this.ref.update({ notify_message_ids })
+	}
+
+	public async pushNotifyMessageId(notify_message_id: string) {
+		this.notify_message_ids.push(notify_message_id)
+		await this.ref.update({ notify_message_ids: this.notify_message_ids })
+	}
+
+	public async removeNotifyMessageId(notify_message_id: string) {
+		this.notify_message_ids = this.notify_message_ids.filter(
+			id => id !== notify_message_id
+		)
+		await this.ref.update({ notify_message_ids: this.notify_message_ids })
+	}
+
 	public generateAssignmentId() {
 		return this.ref.collection("assignments").doc().id
 	}
@@ -102,7 +126,6 @@ export default class GuildCache {
 		this.assignments.push(assignment)
 		await this.ref.collection("assignments").doc(assignment.getId()).set({
 			id: assignment.getId(),
-			message_id: assignment.getMessageId(),
 			name: assignment.getName(),
 			subject: assignment.getSubject(),
 			date: assignment.getDate(),
@@ -149,7 +172,7 @@ export default class GuildCache {
 		const items: Assignment[] = []
 		for (let i = 0, il = docs.length; i < il; i++) {
 			const doc = docs[i]
-			const { id, message_id, name, subject, date, details } = doc.data()
+			const { id, name, subject, date, details } = doc.data()
 			if (doc.id === "draft") continue
 
 			if (date < new Date().getTime()) {
@@ -161,7 +184,6 @@ export default class GuildCache {
 				new Assignment(
 					this.getAssignmentRef(id),
 					id,
-					message_id,
 					name,
 					subject,
 					date,
@@ -183,17 +205,9 @@ export default class GuildCache {
 	) {
 		for (let i = 0, il = docs.length; i < il; i++) {
 			const doc = docs[i]
-			const { id, message_id, name, subject, date, details } = doc.data()
+			const { id, name, subject, date, details } = doc.data()
 			if (doc.id === "draft")
-				return new Draft(
-					this,
-					id,
-					message_id,
-					name,
-					subject,
-					date,
-					details
-				)
+				return new Draft(this, id, name, subject, date, details)
 		}
 	}
 }

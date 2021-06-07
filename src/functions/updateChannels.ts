@@ -10,50 +10,27 @@ export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 		const channel = guild.channels.cache.get(notifyChannelId)
 		if (channel) {
 			const nChannel = channel as TextChannel
-			const assignments = cache.getAssignments()
 
 			// Deletes any unnecessary messages from notify channel
 			const messages = (
 				await nChannel.messages.fetch({ limit: 100 })
 			).array()
-			const assignmentMessageIds = assignments.map(a => a.getMessageId())
+			const notifyMessageIds = cache.getNotifyMessageIds()
 			for (let i = 0, il = messages.length; i < il; i++) {
 				const message = messages[i]
-				if (!assignmentMessageIds.includes(message.id)) {
+				if (!notifyMessageIds.includes(message.id)) {
 					// ! Unidentified message
 					console.warn(
-						`Message(${message.content}) exists in Channel(${nChannel.name})`
+						`Message(${message.embeds[0].title}) exists in Channel(${nChannel.name})`
 					)
 					await message.delete()
 				}
 			}
 
-			// Updates each assignment individually
-			// If message doesn't exist, refresh all assignments to restore order
-			for (let i = 0, il = assignments.length; i < il; i++) {
-				const assignment = assignments[i]
-				try {
-					// * Edited assignment message
-					const message = await nChannel.messages.fetch(
-						assignment.getMessageId()
-					)
-					await message.edit(
-						assignment.getFormatted(cache.getColors())
-					)
-				} catch (e) {
-					// ! Assignment message doesn't exist
-					console.warn(
-						`Channel(${
-							nChannel.name
-						}) has no Message(${assignment.getMessageId()})`
-					)
-					await updateNotifyChannel(cache, nChannel)
-					break
-				}
-			}
+			await updateNotifyChannel(cache, nChannel)
 		} else {
 			// ! Channel doesn't exist
-			console.log(
+			console.warn(
 				`Guild(${
 					guild.name
 				}) has no Channel(${cache.getNotifyChannelId()})`
@@ -80,8 +57,8 @@ export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 					// : Message that isn't main message detected
 					if (!message.content.match(/^--/) && !message.author.bot) {
 						// ! Unidentified user message
-						console.log(
-							`Message(${message.content}) exists in Channel(${mChannel.name})`
+						console.warn(
+							`Message(${message.embeds[0].title}) exists in Channel(${mChannel.name})`
 						)
 						await message.delete()
 					}
@@ -91,7 +68,7 @@ export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 			await updateModifyChannel(cache, mChannel)
 		} else {
 			// ! Channel doesn't exist
-			console.log(
+			console.warn(
 				`Guild(${guild.name}) has no Channel(${modifyChannelId})`
 			)
 			await cache.setModifyChannelId("")
