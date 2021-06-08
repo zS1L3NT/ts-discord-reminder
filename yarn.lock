@@ -480,6 +480,11 @@ diff@^4.0.1:
   resolved "https://registry.yarnpkg.com/diff/-/diff-4.0.2.tgz#60f3aecb89d5fae520c11aa19efc2bb982aade7d"
   integrity sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
 
+discord-buttons@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/discord-buttons/-/discord-buttons-3.1.1.tgz#fc7314ab72a0a2aeee342855cf8eb5956aa4c2b2"
+  integrity sha512-C5a02N2mBf1XJKzwbMT7rNSBB+mD6q+tkZKQFnmwBWaOMCr2YLGcF+RKB7mo0n5TyfnzeOOsTy6IG5NjjB5VVA==
+
 discord.js@^12.5.3:
   version "12.5.3"
   resolved "https://registry.yarnpkg.com/discord.js/-/discord.js-12.5.3.tgz#56820d473c24320871df9ea0bbc6b462f21cf85c"

@@ -55,7 +55,10 @@ export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 				const message = messages[i]
 				if (message.id !== modifyMessageId) {
 					// : Message that isn't main message detected
-					if (!message.content.match(/^--/) && !message.author.bot) {
+					if (
+						!message.content.match(/^--/) ||
+						message.embeds.length > 0
+					) {
 						// ! Unidentified user message
 						console.warn(
 							`Message(${message.id}) exists in Channel(${mChannel.name})`

@@ -1,4 +1,4 @@
-import { commandParams, Draft } from "../all"
+import { commandParams, Draft } from "../../all"
 
 export default async (...params: commandParams) => {
 	const [
@@ -13,7 +13,7 @@ export default async (...params: commandParams) => {
 		CHECK_MARK
 	] = params
 	if (!match("^--create$")) return
-	dip("--create")
+	dip("drafts--create")
 
 	const draft = cache.getDraft()
 	if (draft) {

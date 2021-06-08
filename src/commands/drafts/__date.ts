@@ -1,4 +1,4 @@
-import { commandParams, verifyDate } from "../all"
+import { commandParams, verifyDate } from "../../all"
 
 export default async (...params: commandParams) => {
 	const [
@@ -13,7 +13,7 @@ export default async (...params: commandParams) => {
 		CHECK_MARK
 	] = params
 	if (!match("^--date")) return
-	dip("--date")
+	dip("drafts--date")
 
 	const draft = cache.getDraft()
 	if (!draft) {

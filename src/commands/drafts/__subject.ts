@@ -1,4 +1,4 @@
-import { commandParams } from "../all"
+import { commandParams } from "../../all"
 
 export default async (...params: commandParams) => {
 	const [
@@ -13,7 +13,7 @@ export default async (...params: commandParams) => {
 		CHECK_MARK
 	] = params
 	if (!match("^--subject")) return
-	dip("--subject")
+	dip("drafts--subject")
 
 	const draft = cache.getDraft()
 	if (!draft) {

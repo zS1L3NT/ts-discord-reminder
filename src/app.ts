@@ -1,25 +1,30 @@
 import { Client } from "discord.js"
+import DiscordButtons from "discord-buttons"
 import {
-	__create,
-	__date,
-	__delete,
-	__discard,
-	__done,
-	__edit,
-	__info,
 	__modify_here,
-	__name,
 	__notify_here,
-	__subject,
+	drafts__create,
+	drafts__date,
+	drafts__delete,
+	drafts__discard,
+	drafts__done,
+	drafts__edit,
+	drafts__info,
+	drafts__name,
+	drafts__subject,
+	subjects__create,
+	subjects__edit,
 	BotCache,
 	commandParams,
-	updateChannels
+	updateChannels,
+	updateModifyChannel
 } from "./all"
 
 const config = require("../config.json")
 
 const bot = new Client()
 const botCache = new BotCache()
+DiscordButtons(bot)
 
 bot.login(config.discord).then()
 bot.on("ready", () => {
@@ -52,15 +57,20 @@ bot.on("message", async message => {
 
 	await __notify_here(dip, ...parameters)
 	await __modify_here(dip, ...parameters)
-	await __create(dip, ...parameters)
-	await __edit(dip, ...parameters)
-	await __delete(dip, ...parameters)
-	await __discard(dip, ...parameters)
-	await __name(dip, ...parameters)
-	await __subject(dip, ...parameters)
-	await __date(dip, ...parameters)
-	await __info(dip, ...parameters)
-	await __done(dip, ...parameters)
+	if (cache.getMenuState() === "drafts") {
+		await drafts__create(dip, ...parameters)
+		await drafts__edit(dip, ...parameters)
+		await drafts__delete(dip, ...parameters)
+		await drafts__discard(dip, ...parameters)
+		await drafts__name(dip, ...parameters)
+		await drafts__subject(dip, ...parameters)
+		await drafts__date(dip, ...parameters)
+		await drafts__info(dip, ...parameters)
+		await drafts__done(dip, ...parameters)
+	} else {
+		await subjects__create(dip, ...parameters)
+		await subjects__edit(dip, ...parameters)
+	}
 
 	const [, , , clear, sendMessage] = parameters
 
@@ -74,8 +84,26 @@ bot.on("message", async message => {
 
 	if (dips.length > 1) {
 		console.error("Dipped more than once!!!")
+		console.log(JSON.stringify(message, null, 2))
 		console.log(dips)
 		process.exit()
+	}
+})
+
+bot.on("clickButton", async button => {
+	await button.defer()
+	const cache = await botCache.getGuildCache(button.guild.id)
+	switch (button.id) {
+		case "enable_drafts":
+			cache.setMenuState("drafts")
+			await updateModifyChannel(cache, button.channel)
+			break
+		case "enable_subjects":
+			cache.setMenuState("subjects")
+			await updateModifyChannel(cache, button.channel)
+			break
+		default:
+			break
 	}
 })
 

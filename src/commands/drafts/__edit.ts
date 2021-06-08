@@ -1,4 +1,4 @@
-import { commandParams } from "../all"
+import { commandParams } from "../../all"
 
 export default async (...params: commandParams) => {
 	const [
@@ -12,7 +12,7 @@ export default async (...params: commandParams) => {
 		updateNotifyChannelInline
 	] = params
 	if (!match("^--edit")) return
-	dip("--edit")
+	dip("drafts--edit")
 
 	if (cache.getDraft()) {
 		// : Cannot edit draft because draft already exists

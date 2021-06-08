@@ -19,7 +19,7 @@ export default class Draft extends Assignment {
 	 */
 	public static getFormatted(draft: Draft | undefined) {
 		const embed = new MessageEmbed()
-			.setColor("#ED4245")
+			.setColor("#5865F2")
 			.setTitle(draft ? "Draft" : "No draft")
 
 		if (draft) {

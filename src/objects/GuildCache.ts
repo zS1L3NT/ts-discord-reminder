@@ -1,4 +1,5 @@
-import { Assignment, Draft } from "../all"
+import { Assignment, Draft, toAssignments, toDraft } from "../all"
+import { MessageEmbed } from "discord.js"
 
 interface GlobalGuildCache {
 	modify_channel_id: string
@@ -19,11 +20,13 @@ export default class GuildCache {
 	private notify_message_ids: string[] = []
 	private colors: { [subject_name: string]: string } = {}
 	private init: number = 0
+	private menu_state: "drafts" | "subjects"
 
 	public constructor(
 		ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
 		resolve: (localCache: GuildCache) => void
 	) {
+		this.menu_state = "drafts"
 		this.ref = ref
 		this.ref.onSnapshot(snap => {
 			if (snap.exists) {
@@ -41,8 +44,11 @@ export default class GuildCache {
 		})
 		this.ref.collection("assignments").onSnapshot(snap => {
 			// Set the cache from Firestore
-			this.assignments = this.docsToAssignments(snap.docs)
-			this.draft = this.docsToDraft(snap.docs)
+			this.assignments = toAssignments(
+				snap.docs,
+				this.getAssignmentRef.bind(this)
+			)
+			this.draft = toDraft(snap.docs, this)
 
 			if (this.init < 3) this.init++
 			if (this.init === 2) resolve(this)
@@ -87,11 +93,6 @@ export default class GuildCache {
 
 	public getNotifyMessageIds() {
 		return this.notify_message_ids
-	}
-
-	public async setNotifyMessageIds(notify_message_ids: string[]) {
-		this.notify_message_ids = notify_message_ids
-		await this.ref.update({ notify_message_ids })
 	}
 
 	public async pushNotifyMessageId(notify_message_id: string) {
@@ -157,52 +158,36 @@ export default class GuildCache {
 		return this.colors
 	}
 
+	public getSubjectsFormatted() {
+		return new MessageEmbed()
+			.setTitle("Subjects")
+			.setDescription(
+				Object.keys(this.colors).map(
+					code => `${code}: ${this.colors[code]}`
+				)
+			)
+			.setColor("#3BA55C")
+			.addField("\u200B", "\u200B")
+			.addField("Find a color here", "https://htmlcolorcodes.com")
+			.addField("Notice", "Once you add a subject, you can't delete it!")
+			.addField("Create new subject", "`--create <subject code> <color>`")
+			.addField("Change subject color", "`--edit <subject code> <color>`")
+	}
+
 	public getSubjects() {
 		return Object.keys(this.colors)
 	}
 
-	/**
-	 * Filter all assignments in snapshot documents
-	 * @param docs Snapshot documents
-	 * @returns Assignments without the Draft object
-	 */
-	private docsToAssignments(
-		docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[]
-	) {
-		const items: Assignment[] = []
-		for (let i = 0, il = docs.length; i < il; i++) {
-			const doc = docs[i]
-			const { id, name, subject, date, details } = doc.data()
-			if (doc.id === "draft") continue
-
-			items.push(
-				new Assignment(
-					this.getAssignmentRef(id),
-					id,
-					name,
-					subject,
-					date,
-					details
-				)
-			)
-		}
-
-		return items
+	public async changeSubject(name: string, color: string) {
+		this.colors[name] = color
+		await this.ref.update({ colors: this.colors })
 	}
 
-	/**
-	 * Filter the Draft object in snapshot documents
-	 * @param docs Snapshot documents
-	 * @returns Draft object
-	 */
-	private docsToDraft(
-		docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[]
-	) {
-		for (let i = 0, il = docs.length; i < il; i++) {
-			const doc = docs[i]
-			const { id, name, subject, date, details } = doc.data()
-			if (doc.id === "draft")
-				return new Draft(this, id, name, subject, date, details)
-		}
+	public getMenuState() {
+		return this.menu_state
+	}
+
+	public setMenuState(menu_state: "drafts" | "subjects") {
+		this.menu_state = menu_state
 	}
 }
