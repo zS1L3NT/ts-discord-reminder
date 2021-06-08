@@ -10,17 +10,19 @@ const match =
 type match = (regexp: string) => RegExpMatchArray | null
 
 const clear =
-	(message: Message): clear =>
+	(message: Message): ((ms: number) => NodeJS.Timeout) =>
 	(ms: number) =>
-		setTimeout(message.delete.bind(message), ms)
-type clear = (ms: number) => number
+		setTimeout(() => {
+			message.delete().catch(() => {})
+		}, ms)
+type clear = (ms: number) => NodeJS.Timeout
 
 const sendMessage =
 	(message: Message): sendMessage =>
 	async (text: string, ms: number) => {
 		const temporary = await message.channel.send(text)
 		await time(ms)
-		await temporary.delete()
+		await temporary.delete().catch(() => {})
 	}
 type sendMessage = (text: string, ms: number) => Promise<void>
 

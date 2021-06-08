@@ -23,7 +23,7 @@ export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 					console.warn(
 						`Message(${message.id}) exists in Channel(${nChannel.name})`
 					)
-					await message.delete()
+					await message.delete().catch(() => {})
 				}
 			}
 
@@ -63,7 +63,7 @@ export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 						console.warn(
 							`Message(${message.id}) exists in Channel(${mChannel.name})`
 						)
-						await message.delete()
+						await message.delete().catch(() => {})
 					}
 				}
 			}

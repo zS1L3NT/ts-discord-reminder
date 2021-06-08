@@ -169,9 +169,13 @@ export default class GuildCache {
 			.setColor("#3BA55C")
 			.addField("\u200B", "\u200B")
 			.addField("Find a color here", "https://htmlcolorcodes.com")
-			.addField("Notice", "Once you add a subject, you can't delete it!")
+			.addField(
+				"Notice",
+				"You can't rename a subject, but you can delete it and create it again!"
+			)
 			.addField("Create new subject", "`--create <subject code> <color>`")
 			.addField("Change subject color", "`--edit <subject code> <color>`")
+			.addField("Delete subject", "`--delete <subject code>`")
 	}
 
 	public getSubjects() {
@@ -180,6 +184,11 @@ export default class GuildCache {
 
 	public async changeSubject(name: string, color: string) {
 		this.colors[name] = color
+		await this.ref.update({ colors: this.colors })
+	}
+
+	public async deleteSubject(name: string) {
+		delete this.colors[name]
 		await this.ref.update({ colors: this.colors })
 	}
 

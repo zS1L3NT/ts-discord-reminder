@@ -14,6 +14,7 @@ import {
 	drafts__subject,
 	subjects__create,
 	subjects__edit,
+	subjects__delete,
 	BotCache,
 	commandParams,
 	updateChannels,
@@ -70,6 +71,7 @@ bot.on("message", async message => {
 	} else {
 		await subjects__create(dip, ...parameters)
 		await subjects__edit(dip, ...parameters)
+		await subjects__delete(dip, ...parameters)
 	}
 
 	const [, , , clear, sendMessage] = parameters
