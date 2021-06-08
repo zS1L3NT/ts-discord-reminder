@@ -10,7 +10,8 @@ export default async (...params: commandParams) => {
 		sendMessage,
 		,
 		updateNotifyChannelInline,
-		CHECK_MARK
+		CHECK_MARK,
+		CROSS_MARK
 	] = params
 	if (!match("^--delete")) return
 	dip("drafts--delete")
@@ -19,10 +20,11 @@ export default async (...params: commandParams) => {
 	if (!DeleteIdRegex) {
 		// : No id given to reference an assignment
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK).then()
+		sendMessage(
 			"Try adding the assignment id after the `--delete` command",
 			6000
-		)
+		).then()
 		return
 	}
 
@@ -32,7 +34,8 @@ export default async (...params: commandParams) => {
 	if (!assignment) {
 		// : No assignment exists for given id
 		clear(5000)
-		await sendMessage("No such assignment", 6000)
+		message.react(CROSS_MARK).then()
+		sendMessage("No such assignment", 6000).then()
 		return
 	}
 
@@ -41,5 +44,5 @@ export default async (...params: commandParams) => {
 
 	// *
 	clear(5000)
-	await message.react(CHECK_MARK)
+	message.react(CHECK_MARK).then()
 }

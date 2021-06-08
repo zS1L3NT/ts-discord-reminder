@@ -1,4 +1,4 @@
-import { Guild, TextChannel } from "discord.js"
+import { Guild, Message, TextChannel } from "discord.js"
 import { GuildCache, updateModifyChannel, updateNotifyChannel } from "../all"
 
 export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
@@ -10,6 +10,7 @@ export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 		const channel = guild.channels.cache.get(notifyChannelId)
 		if (channel) {
 			const nChannel = channel as TextChannel
+			const promises: Promise<Message>[] = []
 
 			// Deletes any unnecessary messages from notify channel
 			const messages = (
@@ -23,10 +24,11 @@ export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 					console.warn(
 						`Message(${message.id}) exists in Channel(${nChannel.name})`
 					)
-					await message.delete().catch(() => {})
+					promises.push(message.delete())
 				}
 			}
 
+			await Promise.allSettled(promises)
 			await updateNotifyChannel(cache, nChannel)
 		} else {
 			// ! Channel doesn't exist
@@ -46,6 +48,7 @@ export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 		const channel = guild.channels.cache.get(modifyChannelId)
 		if (channel) {
 			const mChannel = channel as TextChannel
+			const promises: Promise<Message>[] = []
 
 			// Deletes any unnecessary messages from modify channel
 			const messages = (
@@ -63,11 +66,12 @@ export default async (guild: Guild, cache: GuildCache, debugCount: number) => {
 						console.warn(
 							`Message(${message.id}) exists in Channel(${mChannel.name})`
 						)
-						await message.delete().catch(() => {})
+						promises.push(message.delete())
 					}
 				}
 			}
 
+			await Promise.allSettled(promises)
 			await updateModifyChannel(cache, mChannel)
 		} else {
 			// ! Channel doesn't exist

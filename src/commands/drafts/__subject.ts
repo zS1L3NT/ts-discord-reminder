@@ -10,7 +10,8 @@ export default async (...params: commandParams) => {
 		sendMessage,
 		updateModifyChannelInline,
 		,
-		CHECK_MARK
+		CHECK_MARK,
+		CROSS_MARK
 	] = params
 	if (!match("^--subject")) return
 	dip("drafts--subject")
@@ -19,10 +20,11 @@ export default async (...params: commandParams) => {
 	if (!draft) {
 		// : Cannot edit draft because draft doesn't exists
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK).then()
+		sendMessage(
 			"Try using `--create` to create an assignment draft first",
 			6000
-		)
+		).then()
 		return
 	}
 
@@ -33,7 +35,8 @@ export default async (...params: commandParams) => {
 	if (!FullSubjectRegex) {
 		// : No new subject given to draft
 		clear(5000)
-		await sendMessage(`Make sure the subject is an existing subject`, 6000)
+		message.react(CROSS_MARK).then()
+		sendMessage(`Make sure the subject is an existing subject`, 6000).then()
 		return
 	}
 
@@ -43,5 +46,5 @@ export default async (...params: commandParams) => {
 
 	// *
 	clear(5000)
-	await message.react(CHECK_MARK)
+	message.react(CHECK_MARK).then()
 }

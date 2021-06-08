@@ -1,4 +1,4 @@
-import { TextChannel } from "discord.js"
+import { Message, TextChannel } from "discord.js"
 import { GuildCache } from "../all"
 
 // : Assume that the notify channel exists
@@ -38,16 +38,20 @@ export default async (cache: GuildCache, nChannel: TextChannel) => {
 	}
 
 	const colors = cache.getColors()
+	const promises: Promise<Message>[] = []
+
 	for (let i = 0, il = notifyMessageIds.length; i < il; i++) {
 		const notifyMessageId = notifyMessageIds[i]
 		const assignment = assignments[i]
 		const message = await nChannel.messages.cache.get(notifyMessageId)
 		if (message) {
 			if (assignment) {
-				await message.edit(assignment.getFormatted(colors))
+				promises.push(message.edit(assignment.getFormatted(colors)))
 			} else {
 				await cache.removeNotifyMessageId(notifyMessageId)
 			}
 		}
 	}
+
+	await Promise.allSettled(promises)
 }

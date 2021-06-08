@@ -34,16 +34,17 @@ bot.on("ready", () => {
 
 	bot.guilds.cache.forEach(async guild => {
 		const cache = await botCache.getGuildCache(guild.id)
-		console.log(`Restored state for Guild(${guild.name})`)
-		await updateChannels(guild, cache, debugCount)
+		console.log(`Restored cache for Guild(${guild.name})`)
+		updateChannels(guild, cache, debugCount).then()
 	})
+
 	setInterval(() => {
 		debugCount++
 		bot.guilds.cache.forEach(async guild => {
 			const cache = await botCache.getGuildCache(guild.id)
-			await updateChannels(guild, cache, debugCount)
+			updateChannels(guild, cache, debugCount).then()
 		})
-	}, 30 * 1000)
+	}, 60 * 1000)
 })
 
 // Handle the modify channel
@@ -51,37 +52,42 @@ bot.on("message", async message => {
 	if (message.author.bot) return
 	if (!message.guild) return
 	const cache = await botCache.getGuildCache(message.guild!.id)
+	const promises: Promise<void>[] = []
 
 	const parameters = commandParams(cache, message)
 	let dips: string[] = []
-	let dip = dips.push.bind(dips)
-
-	await __notify_here(dip, ...parameters)
-	await __modify_here(dip, ...parameters)
-	if (cache.getMenuState() === "drafts") {
-		await drafts__create(dip, ...parameters)
-		await drafts__edit(dip, ...parameters)
-		await drafts__delete(dip, ...parameters)
-		await drafts__discard(dip, ...parameters)
-		await drafts__name(dip, ...parameters)
-		await drafts__subject(dip, ...parameters)
-		await drafts__date(dip, ...parameters)
-		await drafts__info(dip, ...parameters)
-		await drafts__done(dip, ...parameters)
-	} else {
-		await subjects__create(dip, ...parameters)
-		await subjects__edit(dip, ...parameters)
-		await subjects__delete(dip, ...parameters)
+	let dip = (tag: string) => {
+		message.react("⌛").then()
+		dips.push(tag)
 	}
 
-	const [, , , clear, sendMessage] = parameters
+	promises.push(__notify_here(dip, ...parameters))
+	promises.push(__modify_here(dip, ...parameters))
+	if (cache.getMenuState() === "drafts") {
+		promises.push(drafts__create(dip, ...parameters))
+		promises.push(drafts__edit(dip, ...parameters))
+		promises.push(drafts__delete(dip, ...parameters))
+		promises.push(drafts__discard(dip, ...parameters))
+		promises.push(drafts__name(dip, ...parameters))
+		promises.push(drafts__subject(dip, ...parameters))
+		promises.push(drafts__date(dip, ...parameters))
+		promises.push(drafts__info(dip, ...parameters))
+		promises.push(drafts__done(dip, ...parameters))
+	} else {
+		promises.push(subjects__create(dip, ...parameters))
+		promises.push(subjects__edit(dip, ...parameters))
+		promises.push(subjects__delete(dip, ...parameters))
+	}
 
+	await Promise.all(promises)
+
+	const [, , , clear, sendMessage] = parameters
 	if (
 		message.channel.id === cache.getModifyChannelId() &&
 		dips.length === 0
 	) {
 		clear(3000)
-		await sendMessage("Invalid command", 4000)
+		sendMessage("Invalid command", 4000).then()
 	}
 
 	if (dips.length > 1) {

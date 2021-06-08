@@ -10,7 +10,8 @@ export default async (...params: commandParams) => {
 		sendMessage,
 		updateModifyChannelInline,
 		updateNotifyChannelInline,
-		CHECK_MARK
+		CHECK_MARK,
+		CROSS_MARK
 	] = params
 	if (!match("^--done$")) return
 	dip("drafts--done")
@@ -19,38 +20,42 @@ export default async (...params: commandParams) => {
 	if (!draft) {
 		// :
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK).then()
+		sendMessage(
 			"Try using `--create` to create an assignment draft first",
 			6000
-		)
+		).then()
 		return
 	}
 
 	if (draft.getDate() < new Date().getTime()) {
 		// :
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK).then()
+		sendMessage(
 			"Try using `--date <DD>/<MM>/<YYYY> <hh>:<mm>` to add a date to the assignment",
 			6000
-		)
+		).then()
 		return
 	}
 
 	if (draft.getName() === "") {
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK).then()
+		sendMessage(
 			"Try using `--name <task name>` to add a name to the assignment",
 			6000
-		)
+		).then()
 		return
 	}
 
 	if (draft.getSubject() === "") {
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK).then()
+		sendMessage(
 			"Try using `--subject <subject name>` to add a subject to the assignment",
 			6000
-		)
+		).then()
 		return
 	}
 
@@ -61,5 +66,5 @@ export default async (...params: commandParams) => {
 
 	// *
 	clear(5000)
-	await message.react(CHECK_MARK)
+	message.react(CHECK_MARK).then()
 }

@@ -59,7 +59,8 @@ export const commandParams = (
 	sendMessage,
 	updateChannelInline,
 	updateChannelInline,
-	"✅"
+	"✅",
+	"❌"
 ] => [
 	cache,
 	message,
@@ -68,7 +69,8 @@ export const commandParams = (
 	sendMessage(message),
 	updateModifyChannelInline(cache, message),
 	updateNotifyChannelInline(cache, message),
-	"✅"
+	"✅",
+	"❌"
 ]
 
 type dip = (command: string) => void
@@ -81,5 +83,6 @@ export type commandParams = [
 	sendMessage,
 	updateChannelInline,
 	updateChannelInline,
-	"✅"
+	"✅",
+	"❌"
 ]

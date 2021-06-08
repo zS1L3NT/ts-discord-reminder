@@ -10,7 +10,8 @@ export default async (...params: commandParams) => {
 		sendMessage,
 		updateModifyChannelInline,
 		,
-		CHECK_MARK
+		CHECK_MARK,
+		CROSS_MARK
 	] = params
 	if (!match("^--date")) return
 	dip("drafts--date")
@@ -19,10 +20,11 @@ export default async (...params: commandParams) => {
 	if (!draft) {
 		// : Cannot edit draft because draft doesn't exists
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK)
+		sendMessage(
 			"Try using `--create` to create an assignment draft first",
 			6000
-		)
+		).then()
 		return
 	}
 
@@ -33,17 +35,19 @@ export default async (...params: commandParams) => {
 	if (!FullDateRegex) {
 		// : No new date given to draft
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK)
+		sendMessage(
 			"Make sure the date is in the format `<DD>/<MM>/<YYYY> <hh>:<mm>`",
 			6000
-		)
+		).then()
 		return
 	}
 
 	const date = verifyDate(FullDateRegex, async err => {
 		// : Invalid date given to draft
 		clear(5000)
-		await sendMessage(err, 6000)
+		message.react(CROSS_MARK)
+		sendMessage(err, 6000).then()
 	})
 
 	if (date instanceof Date) {
@@ -52,6 +56,6 @@ export default async (...params: commandParams) => {
 
 		// *
 		clear(5000)
-		await message.react(CHECK_MARK)
+		message.react(CHECK_MARK).then()
 	}
 }

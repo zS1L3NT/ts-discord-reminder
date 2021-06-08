@@ -10,7 +10,8 @@ export default async (...params: commandParams) => {
 		sendMessage,
 		updateModifyChannelInline,
 		,
-		CHECK_MARK
+		CHECK_MARK,
+		CROSS_MARK
 	] = params
 	if (!match("^--delete")) return
 	dip("subjects--delete")
@@ -18,10 +19,11 @@ export default async (...params: commandParams) => {
 	const FullDeleteRegex = match("^--delete (.+)")
 	if (!FullDeleteRegex) {
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK).then()
+		sendMessage(
 			"Try adding the subject code after the `--delete` command",
 			6000
-		)
+		).then()
 		return
 	}
 
@@ -29,17 +31,19 @@ export default async (...params: commandParams) => {
 	const subjects = cache.getSubjects()
 	if (subjects.indexOf(code) < 0) {
 		clear(5000)
-		await sendMessage("Subject doesn't exists!", 6000)
+		message.react(CROSS_MARK).then()
+		sendMessage("Subject doesn't exists!", 6000).then()
 		return
 	}
 
 	const assignments = cache.getAssignments()
 	if (assignments.filter(a => a.getSubject() === code).length > 0) {
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK).then()
+		sendMessage(
 			"You can't delete a subject if it has assignments!",
 			6000
-		)
+		).then()
 		return
 	}
 
@@ -48,5 +52,5 @@ export default async (...params: commandParams) => {
 
 	// *
 	clear(5000)
-	await message.react(CHECK_MARK)
+	message.react(CHECK_MARK).then()
 }

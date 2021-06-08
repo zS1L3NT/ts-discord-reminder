@@ -10,7 +10,8 @@ export default async (...params: commandParams) => {
 		sendMessage,
 		updateModifyChannelInline,
 		,
-		CHECK_MARK
+		CHECK_MARK,
+		CROSS_MARK
 	] = params
 	if (!match("^--create")) return
 	dip("subject--create")
@@ -18,10 +19,11 @@ export default async (...params: commandParams) => {
 	const FullCreateRegex = match("^--create (.+) (#[A-Fa-f0-9]{3,6})$")
 	if (!FullCreateRegex) {
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK).then()
+		sendMessage(
 			"Try adding the subject code and the color after the `--create` command",
 			6000
-		)
+		).then()
 		return
 	}
 
@@ -29,7 +31,8 @@ export default async (...params: commandParams) => {
 	const subjects = cache.getSubjects()
 	if (subjects.indexOf(code) >= 0) {
 		clear(5000)
-		await sendMessage("Subject already exists!", 6000)
+		message.react(CROSS_MARK).then()
+		sendMessage("Subject already exists!", 6000).then()
 		return
 	}
 
@@ -38,5 +41,5 @@ export default async (...params: commandParams) => {
 
 	// *
 	clear(5000)
-	await message.react(CHECK_MARK)
+	message.react(CHECK_MARK).then()
 }

@@ -10,7 +10,8 @@ export default async (...params: commandParams) => {
 		sendMessage,
 		updateModifyChannelInline,
 		,
-		CHECK_MARK
+		CHECK_MARK,
+		CROSS_MARK
 	] = params
 	if (!match("^--discard$")) return
 	dip("drafts--discard")
@@ -19,7 +20,8 @@ export default async (...params: commandParams) => {
 	if (!draft) {
 		// : No draft to discard
 		clear(5000)
-		await sendMessage("No draft to discard", 6000)
+		message.react(CROSS_MARK).then()
+		sendMessage("No draft to discard", 6000).then()
 		return
 	}
 	await cache.removeDraft()
@@ -27,5 +29,5 @@ export default async (...params: commandParams) => {
 
 	// *
 	clear(5000)
-	await message.react(CHECK_MARK)
+	message.react(CHECK_MARK).then()
 }

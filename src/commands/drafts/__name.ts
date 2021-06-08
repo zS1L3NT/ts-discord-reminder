@@ -10,7 +10,8 @@ export default async (...params: commandParams) => {
 		sendMessage,
 		updateModifyChannelInline,
 		,
-		CHECK_MARK
+		CHECK_MARK,
+		CROSS_MARK
 	] = params
 	if (!match("^--name")) return
 	dip("drafts--name")
@@ -19,10 +20,11 @@ export default async (...params: commandParams) => {
 	if (!draft) {
 		// : Cannot edit draft because draft doesn't exists
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK).then()
+		sendMessage(
 			"Try using `--create` to create an assignment draft first",
 			6000
-		)
+		).then()
 		return
 	}
 
@@ -30,7 +32,8 @@ export default async (...params: commandParams) => {
 	if (!FullNameRegex) {
 		// : No new name given to draft
 		clear(5000)
-		await sendMessage("Make sure to add the name after the `--name`", 6000)
+		message.react(CROSS_MARK).then()
+		sendMessage("Make sure to add the name after the `--name`", 6000).then()
 		return
 	}
 
@@ -40,5 +43,5 @@ export default async (...params: commandParams) => {
 
 	// *
 	clear(5000)
-	await message.react(CHECK_MARK)
+	message.react(CHECK_MARK).then()
 }

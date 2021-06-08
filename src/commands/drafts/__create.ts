@@ -10,7 +10,8 @@ export default async (...params: commandParams) => {
 		sendMessage,
 		updateModifyChannelInline,
 		,
-		CHECK_MARK
+		CHECK_MARK,
+		CROSS_MARK
 	] = params
 	if (!match("^--create$")) return
 	dip("drafts--create")
@@ -19,10 +20,11 @@ export default async (...params: commandParams) => {
 	if (draft) {
 		// : Cannot create draft because draft already exists
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK).then()
+		sendMessage(
 			"Try using `--discard` to discard current assignment an create a new one",
 			6000
-		)
+		).then()
 		return
 	}
 	const assignment = new Draft(
@@ -39,5 +41,5 @@ export default async (...params: commandParams) => {
 
 	// *
 	clear(5000)
-	await message.react(CHECK_MARK)
+	message.react(CHECK_MARK).then()
 }

@@ -4,12 +4,14 @@ export default async (...params: commandParams) => {
 	const [
 		dip,
 		cache,
-		,
+		message,
 		match,
 		clear,
 		sendMessage,
 		updateModifyChannelInline,
-		updateNotifyChannelInline
+		updateNotifyChannelInline,
+		CHECK_MARK,
+		CROSS_MARK
 	] = params
 	if (!match("^--edit")) return
 	dip("drafts--edit")
@@ -17,10 +19,11 @@ export default async (...params: commandParams) => {
 	if (cache.getDraft()) {
 		// : Cannot edit draft because draft already exists
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK).then()
+		sendMessage(
 			"Try using `--discard` to discard current assignment an create a new one",
 			6000
-		)
+		).then()
 		return
 	}
 
@@ -28,10 +31,11 @@ export default async (...params: commandParams) => {
 	if (!EditIdRegex) {
 		// : No id given to reference an assignment
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK).then()
+		sendMessage(
 			"Try adding the assignment id after the `--edit` command",
 			6000
-		)
+		).then()
 		return
 	}
 
@@ -41,7 +45,8 @@ export default async (...params: commandParams) => {
 	if (!assignment) {
 		// : No assignment exists for given id
 		clear(5000)
-		await sendMessage("No such assignment", 6000)
+		message.react(CROSS_MARK).then()
+		sendMessage("No such assignment", 6000).then()
 		return
 	}
 
@@ -52,9 +57,6 @@ export default async (...params: commandParams) => {
 	await updateModifyChannelInline()
 
 	// *
-	clear(6000)
-	await sendMessage(
-		"Try using `--date`, `--info ++ <detail to add>` or `--info -- <index to remove>` to edit info about assignment",
-		7000
-	)
+	clear(5000)
+	message.react(CHECK_MARK).then()
 }

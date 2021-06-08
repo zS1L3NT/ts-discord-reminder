@@ -10,7 +10,8 @@ export default async (...params: commandParams) => {
 		sendMessage,
 		updateModifyChannelInline,
 		,
-		CHECK_MARK
+		CHECK_MARK,
+		CROSS_MARK
 	] = params
 	if (!match("^--info")) return
 	dip("drafts--info")
@@ -19,10 +20,11 @@ export default async (...params: commandParams) => {
 	if (!draft) {
 		// : Cannot edit draft because draft doesn't exists
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK).then()
+		sendMessage(
 			"Try using `--create` to create an assignment draft first",
 			6000
-		)
+		).then()
 		return
 	}
 
@@ -38,7 +40,7 @@ export default async (...params: commandParams) => {
 
 		// *
 		clear(5000)
-		await message.react(CHECK_MARK)
+		message.react(CHECK_MARK).then()
 	} else if (RemoveInfoRegex) {
 		const [, index] = RemoveInfoRegex
 
@@ -49,21 +51,23 @@ export default async (...params: commandParams) => {
 
 			// *
 			clear(5000)
-			await message.react(CHECK_MARK)
+			message.react(CHECK_MARK).then()
 		} else {
 			// : Item doesn't exist
 			clear(5000)
-			await sendMessage(
+			message.react(CROSS_MARK).then()
+			sendMessage(
 				`Info at index ${indexInt + 1} doesn't exist`,
 				6000
-			)
+			).then()
 		}
 	} else {
 		// : Invalid command
 		clear(5000)
-		await sendMessage(
+		message.react(CROSS_MARK).then()
+		sendMessage(
 			"Try using `--info ++ <detail to add>` or `--info -- <index to remove>` to add or remove info",
 			6000
-		)
+		).then()
 	}
 }
