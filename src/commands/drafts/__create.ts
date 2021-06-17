@@ -13,7 +13,7 @@ export default async (...params: commandParams) => {
 		CHECK_MARK,
 		CROSS_MARK
 	] = params
-	if (!match("^--create$")) return
+	if (!match("^--create(?:(?= *$)(?!\\w+))")) return
 	dip("drafts--create")
 
 	const draft = cache.getDraft()

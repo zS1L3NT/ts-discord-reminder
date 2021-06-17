@@ -13,7 +13,7 @@ export default async (...params: commandParams) => {
 		CHECK_MARK,
 		CROSS_MARK
 	] = params
-	if (!match("^--edit")) return
+	if (!match("^--edit(?:(?= *)(?!\\w+))")) return
 	dip("drafts--edit")
 
 	if (cache.getDraft()) {
@@ -27,7 +27,7 @@ export default async (...params: commandParams) => {
 		return
 	}
 
-	const EditIdRegex = match("^--edit (.+)")
+	const EditIdRegex = match("^--edit +(.+)")
 	if (!EditIdRegex) {
 		// : No id given to reference an assignment
 		clear(5000)

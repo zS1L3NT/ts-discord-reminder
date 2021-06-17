@@ -13,7 +13,7 @@ export default async (...params: commandParams) => {
 		CHECK_MARK,
 		CROSS_MARK
 	] = params
-	if (!match("^--notify-here$")) return
+	if (!match("^--notify-here(?:(?= *$)(?!\\w+))")) return
 	dip("--notify-here")
 
 	clear(5000)

@@ -13,7 +13,7 @@ export default async (...params: commandParams) => {
 		CHECK_MARK,
 		CROSS_MARK
 	] = params
-	if (!match("^--done$")) return
+	if (!match("^--done(?:(?= *$)(?!\\w+))")) return
 	dip("drafts--done")
 
 	const draft = cache.getDraft()

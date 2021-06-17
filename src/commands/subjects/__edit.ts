@@ -13,10 +13,10 @@ export default async (...params: commandParams) => {
 		CHECK_MARK,
 		CROSS_MARK
 	] = params
-	if (!match("^--edit")) return
+	if (!match("^--edit(?:(?= *)(?!\\w+))")) return
 	dip("subject--edit")
 
-	const EditCreateRegex = match("^--edit (.+) (#[A-Fa-f0-9]{3,6})$")
+	const EditCreateRegex = match("^--edit +(.+) +(#[A-Fa-f0-9]{6})$")
 	if (!EditCreateRegex) {
 		clear(5000)
 		message.react(CROSS_MARK).then()

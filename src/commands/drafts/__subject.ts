@@ -13,7 +13,7 @@ export default async (...params: commandParams) => {
 		CHECK_MARK,
 		CROSS_MARK
 	] = params
-	if (!match("^--subject")) return
+	if (!match("^--subject(?:(?= *)(?!\\w+))")) return
 	dip("drafts--subject")
 
 	const draft = cache.getDraft()
@@ -29,7 +29,7 @@ export default async (...params: commandParams) => {
 	}
 
 	const FullSubjectRegex = match(
-		`^--subject (${cache.getSubjects().join("|")})`
+		`^--subject +(${cache.getSubjects().join("|")})`
 	)
 
 	if (!FullSubjectRegex) {

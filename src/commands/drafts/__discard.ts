@@ -13,7 +13,7 @@ export default async (...params: commandParams) => {
 		CHECK_MARK,
 		CROSS_MARK
 	] = params
-	if (!match("^--discard$")) return
+	if (!match("^--discard(?:(?= *$)(?!\\w+))")) return
 	dip("drafts--discard")
 
 	const draft = cache.getDraft()

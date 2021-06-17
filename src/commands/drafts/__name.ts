@@ -13,7 +13,7 @@ export default async (...params: commandParams) => {
 		CHECK_MARK,
 		CROSS_MARK
 	] = params
-	if (!match("^--name")) return
+	if (!match("^--name(?:(?= *)(?!\\w+))")) return
 	dip("drafts--name")
 
 	const draft = cache.getDraft()
@@ -28,7 +28,7 @@ export default async (...params: commandParams) => {
 		return
 	}
 
-	const FullNameRegex = match("^--name (.+)")
+	const FullNameRegex = match("^--name +(.+)")
 	if (!FullNameRegex) {
 		// : No new name given to draft
 		clear(5000)

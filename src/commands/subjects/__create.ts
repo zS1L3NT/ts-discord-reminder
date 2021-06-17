@@ -13,10 +13,10 @@ export default async (...params: commandParams) => {
 		CHECK_MARK,
 		CROSS_MARK
 	] = params
-	if (!match("^--create")) return
+	if (!match("^--create(?:(?= *)(?!\\w+))")) return
 	dip("subject--create")
 
-	const FullCreateRegex = match("^--create (.+) (#[A-Fa-f0-9]{3,6})$")
+	const FullCreateRegex = match("^--create +(.+) +(#[A-Fa-f0-9]{6})")
 	if (!FullCreateRegex) {
 		clear(5000)
 		message.react(CROSS_MARK).then()

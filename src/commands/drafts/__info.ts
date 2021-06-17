@@ -13,7 +13,7 @@ export default async (...params: commandParams) => {
 		CHECK_MARK,
 		CROSS_MARK
 	] = params
-	if (!match("^--info")) return
+	if (!match("^--info(?:(?= *)(?!\\w+))")) return
 	dip("drafts--info")
 
 	const draft = cache.getDraft()
@@ -28,8 +28,8 @@ export default async (...params: commandParams) => {
 		return
 	}
 
-	const AddInfoRegex = match("^--info \\+\\+ (.+)")
-	const RemoveInfoRegex = match("^--info -- (\\d+)")
+	const AddInfoRegex = match("^--info +\\+\\+ +(.+)")
+	const RemoveInfoRegex = match("^--info +-- +(\\d+)")
 
 	if (AddInfoRegex) {
 		const [, info] = AddInfoRegex

@@ -13,10 +13,10 @@ export default async (...params: commandParams) => {
 		CHECK_MARK,
 		CROSS_MARK
 	] = params
-	if (!match("^--delete")) return
+	if (!match("^--delete(?:(?= *)(?!\\w+))")) return
 	dip("subjects--delete")
 
-	const FullDeleteRegex = match("^--delete (.+)")
+	const FullDeleteRegex = match("^--delete +(.+)")
 	if (!FullDeleteRegex) {
 		clear(5000)
 		message.react(CROSS_MARK).then()

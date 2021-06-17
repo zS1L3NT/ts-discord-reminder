@@ -13,10 +13,10 @@ export default async (...params: commandParams) => {
 		CHECK_MARK,
 		CROSS_MARK
 	] = params
-	if (!match("^--delete")) return
+	if (!match("^--delete(?:(?= *)(?!\\w+))")) return
 	dip("drafts--delete")
 
-	const DeleteIdRegex = match("^--delete (.+)")
+	const DeleteIdRegex = match("^--delete +(.+)")
 	if (!DeleteIdRegex) {
 		// : No id given to reference an assignment
 		clear(5000)

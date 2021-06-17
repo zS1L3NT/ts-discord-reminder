@@ -13,7 +13,7 @@ export default async (...params: commandParams) => {
 		CHECK_MARK,
 		CROSS_MARK
 	] = params
-	if (!match("^--modify-here$")) return
+	if (!match("^--modify-here(?:(?= *$)(?!\\w+))")) return
 	dip("--modify-here")
 
 	clear(5000)
