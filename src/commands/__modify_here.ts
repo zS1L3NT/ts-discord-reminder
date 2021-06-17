@@ -1,18 +1,16 @@
-import { commandParams } from "../all"
+import { allParameters } from "../all"
 
-export default async (...params: commandParams) => {
-	const [
+export default async (allParameters: allParameters) => {
+	const {
 		dip,
 		cache,
 		message,
 		match,
 		clear,
 		sendMessage,
-		,
-		,
 		CHECK_MARK,
 		CROSS_MARK
-	] = params
+	} = allParameters
 	if (!match("^--modify-here(?:(?= *$)(?!\\w+))")) return
 	dip("--modify-here")
 

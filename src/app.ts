@@ -3,6 +3,8 @@ import DiscordButtons from "discord-buttons"
 import {
 	__modify_here,
 	__notify_here,
+	allParameters,
+	BotCache,
 	drafts__create,
 	drafts__date,
 	drafts__delete,
@@ -12,11 +14,10 @@ import {
 	drafts__info,
 	drafts__name,
 	drafts__subject,
+	parameters,
 	subjects__create,
-	subjects__edit,
 	subjects__delete,
-	BotCache,
-	commandParams,
+	subjects__edit,
 	updateChannels,
 	updateModifyChannel
 } from "./all"
@@ -54,34 +55,35 @@ bot.on("message", async message => {
 	const cache = await botCache.getGuildCache(message.guild!.id)
 	const promises: Promise<void>[] = []
 
-	const parameters = commandParams(cache, message)
 	let dips: string[] = []
 	let dip = (tag: string) => {
 		message.react("⌛").then()
 		dips.push(tag)
 	}
 
-	promises.push(__notify_here(dip, ...parameters))
-	promises.push(__modify_here(dip, ...parameters))
+	const allParameters: allParameters = { dip, ...parameters(cache, message) }
+
+	promises.push(__notify_here(allParameters))
+	promises.push(__modify_here(allParameters))
 	if (cache.getMenuState() === "drafts") {
-		promises.push(drafts__create(dip, ...parameters))
-		promises.push(drafts__edit(dip, ...parameters))
-		promises.push(drafts__delete(dip, ...parameters))
-		promises.push(drafts__discard(dip, ...parameters))
-		promises.push(drafts__name(dip, ...parameters))
-		promises.push(drafts__subject(dip, ...parameters))
-		promises.push(drafts__date(dip, ...parameters))
-		promises.push(drafts__info(dip, ...parameters))
-		promises.push(drafts__done(dip, ...parameters))
+		promises.push(drafts__create(allParameters))
+		promises.push(drafts__edit(allParameters))
+		promises.push(drafts__delete(allParameters))
+		promises.push(drafts__discard(allParameters))
+		promises.push(drafts__name(allParameters))
+		promises.push(drafts__subject(allParameters))
+		promises.push(drafts__date(allParameters))
+		promises.push(drafts__info(allParameters))
+		promises.push(drafts__done(allParameters))
 	} else {
-		promises.push(subjects__create(dip, ...parameters))
-		promises.push(subjects__edit(dip, ...parameters))
-		promises.push(subjects__delete(dip, ...parameters))
+		promises.push(subjects__create(allParameters))
+		promises.push(subjects__edit(allParameters))
+		promises.push(subjects__delete(allParameters))
 	}
 
 	await Promise.all(promises)
 
-	const [, , , clear, sendMessage] = parameters
+	const { clear, sendMessage } = allParameters
 	if (
 		message.channel.id === cache.getModifyChannelId() &&
 		dips.length === 0

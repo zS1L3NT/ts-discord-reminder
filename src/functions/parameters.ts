@@ -5,9 +5,11 @@ const time = (ms: number) => new Promise(res => setTimeout(res, ms))
 
 const match =
 	(message: Message): match =>
-	(regexp: string) =>
-		message.content.match(new RegExp(regexp))
-type match = (regexp: string) => RegExpMatchArray | null
+	(regexp: string) => {
+		const regex = message.content.match(new RegExp(regexp))
+		return regex ? regex.slice(1) : null
+	}
+type match = (regexp: string) => string[] | null
 
 const clear =
 	(message: Message): ((ms: number) => NodeJS.Timeout) =>
@@ -48,41 +50,41 @@ const updateModifyChannelInline =
 	}
 type updateChannelInline = () => Promise<void>
 
-export const commandParams = (
+export const parameters = (
 	cache: GuildCache,
 	message: Message
-): [
-	GuildCache,
-	Message,
-	match,
-	clear,
-	sendMessage,
-	updateChannelInline,
-	updateChannelInline,
-	"✅",
-	"❌"
-] => [
+): {
+	cache: GuildCache
+	message: Message
+	match: match
+	clear: clear
+	sendMessage: sendMessage
+	updateModifyChannelInline: updateChannelInline
+	updateNotifyChannelInline: updateChannelInline
+	CHECK_MARK: "✅"
+	CROSS_MARK: "❌"
+} => ({
 	cache,
 	message,
-	match(message),
-	clear(message),
-	sendMessage(message),
-	updateModifyChannelInline(cache, message),
-	updateNotifyChannelInline(cache, message),
-	"✅",
-	"❌"
-]
+	match: match(message),
+	clear: clear(message),
+	sendMessage: sendMessage(message),
+	updateModifyChannelInline: updateModifyChannelInline(cache, message),
+	updateNotifyChannelInline: updateNotifyChannelInline(cache, message),
+	CHECK_MARK: "✅",
+	CROSS_MARK: "❌"
+})
 
 type dip = (command: string) => void
-export type commandParams = [
-	dip,
-	GuildCache,
-	Message,
-	match,
-	clear,
-	sendMessage,
-	updateChannelInline,
-	updateChannelInline,
-	"✅",
-	"❌"
-]
+export interface allParameters {
+	dip: dip
+	cache: GuildCache
+	message: Message
+	match: match
+	clear: clear
+	sendMessage: sendMessage
+	updateModifyChannelInline: updateChannelInline
+	updateNotifyChannelInline: updateChannelInline
+	CHECK_MARK: "✅"
+	CROSS_MARK: "❌"
+}

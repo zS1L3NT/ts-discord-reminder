@@ -1,7 +1,7 @@
-import { commandParams, verifyDate } from "../../all"
+import { allParameters, verifyDate } from "../../all"
 
-export default async (...params: commandParams) => {
-	const [
+export default async (allParameters: allParameters) => {
+	const {
 		dip,
 		cache,
 		message,
@@ -9,10 +9,9 @@ export default async (...params: commandParams) => {
 		clear,
 		sendMessage,
 		updateModifyChannelInline,
-		,
 		CHECK_MARK,
 		CROSS_MARK
-	] = params
+	} = allParameters
 	if (!match("^--date(?:(?= *)(?!\\w+))")) return
 	dip("drafts--date")
 

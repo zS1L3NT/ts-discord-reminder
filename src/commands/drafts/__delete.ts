@@ -1,18 +1,17 @@
-import { commandParams } from "../../all"
+import { allParameters } from "../../all"
 
-export default async (...params: commandParams) => {
-	const [
+export default async (allParameters: allParameters) => {
+	const {
 		dip,
 		cache,
 		message,
 		match,
 		clear,
 		sendMessage,
-		,
 		updateNotifyChannelInline,
 		CHECK_MARK,
 		CROSS_MARK
-	] = params
+	} = allParameters
 	if (!match("^--delete(?:(?= *)(?!\\w+))")) return
 	dip("drafts--delete")
 
@@ -28,7 +27,7 @@ export default async (...params: commandParams) => {
 		return
 	}
 
-	const [, id] = DeleteIdRegex
+	const [id] = DeleteIdRegex
 	const assignment = cache.getAssignment(id)
 
 	if (!assignment) {

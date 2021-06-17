@@ -1,7 +1,7 @@
-import { commandParams } from "../../all"
+import { allParameters } from "../../all"
 
-export default async (...params: commandParams) => {
-	const [
+export default async (allParameters: allParameters) => {
+	const {
 		dip,
 		cache,
 		message,
@@ -12,7 +12,7 @@ export default async (...params: commandParams) => {
 		updateNotifyChannelInline,
 		CHECK_MARK,
 		CROSS_MARK
-	] = params
+	} = allParameters
 	if (!match("^--edit(?:(?= *)(?!\\w+))")) return
 	dip("drafts--edit")
 
@@ -39,7 +39,7 @@ export default async (...params: commandParams) => {
 		return
 	}
 
-	const [, id] = EditIdRegex
+	const [id] = EditIdRegex
 	const assignment = cache.getAssignment(id)
 
 	if (!assignment) {

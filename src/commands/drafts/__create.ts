@@ -1,7 +1,7 @@
-import { commandParams, Draft } from "../../all"
+import { allParameters, Draft } from "../../all"
 
-export default async (...params: commandParams) => {
-	const [
+export default async (allParameters: allParameters) => {
+	const {
 		dip,
 		cache,
 		message,
@@ -9,10 +9,9 @@ export default async (...params: commandParams) => {
 		clear,
 		sendMessage,
 		updateModifyChannelInline,
-		,
 		CHECK_MARK,
 		CROSS_MARK
-	] = params
+	} = allParameters
 	if (!match("^--create(?:(?= *$)(?!\\w+))")) return
 	dip("drafts--create")
 

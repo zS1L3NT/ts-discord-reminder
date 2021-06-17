@@ -1,7 +1,7 @@
-import { commandParams } from "../../functions/commandParams"
+import { allParameters } from "../../functions/parameters"
 
-export default async (...params: commandParams) => {
-	const [
+export default async (allParameters: allParameters) => {
+	const {
 		dip,
 		cache,
 		message,
@@ -9,10 +9,9 @@ export default async (...params: commandParams) => {
 		clear,
 		sendMessage,
 		updateModifyChannelInline,
-		,
 		CHECK_MARK,
 		CROSS_MARK
-	] = params
+	} = allParameters
 	if (!match("^--create(?:(?= *)(?!\\w+))")) return
 	dip("subject--create")
 
@@ -27,7 +26,7 @@ export default async (...params: commandParams) => {
 		return
 	}
 
-	const [, code, color] = FullCreateRegex
+	const [code, color] = FullCreateRegex
 	const subjects = cache.getSubjects()
 	if (subjects.indexOf(code) >= 0) {
 		clear(5000)
