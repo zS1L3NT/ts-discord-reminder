@@ -1,7 +1,7 @@
-import { commandParams } from "../../all"
+import { allParameters } from "../../all"
 
-export default async (...params: commandParams) => {
-	const [
+export default async (allParameters: allParameters) => {
+	const {
 		dip,
 		cache,
 		message,
@@ -9,10 +9,9 @@ export default async (...params: commandParams) => {
 		clear,
 		sendMessage,
 		updateModifyChannelInline,
-		,
 		CHECK_MARK,
 		CROSS_MARK
-	] = params
+	} = allParameters
 	if (!match("^--name(?:(?= *)(?!\\w+))")) return
 	dip("drafts--name")
 
@@ -37,7 +36,7 @@ export default async (...params: commandParams) => {
 		return
 	}
 
-	const [, name] = FullNameRegex
+	const [name] = FullNameRegex
 	await draft.setName(name)
 	await updateModifyChannelInline()
 

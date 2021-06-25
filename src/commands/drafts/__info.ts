@@ -1,7 +1,7 @@
-import { commandParams } from "../../all"
+import { allParameters } from "../../all"
 
-export default async (...params: commandParams) => {
-	const [
+export default async (allParameters: allParameters) => {
+	const {
 		dip,
 		cache,
 		message,
@@ -9,10 +9,9 @@ export default async (...params: commandParams) => {
 		clear,
 		sendMessage,
 		updateModifyChannelInline,
-		,
 		CHECK_MARK,
 		CROSS_MARK
-	] = params
+	} = allParameters
 	if (!match("^--info(?:(?= *)(?!\\w+))")) return
 	dip("drafts--info")
 
@@ -32,7 +31,7 @@ export default async (...params: commandParams) => {
 	const RemoveInfoRegex = match("^--info +-- +(\\d+)")
 
 	if (AddInfoRegex) {
-		const [, info] = AddInfoRegex
+		const [info] = AddInfoRegex
 
 		const draft = cache.getDraft()!
 		await draft.pushDetail(info)
@@ -42,7 +41,7 @@ export default async (...params: commandParams) => {
 		clear(5000)
 		message.react(CHECK_MARK).then()
 	} else if (RemoveInfoRegex) {
-		const [, index] = RemoveInfoRegex
+		const [index] = RemoveInfoRegex
 
 		const indexInt = parseInt(index) - 1
 		if (indexInt < cache.getDraft()!.getDetails().length) {
