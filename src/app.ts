@@ -3,6 +3,7 @@ import DiscordButtons from "discord-buttons"
 import {
 	__modify_here,
 	__notify_here,
+	__ping_here,
 	allParameters,
 	BotCache,
 	drafts__create,
@@ -19,8 +20,10 @@ import {
 	subjects__delete,
 	subjects__edit,
 	updateChannels,
-	updateModifyChannel
+	updateModifyChannel,
+	updatePingChannel
 } from "./all"
+import AfterEvery from "after-every"
 
 const config = require("../config.json")
 
@@ -37,15 +40,43 @@ bot.on("ready", () => {
 		const cache = await botCache.getGuildCache(guild.id)
 		console.log(`Restored cache for Guild(${guild.name})`)
 		updateChannels(guild, cache, debugCount).then()
+
+		AfterEvery(1).hours(() => {
+			const assignments = cache.getAssignments()
+			for (let i = 0; i < assignments.length; i++) {
+				const assignment = assignments[i]
+				const date = new Date()
+				let timeDiff = assignment.getDate() - new Date().getTime()
+				if (date.getUTCHours() === date.getHours()) {
+					// Wrong timezone, in UK
+					timeDiff -= 28800000
+				}
+
+				if (timeDiff <= 60 * 60 * 1000) {
+					updatePingChannel(cache, guild, assignment)
+				}
+			}
+		})
+
+		AfterEvery(1).days(() => {
+			const assignments = cache.getAssignments()
+			for (let i = 0; i < assignments.length; i++) {
+				const assignment = assignments[i]
+				const timeDiff = assignment.getDate() - new Date().getTime()
+				if (timeDiff <= 24 * 60 * 60 * 1000) {
+					updatePingChannel(cache, guild, assignment)
+				}
+			}
+		})
 	})
 
-	setInterval(() => {
+	AfterEvery(1).minutes(() => {
 		debugCount++
 		bot.guilds.cache.forEach(async guild => {
 			const cache = await botCache.getGuildCache(guild.id)
 			updateChannels(guild, cache, debugCount).then()
 		})
-	}, 60 * 1000)
+	})
 })
 
 // Handle the modify channel
@@ -65,6 +96,7 @@ bot.on("message", async message => {
 
 	promises.push(__notify_here(allParameters))
 	promises.push(__modify_here(allParameters))
+	promises.push(__ping_here(allParameters))
 	if (cache.getMenuState() === "drafts") {
 		promises.push(drafts__create(allParameters))
 		promises.push(drafts__edit(allParameters))

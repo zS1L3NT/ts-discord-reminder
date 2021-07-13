@@ -11,8 +11,8 @@ export default async (allParameters: allParameters) => {
 		CHECK_MARK,
 		CROSS_MARK
 	} = allParameters
-	if (!match("^--notify-here(?:(?= *$)(?!\\w+))")) return
-	dip("--notify-here")
+	if (!match("^--ping-here(?:(?= *$)(?!\\w+))")) return
+	dip("--ping-here")
 
 	clear(5000)
 	switch (message.channel.id) {
@@ -38,7 +38,7 @@ export default async (allParameters: allParameters) => {
 			).then()
 			break
 		default:
-			await cache.setNotifyChannelId(message.channel.id)
+			await cache.setPingChannelId(message.channel.id)
 			message.react(CHECK_MARK).then()
 			break
 	}

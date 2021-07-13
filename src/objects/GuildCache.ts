@@ -6,6 +6,7 @@ interface GlobalGuildCache {
 	modify_message_id: string
 	notify_channel_id: string
 	notify_message_ids: string[]
+	ping_channel_id: string
 	colors: { [subject_name: string]: string }
 }
 
@@ -18,6 +19,7 @@ export default class GuildCache {
 	private modify_message_id = ""
 	private notify_channel_id = ""
 	private notify_message_ids: string[] = []
+	private ping_channel_id = ""
 	private colors: { [subject_name: string]: string } = {}
 	private init: number = 0
 	private menu_state: "drafts" | "subjects"
@@ -31,12 +33,13 @@ export default class GuildCache {
 		this.ref.onSnapshot(snap => {
 			if (snap.exists) {
 				// Set the cache from Firestore
-				const assignment = snap.data() as GlobalGuildCache
-				this.modify_channel_id = assignment.modify_channel_id
-				this.modify_message_id = assignment.modify_message_id
-				this.notify_channel_id = assignment.notify_channel_id
-				this.notify_message_ids = assignment.notify_message_ids
-				this.colors = assignment.colors
+				const guild = snap.data() as GlobalGuildCache
+				this.modify_channel_id = guild.modify_channel_id
+				this.modify_message_id = guild.modify_message_id
+				this.notify_channel_id = guild.notify_channel_id
+				this.notify_message_ids = guild.notify_message_ids
+				this.ping_channel_id = guild.ping_channel_id
+				this.colors = guild.colors
 
 				if (this.init < 3) this.init++
 				if (this.init === 2) resolve(this)
@@ -105,6 +108,15 @@ export default class GuildCache {
 			id => id !== notify_message_id
 		)
 		await this.ref.update({ notify_message_ids: this.notify_message_ids })
+	}
+
+	public getPingChannelId() {
+		return this.ping_channel_id
+	}
+
+	public async setPingChannelId(ping_channel_id: string) {
+		this.ping_channel_id = ping_channel_id
+		await this.ref.update({ ping_channel_id })
 	}
 
 	public generateAssignmentId() {

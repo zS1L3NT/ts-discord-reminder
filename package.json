@@ -10,7 +10,8 @@
 		"build": "tsc && cd build && ncc build app.js && cd dist && pkg index.js -t host && move index.exe ../../package.exe && cd ../.. && rmdir /s/q build"
 	},
 	"dependencies": {
-		"discord-buttons": "^3.1.1",
+		"after-every": "^1.0.2",
+		"discord-buttons": "3.1.1",
 		"discord.js": "^12.5.3",
 		"firebase-admin": "^9.9.0"
 	},
