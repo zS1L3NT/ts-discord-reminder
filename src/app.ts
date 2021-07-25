@@ -21,11 +21,17 @@ import {
 	subjects__edit,
 	updateChannels,
 	updateModifyChannel,
-	updatePingChannel
+	updatePingChannel,
+	betweenRange
 } from "./all"
 import AfterEvery from "after-every"
 
 const config = require("../config.json")
+
+const ONE_SECOND = 1000
+const ONE_MINUTE = 60 * ONE_SECOND
+const ONE_HOUR = 60 * ONE_MINUTE
+const ONE_DAY = 24 * ONE_HOUR
 
 const bot = new Client()
 const botCache = new BotCache()
@@ -41,29 +47,18 @@ bot.on("ready", () => {
 		console.log(`Restored cache for Guild(${guild.name})`)
 		updateChannels(guild, cache, debugCount).then()
 
-		AfterEvery(1).hours(() => {
-			const assignments = cache.getAssignments()
-			for (let i = 0; i < assignments.length; i++) {
-				const assignment = assignments[i]
-				const date = new Date()
-				let timeDiff = assignment.getDate() - new Date().getTime()
-				if (date.getUTCHours() === date.getHours()) {
-					// Wrong timezone, in UK
-					timeDiff -= 28800000
-				}
-
-				if (timeDiff <= 60 * 60 * 1000) {
-					updatePingChannel(cache, guild, assignment)
-				}
-			}
-		})
-
-		AfterEvery(1).days(() => {
+		AfterEvery(1).minutes(() => {
 			const assignments = cache.getAssignments()
 			for (let i = 0; i < assignments.length; i++) {
 				const assignment = assignments[i]
 				const timeDiff = assignment.getDate() - new Date().getTime()
-				if (timeDiff <= 24 * 60 * 60 * 1000) {
+				if (
+					betweenRange(timeDiff, ONE_DAY, 30 * ONE_SECOND) ||       // 24h +- 30s
+					betweenRange(timeDiff, 12 * ONE_HOUR, 30 * ONE_SECOND) || // 12h +- 30s
+					betweenRange(timeDiff, 2 * ONE_HOUR, 30 * ONE_SECOND) ||  // 2h +- 30s
+					betweenRange(timeDiff, ONE_HOUR, 30 * ONE_SECOND) ||      // 1h +- 30s
+					betweenRange(timeDiff, 30 * ONE_MINUTE, 30 * ONE_SECOND)  // 30m +- 30s
+				) {
 					updatePingChannel(cache, guild, assignment)
 				}
 			}
