@@ -1,5 +1,5 @@
 export default (due: number): string => {
-	const ms = due - new Date().getTime()
+	const ms = (due - new Date().getTime()) + 30000
 
 	if (ms < 1000) {
 		return "NOW"
