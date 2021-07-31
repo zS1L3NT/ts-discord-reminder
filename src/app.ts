@@ -53,6 +53,7 @@ bot.on("ready", () => {
 				const assignment = assignments[i]
 				const timeDiff = assignment.getDate() - new Date().getTime()
 				if (
+					betweenRange(timeDiff, 7 * ONE_DAY, 30 * ONE_SECOND) ||   // 7d +- 30s
 					betweenRange(timeDiff, ONE_DAY, 30 * ONE_SECOND) ||       // 24h +- 30s
 					betweenRange(timeDiff, 12 * ONE_HOUR, 30 * ONE_SECOND) || // 12h +- 30s
 					betweenRange(timeDiff, 2 * ONE_HOUR, 30 * ONE_SECOND) ||  // 2h +- 30s
