@@ -2,7 +2,10 @@ import { Client, Collection, CommandInteraction, Intents } from "discord.js"
 import AfterEvery from "after-every"
 import path from "path"
 import fs from "fs"
-import { SlashCommandBuilder } from "@discordjs/builders"
+import {
+	SlashCommandBuilder,
+	SlashCommandSubcommandBuilder
+} from "@discordjs/builders"
 import SlashCommandDeployer from "./utilities/SlashCommandDeployer"
 import BotCache from "./models/BotCache"
 import DateFunctions from "./utilities/DateFunctions"
@@ -43,14 +46,47 @@ export interface iInteractionFile {
 	execute: (interaction: CommandInteraction) => Promise<any>
 }
 
-const commands = new Collection<string, iInteractionFile>()
-const commandFiles = fs
-	.readdirSync(path.join(__dirname, "./commands"))
-	.filter(f => f.endsWith(".ts"))
+export interface iInteractionSubcommandFile {
+	data: SlashCommandSubcommandBuilder
+	execute: (interaction: CommandInteraction) => Promise<any>
+}
 
-for (const commandFile of commandFiles) {
-	const command = require(`./commands/${commandFile}`) as iInteractionFile
-	commands.set(command.data.name, command)
+interface iInteractionFolder {
+	data: SlashCommandBuilder
+	files: Collection<string, iInteractionSubcommandFile>
+}
+
+const commands = new Collection<string, iInteractionFile | iInteractionFolder>()
+const units = fs.readdirSync(path.join(__dirname, "./commands"))
+
+// Slash subcommands
+for (const commandFolder of units.filter(f => !f.endsWith(".ts"))) {
+	const commandFiles = fs.readdirSync(
+		path.join(__dirname, `./commands/${commandFolder}`)
+	)
+	const command = new SlashCommandBuilder()
+		.setName(commandFolder)
+		.setDescription(`Commands for ${commandFolder}`)
+
+	const files: Collection<string, iInteractionSubcommandFile> =
+		new Collection()
+	for (const commandFile of commandFiles.filter(f => f.endsWith(".ts"))) {
+		const file =
+			require(`./commands/${commandFolder}/${commandFile}`) as iInteractionSubcommandFile
+		files.set(file.data.name, file)
+		command.addSubcommand(file.data)
+	}
+
+	commands.set(commandFolder, {
+		data: command,
+		files
+	})
+}
+
+// Slash commands
+for (const commandFile of units.filter(f => f.endsWith(".ts"))) {
+	const file = require(`./commands/${commandFile}`) as iInteractionFile
+	commands.set(file.data.name, file)
 }
 // endregion
 
@@ -195,4 +231,33 @@ bot.on("guildCreate", async guild => {
 bot.on("guildDelete", async guild => {
 	console.log(`Removed from Guild(${guild.name})`)
 	await botCache.deleteGuildCache(guild.id)
+})
+
+bot.on("interactionCreate", async interaction => {
+	if (interaction.isCommand()) {
+		const command = commands.get(interaction.commandName)
+		if (!command) return
+
+		try {
+			const commandFile = command as iInteractionFile
+			if (commandFile.execute) {
+				await commandFile.execute(interaction)
+			}
+
+			const commandFolder = command as iInteractionFolder
+			if (commandFolder.files) {
+				const subcommand = interaction.options.getSubcommand(true)
+				const command = commandFolder.files.get(subcommand)
+				if (!command) return
+
+				await command.execute(interaction)
+			}
+		} catch (error) {
+			console.error(error)
+			await interaction.reply({
+				content: "There was an error while executing this command!",
+				ephemeral: true
+			})
+		}
+	}
 })
