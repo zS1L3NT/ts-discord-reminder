@@ -25,6 +25,7 @@ import subjects__create from "./messages/subjects/__create"
 import subjects__edit from "./messages/subjects/__edit"
 import subjects__delete from "./messages/subjects/__delete"
 import { MessageParameters } from "./utilities/MessageParameters"
+import GuildCache from "./models/GuildCache"
 
 const config = require("../config.json")
 
@@ -43,12 +44,18 @@ const botCache = new BotCache(bot)
 // region Import slash commands
 export interface iInteractionFile {
 	data: SlashCommandBuilder
-	execute: (interaction: CommandInteraction) => Promise<any>
+	execute: (
+		interaction: CommandInteraction,
+		cache: GuildCache
+	) => Promise<any>
 }
 
 export interface iInteractionSubcommandFile {
 	data: SlashCommandSubcommandBuilder
-	execute: (interaction: CommandInteraction) => Promise<any>
+	execute: (
+		interaction: CommandInteraction,
+		cache: GuildCache
+	) => Promise<any>
 }
 
 interface iInteractionFolder {
@@ -234,6 +241,9 @@ bot.on("guildDelete", async guild => {
 })
 
 bot.on("interactionCreate", async interaction => {
+	if (!interaction.guild) return
+
+	const cache = await botCache.getGuildCache(interaction.guild!)
 	if (interaction.isCommand()) {
 		const command = commands.get(interaction.commandName)
 		if (!command) return
@@ -241,7 +251,7 @@ bot.on("interactionCreate", async interaction => {
 		try {
 			const commandFile = command as iInteractionFile
 			if (commandFile.execute) {
-				await commandFile.execute(interaction)
+				await commandFile.execute(interaction, cache)
 			}
 
 			const commandFolder = command as iInteractionFolder
@@ -250,7 +260,7 @@ bot.on("interactionCreate", async interaction => {
 				const command = commandFolder.files.get(subcommand)
 				if (!command) return
 
-				await command.execute(interaction)
+				await command.execute(interaction, cache)
 			}
 		} catch (error) {
 			console.error(error)
