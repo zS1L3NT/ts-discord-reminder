@@ -1,30 +1,27 @@
-import { Client } from "discord.js"
-import DiscordButtons from "discord-buttons"
-import {
-	__modify_here,
-	__notify_here,
-	__ping_here,
-	allParameters,
-	BotCache,
-	drafts__create,
-	drafts__date,
-	drafts__delete,
-	drafts__discard,
-	drafts__done,
-	drafts__edit,
-	drafts__info,
-	drafts__name,
-	drafts__subject,
-	parameters,
-	subjects__create,
-	subjects__delete,
-	subjects__edit,
-	updateChannels,
-	updateModifyChannel,
-	updatePingChannel,
-	betweenRange
-} from "./all"
+import { Client, Collection, CommandInteraction, Intents } from "discord.js"
 import AfterEvery from "after-every"
+import path from "path"
+import fs from "fs"
+import { SlashCommandBuilder } from "@discordjs/builders"
+import SlashCommandDeployer from "./utilities/SlashCommandDeployer"
+import BotCache from "./models/BotCache"
+import DateFunctions from "./utilities/DateFunctions"
+import __notify_here from "./messages/__notify_here"
+import __modify_here from "./messages/__modify_here"
+import __ping_here from "./messages/__ping_here"
+import drafts__create from "./messages/drafts/__create"
+import drafts__edit from "./messages/drafts/__edit"
+import drafts__delete from "./messages/drafts/__delete"
+import drafts__name from "./messages/drafts/__name"
+import drafts__discard from "./messages/drafts/__discard"
+import drafts__subject from "./messages/drafts/__subject"
+import drafts__date from "./messages/drafts/__date"
+import drafts__info from "./messages/drafts/__info"
+import drafts__done from "./messages/drafts/__done"
+import subjects__create from "./messages/subjects/__create"
+import subjects__edit from "./messages/subjects/__edit"
+import subjects__delete from "./messages/subjects/__delete"
+import { MessageParameters } from "./utilities/MessageParameters"
 
 const config = require("../config.json")
 
@@ -33,44 +30,89 @@ const ONE_MINUTE = 60 * ONE_SECOND
 const ONE_HOUR = 60 * ONE_MINUTE
 const ONE_DAY = 24 * ONE_HOUR
 
-const bot = new Client()
-const botCache = new BotCache()
-DiscordButtons(bot)
+// region Initialize bot
+const bot = new Client({
+	intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS]
+})
+const botCache = new BotCache(bot)
+// endregion
 
-bot.login(config.discord).then()
+// region Import slash commands
+export interface iInteractionFile {
+	data: SlashCommandBuilder
+	execute: (interaction: CommandInteraction) => Promise<any>
+}
+
+const commands = new Collection<string, iInteractionFile>()
+const commandFiles = fs
+	.readdirSync(path.join(__dirname, "./commands"))
+	.filter(f => f.endsWith(".ts"))
+
+for (const commandFile of commandFiles) {
+	const command = require(`./commands/${commandFile}`) as iInteractionFile
+	commands.set(command.data.name, command)
+}
+// endregion
+
+void bot.login(config.discord.token)
 bot.on("ready", () => {
 	console.log("Logged in as Assignment Bot#2744")
-	let debugCount = 0
 
 	bot.guilds.cache.forEach(async guild => {
-		const cache = await botCache.getGuildCache(guild.id)
-		console.log(`Restored cache for Guild(${guild.name})`)
-		updateChannels(guild, cache, debugCount).then()
+		const cache = await botCache.getGuildCache(guild)
 
+		// region Deploy slash commands in server
+		const deployer = new SlashCommandDeployer(guild.id)
+		commands.forEach(command => deployer.addCommand(command.data))
+		try {
+			await deployer.deploy()
+		} catch (err) {
+			console.error(
+				`Failed to deploy slash commands for Guild(${guild.name}): ${err.message}`
+			)
+		}
+		// endregion
+
+		console.log(`Restored cache for Guild(${guild.name})`)
+		let debugCount = 0
+
+		cache.updateMinutely(debugCount).then()
 		AfterEvery(1).minutes(() => {
 			const assignments = cache.getAssignments()
 			for (let i = 0; i < assignments.length; i++) {
 				const assignment = assignments[i]
 				const timeDiff = assignment.getDate() - new Date().getTime()
 				if (
-					betweenRange(timeDiff, 7 * ONE_DAY, 30 * ONE_SECOND) ||   // 7d +- 30s
-					betweenRange(timeDiff, ONE_DAY, 30 * ONE_SECOND) ||       // 24h +- 30s
-					betweenRange(timeDiff, 12 * ONE_HOUR, 30 * ONE_SECOND) || // 12h +- 30s
-					betweenRange(timeDiff, 2 * ONE_HOUR, 30 * ONE_SECOND) ||  // 2h +- 30s
-					betweenRange(timeDiff, ONE_HOUR, 30 * ONE_SECOND) ||      // 1h +- 30s
-					betweenRange(timeDiff, 30 * ONE_MINUTE, 30 * ONE_SECOND)  // 30m +- 30s
+					new DateFunctions(timeDiff).isBetweenRange(
+						7 * ONE_DAY,
+						30 * ONE_SECOND
+					) ||
+					new DateFunctions(timeDiff).isBetweenRange(
+						ONE_DAY,
+						30 * ONE_SECOND
+					) ||
+					new DateFunctions(timeDiff).isBetweenRange(
+						12 * ONE_HOUR,
+						30 * ONE_SECOND
+					) ||
+					new DateFunctions(timeDiff).isBetweenRange(
+						2 * ONE_HOUR,
+						30 * ONE_SECOND
+					) ||
+					new DateFunctions(timeDiff).isBetweenRange(
+						ONE_HOUR,
+						30 * ONE_SECOND
+					) ||
+					new DateFunctions(timeDiff).isBetweenRange(
+						30 * ONE_MINUTE,
+						30 * ONE_SECOND
+					)
 				) {
-					updatePingChannel(cache, guild, assignment)
+					cache.updatePingChannel(assignment)
 				}
 			}
-		})
-	})
 
-	AfterEvery(1).minutes(() => {
-		debugCount++
-		bot.guilds.cache.forEach(async guild => {
-			const cache = await botCache.getGuildCache(guild.id)
-			updateChannels(guild, cache, debugCount).then()
+			cache.updateMinutely(++debugCount).then()
 		})
 	})
 })
@@ -79,7 +121,7 @@ bot.on("ready", () => {
 bot.on("message", async message => {
 	if (message.author.bot) return
 	if (!message.guild) return
-	const cache = await botCache.getGuildCache(message.guild!.id)
+	const cache = await botCache.getGuildCache(message.guild!)
 	const promises: Promise<void>[] = []
 
 	let dips: string[] = []
@@ -88,36 +130,36 @@ bot.on("message", async message => {
 		dips.push(tag)
 	}
 
-	const allParameters: allParameters = { dip, ...parameters(cache, message) }
+	const parameters = MessageParameters(cache, message, dip)
 
-	promises.push(__notify_here(allParameters))
-	promises.push(__modify_here(allParameters))
-	promises.push(__ping_here(allParameters))
+	promises.push(__notify_here(parameters))
+	promises.push(__modify_here(parameters))
+	promises.push(__ping_here(parameters))
 	if (cache.getMenuState() === "drafts") {
-		promises.push(drafts__create(allParameters))
-		promises.push(drafts__edit(allParameters))
-		promises.push(drafts__delete(allParameters))
-		promises.push(drafts__discard(allParameters))
-		promises.push(drafts__name(allParameters))
-		promises.push(drafts__subject(allParameters))
-		promises.push(drafts__date(allParameters))
-		promises.push(drafts__info(allParameters))
-		promises.push(drafts__done(allParameters))
+		promises.push(drafts__create(parameters))
+		promises.push(drafts__edit(parameters))
+		promises.push(drafts__delete(parameters))
+		promises.push(drafts__discard(parameters))
+		promises.push(drafts__name(parameters))
+		promises.push(drafts__subject(parameters))
+		promises.push(drafts__date(parameters))
+		promises.push(drafts__info(parameters))
+		promises.push(drafts__done(parameters))
 	} else {
-		promises.push(subjects__create(allParameters))
-		promises.push(subjects__edit(allParameters))
-		promises.push(subjects__delete(allParameters))
+		promises.push(subjects__create(parameters))
+		promises.push(subjects__edit(parameters))
+		promises.push(subjects__delete(parameters))
 	}
 
 	await Promise.all(promises)
 
-	const { clear, sendMessage } = allParameters
+	const { Clear, Respond } = parameters
 	if (
 		message.channel.id === cache.getModifyChannelId() &&
 		dips.length === 0
 	) {
-		clear(3000)
-		sendMessage("Invalid command", 4000).then()
+		Clear(3000)
+		Respond("Invalid command", 4000)
 	}
 
 	if (dips.length > 1) {
@@ -134,11 +176,11 @@ bot.on("clickButton", async button => {
 	switch (button.id) {
 		case "enable_drafts":
 			cache.setMenuState("drafts")
-			await updateModifyChannel(cache, button.channel)
+			await cache.updateModifyChannel(button.channel)
 			break
 		case "enable_subjects":
 			cache.setMenuState("subjects")
-			await updateModifyChannel(cache, button.channel)
+			await cache.updateModifyChannel(button.channel)
 			break
 		default:
 			break
@@ -147,7 +189,7 @@ bot.on("clickButton", async button => {
 
 bot.on("guildCreate", async guild => {
 	console.log(`Added to Guild(${guild.name})`)
-	await botCache.createGuildCache(guild.id)
+	await botCache.createGuildCache(guild)
 })
 
 bot.on("guildDelete", async guild => {
