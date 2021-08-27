@@ -30,10 +30,7 @@ export default class DateFunctions {
 		this.time = time
 	}
 
-	public static verify(
-		FullDateMatch: string[],
-		reject: (message: string) => void
-	) {
+	public static verify(FullDateMatch: string[]) {
 		const [day, month, year, hour, minute] = FullDateMatch
 		const LongerMonths = [1, 3, 5, 7, 8, 10, 12]
 
@@ -45,23 +42,23 @@ export default class DateFunctions {
 
 		if (LongerMonths.includes(monthInt)) {
 			if (dayInt > 31)
-				return reject(`This month cannot have ${dayInt} days`)
+				throw new Error(`This month cannot have ${dayInt} days`)
 		} else {
 			if (dayInt > 30)
-				return reject(`This month cannot have ${dayInt} days`)
+				throw new Error(`This month cannot have ${dayInt} days`)
 		}
 
 		if (monthInt > 12)
-			return reject(`A year cannot have ${monthInt} months`)
+			throw new Error(`A year cannot have ${monthInt} months`)
 
 		if (yearInt < new Date().getFullYear())
-			return reject("Year must not be in the past")
+			throw new Error("Year must not be in the past")
 		if (yearInt - new Date().getFullYear() > 5)
-			return reject("Year must not be more than 5 years ahead")
+			throw new Error("Year must not be more than 5 years ahead")
 
-		if (hourInt > 23) return reject("Hour must not exceed 23")
+		if (hourInt > 23) throw new Error("Hour must not exceed 23")
 
-		if (minuteInt > 59) return reject("Minute must not exceed 59")
+		if (minuteInt > 59) throw new Error("Minute must not exceed 59")
 
 		// Handle timezone change
 		if (new Date().getUTCHours() == new Date().getHours()) {

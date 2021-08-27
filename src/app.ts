@@ -1,4 +1,4 @@
-import { Client, Collection, CommandInteraction, Intents } from "discord.js"
+import { Client, Collection, Intents } from "discord.js"
 import AfterEvery from "after-every"
 import path from "path"
 import fs from "fs"
@@ -9,23 +9,8 @@ import {
 import SlashCommandDeployer from "./utilities/SlashCommandDeployer"
 import BotCache from "./models/BotCache"
 import DateFunctions from "./utilities/DateFunctions"
-import __notify_here from "./messages/__notify_here"
-import __modify_here from "./messages/__modify_here"
-import __ping_here from "./messages/__ping_here"
-import drafts__create from "./messages/drafts/__create"
-import drafts__edit from "./messages/drafts/__edit"
-import drafts__delete from "./messages/drafts/__delete"
-import drafts__name from "./messages/drafts/__name"
-import drafts__discard from "./messages/drafts/__discard"
-import drafts__subject from "./messages/drafts/__subject"
-import drafts__date from "./messages/drafts/__date"
-import drafts__info from "./messages/drafts/__info"
-import drafts__done from "./messages/drafts/__done"
-import subjects__create from "./messages/subjects/__create"
-import subjects__edit from "./messages/subjects/__edit"
-import subjects__delete from "./messages/subjects/__delete"
-import { MessageParameters } from "./utilities/MessageParameters"
-import GuildCache from "./models/GuildCache"
+import MessageHelper from "./utilities/MessageHelper"
+import InteractionHelper from "./utilities/InteractionHelper"
 
 const config = require("../config.json")
 
@@ -41,21 +26,39 @@ const bot = new Client({
 const botCache = new BotCache(bot)
 // endregion
 
+// region Register message commands
+export interface iMessageFile {
+	data: string
+	condition: (helper: MessageHelper) => boolean
+	execute: (helper: MessageHelper) => Promise<void>
+}
+
+const messageFiles: iMessageFile[] = []
+const readFolder = (location: string) => {
+	const units = fs.readdirSync(path.join(__dirname, location))
+
+	for (const commandFolder of units.filter(f => !f.endsWith(".ts"))) {
+		readFolder(`${location}/${commandFolder}`)
+	}
+
+	for (const commandFile of units.filter(f => f.endsWith(".ts"))) {
+		const file = require(`${location}/${commandFile}`) as iMessageFile
+		messageFiles.push(file)
+	}
+}
+
+readFolder("./messages")
+// endregion
+
 // region Import slash commands
 export interface iInteractionFile {
 	data: SlashCommandBuilder
-	execute: (
-		interaction: CommandInteraction,
-		cache: GuildCache
-	) => Promise<any>
+	execute: (helper: InteractionHelper) => Promise<any>
 }
 
 export interface iInteractionSubcommandFile {
 	data: SlashCommandSubcommandBuilder
-	execute: (
-		interaction: CommandInteraction,
-		cache: GuildCache
-	) => Promise<any>
+	execute: (helper: InteractionHelper) => Promise<any>
 }
 
 interface iInteractionFolder {
@@ -121,6 +124,7 @@ bot.on("ready", () => {
 
 		cache.updateMinutely(debugCount).then()
 		AfterEvery(1).minutes(() => {
+			// region Check if assignment is due soon
 			const assignments = cache.getAssignments()
 			for (let i = 0; i < assignments.length; i++) {
 				const assignment = assignments[i]
@@ -154,79 +158,62 @@ bot.on("ready", () => {
 					cache.updatePingChannel(assignment)
 				}
 			}
+			// endregion
 
 			cache.updateMinutely(++debugCount).then()
 		})
 	})
 })
 
-// Handle the modify channel
-bot.on("message", async message => {
+bot.on("messageCreate", async message => {
 	if (message.author.bot) return
 	if (!message.guild) return
 	const cache = await botCache.getGuildCache(message.guild!)
-	const promises: Promise<void>[] = []
 
-	let dips: string[] = []
-	let dip = (tag: string) => {
-		message.react("⌛").then()
-		dips.push(tag)
-	}
-
-	const parameters = MessageParameters(cache, message, dip)
-
-	promises.push(__notify_here(parameters))
-	promises.push(__modify_here(parameters))
-	promises.push(__ping_here(parameters))
-	if (cache.getMenuState() === "drafts") {
-		promises.push(drafts__create(parameters))
-		promises.push(drafts__edit(parameters))
-		promises.push(drafts__delete(parameters))
-		promises.push(drafts__discard(parameters))
-		promises.push(drafts__name(parameters))
-		promises.push(drafts__subject(parameters))
-		promises.push(drafts__date(parameters))
-		promises.push(drafts__info(parameters))
-		promises.push(drafts__done(parameters))
-	} else {
-		promises.push(subjects__create(parameters))
-		promises.push(subjects__edit(parameters))
-		promises.push(subjects__delete(parameters))
-	}
-
-	await Promise.all(promises)
-
-	const { Clear, Respond } = parameters
-	if (
-		message.channel.id === cache.getModifyChannelId() &&
-		dips.length === 0
-	) {
-		Clear(3000)
-		Respond("Invalid command", 4000)
-	}
-
-	if (dips.length > 1) {
-		console.error("Dipped more than once!!!")
-		console.log(JSON.stringify(message, null, 2))
-		console.log(dips)
-		process.exit()
+	const helper = new MessageHelper(cache, message)
+	try {
+		for (const messageFile of messageFiles) {
+			if (messageFile.condition(helper)) {
+				message.react("⌛").then()
+				await messageFile.execute(helper)
+				break
+			}
+		}
+	} catch (error) {
+		console.error(error)
 	}
 })
 
-bot.on("clickButton", async button => {
-	await button.defer()
-	const cache = await botCache.getGuildCache(button.guild.id)
-	switch (button.id) {
-		case "enable_drafts":
-			cache.setMenuState("drafts")
-			await cache.updateModifyChannel(button.channel)
-			break
-		case "enable_subjects":
-			cache.setMenuState("subjects")
-			await cache.updateModifyChannel(button.channel)
-			break
-		default:
-			break
+bot.on("interactionCreate", async interaction => {
+	if (!interaction.guild) return
+
+	const cache = await botCache.getGuildCache(interaction.guild!)
+	if (interaction.isCommand()) {
+		await interaction.deferReply({ ephemeral: true })
+		const command = commands.get(interaction.commandName)
+		if (!command) return
+
+		const helper = new InteractionHelper(cache, interaction)
+		try {
+			const commandFile = command as iInteractionFile
+			if (commandFile.execute) {
+				await commandFile.execute(helper)
+			}
+
+			const commandFolder = command as iInteractionFolder
+			if (commandFolder.files) {
+				const subcommand = interaction.options.getSubcommand(true)
+				const command = commandFolder.files.get(subcommand)
+				if (!command) return
+
+				await command.execute(helper)
+			}
+		} catch (error) {
+			console.error(error)
+			await interaction.followUp(
+				"There was an error while executing this command!"
+			)
+		}
 	}
 })
 
@@ -238,36 +225,4 @@ bot.on("guildCreate", async guild => {
 bot.on("guildDelete", async guild => {
 	console.log(`Removed from Guild(${guild.name})`)
 	await botCache.deleteGuildCache(guild.id)
-})
-
-bot.on("interactionCreate", async interaction => {
-	if (!interaction.guild) return
-
-	const cache = await botCache.getGuildCache(interaction.guild!)
-	if (interaction.isCommand()) {
-		const command = commands.get(interaction.commandName)
-		if (!command) return
-
-		try {
-			const commandFile = command as iInteractionFile
-			if (commandFile.execute) {
-				await commandFile.execute(interaction, cache)
-			}
-
-			const commandFolder = command as iInteractionFolder
-			if (commandFolder.files) {
-				const subcommand = interaction.options.getSubcommand(true)
-				const command = commandFolder.files.get(subcommand)
-				if (!command) return
-
-				await command.execute(interaction, cache)
-			}
-		} catch (error) {
-			console.error(error)
-			await interaction.reply({
-				content: "There was an error while executing this command!",
-				ephemeral: true
-			})
-		}
-	}
 })
