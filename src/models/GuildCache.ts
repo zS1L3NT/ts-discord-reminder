@@ -1,15 +1,6 @@
-import {
-	Client,
-	Guild,
-	Message,
-	MessageActionRow,
-	MessageButton,
-	MessageEmbed,
-	TextChannel
-} from "discord.js"
+import { Client, Guild, TextChannel } from "discord.js"
 import Document, { iDocument } from "./Document"
-import Assignment from "./Assignment"
-import Draft from "./Draft"
+import { Draft, Reminder } from "./Reminder"
 import DocumentConverter from "../utilities/DocumentConverter"
 import ChannelCleaner from "../utilities/ChannelCleaner"
 import DateFunctions from "../utilities/DateFunctions"
@@ -20,11 +11,10 @@ export default class GuildCache {
 	private ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
 	private document: Document = Document.getEmpty()
 
-	private assignments: Assignment[] = []
+	private reminders: Reminder[] = []
 	private draft: Draft | undefined
 
 	private init: number = 0
-	private menu_state: "drafts" | "subjects"
 
 	public constructor(
 		bot: Client,
@@ -32,7 +22,6 @@ export default class GuildCache {
 		ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
 		resolve: (localCache: GuildCache) => void
 	) {
-		this.menu_state = "drafts"
 		this.bot = bot
 		this.guild = guild
 		this.ref = ref
@@ -44,11 +33,11 @@ export default class GuildCache {
 				if (this.init === 2) resolve(this)
 			}
 		})
-		this.ref.collection("assignments").onSnapshot(snap => {
+		this.ref.collection("reminders").onSnapshot(snap => {
 			// Set the cache from Firestore
-			this.assignments = DocumentConverter.toAssignments(
+			this.reminders = DocumentConverter.toReminders(
 				snap.docs,
-				this.getAssignmentRef.bind(this)
+				this.getReminderRef.bind(this)
 			)
 			this.draft = DocumentConverter.toDraft(snap.docs, this)
 
@@ -65,242 +54,92 @@ export default class GuildCache {
 			`Updated Channels for Guild(${this.guild.name}) [${debug}]`
 		)
 
-		const notifyChannelId = this.getNotifyChannelId()
-		const modifyChannelId = this.getModifyChannelId()
-		const modifyMessageId = this.getModifyMessageId()
-		const notifyMessageIds = this.getNotifyMessageIds()
-
-		let channel: TextChannel | undefined
-
-		// Update notify channel
-		try {
-			channel = await new ChannelCleaner(this, notifyChannelId)
-				.setFilter(message => notifyMessageIds.includes(message.id))
-				.clean()
-		} catch (err) {
-			// ! Channel doesn't exist
-			console.warn(
-				`Guild(${this.guild.name}) has no Channel(${notifyChannelId})`
-			)
-			await this.setNotifyChannelId("")
-		}
-		if (channel) await this.updateNotifyChannel(channel)
-
-		// Update modify channel
-		try {
-			channel = await new ChannelCleaner(this, modifyChannelId)
-				.setFilter(
-					message =>
-						message.id === modifyMessageId ||
-						!!message.content.match(/^--/)
-				)
-				.clean()
-		} catch (err) {
-			// ! Channel doesn't exist
-			console.warn(
-				`Guild(${this.guild.name}) has no Channel(${modifyChannelId})`
-			)
-			await this.setModifyChannelId("")
-		}
-		if (channel) await this.updateModifyChannel(channel)
+		await this.updateRemindersChannel()
 
 		console.timeEnd(
 			`Updated Channels for Guild(${this.guild.name}) [${debug}]`
 		)
 	}
 
-	public async updateNotifyChannel(channel: TextChannel) {
-		const assignments = this.getAssignments()
-			.filter(assignment => {
-				if (assignment.getDate() < new Date().getTime()) {
-					this.removeAssignment(assignment.getId())
-					return false
-				}
-				return true
-			})
-			.sort((a, b) => b.getDate() - a.getDate())
+	public async updateRemindersChannel() {
+		const remindersChannelId = this.getRemindersChannelId()
+		const remindersMessageId = this.getRemindersMessageId()
 
-		const notifyMessageIds = this.getNotifyMessageIds()
+		let channel: TextChannel | undefined
 
-		// Check if a message exists for each id
-		for (let i = 0, il = notifyMessageIds.length; i < il; i++) {
-			const notifyMessageId = notifyMessageIds[i]
-			try {
-				// * Edited assignment message
-				await channel.messages.fetch(notifyMessageId)
-			} catch (e) {
-				// ! Assignment message doesn't exist
-				console.warn(
-					`Channel(${channel.name}) has no Message(${notifyMessageId})`
-				)
-				await this.removeNotifyMessageId(notifyMessageId)
-			}
-		}
-
-		const requiredMessages =
-			assignments.length - this.getNotifyMessageIds().length
-		for (let i = 0; i < requiredMessages; i++) {
-			const main = await channel.send(
-				"Waiting for assignments to update..."
+		try {
+			channel = await new ChannelCleaner(this, remindersChannelId)
+				.setExcluded(message => message.id === remindersMessageId)
+				.clean()
+		} catch (err) {
+			console.warn(
+				`Guild(${this.guild.name}) has no Channel(${remindersChannelId})`
 			)
-			await this.pushNotifyMessageId(main.id)
+			await this.setRemindersChannelId("")
+			return
 		}
 
-		const colors = this.getColors()
-		const promises: Promise<Message>[] = []
-
-		for (let i = 0, il = notifyMessageIds.length; i < il; i++) {
-			const notifyMessageId = notifyMessageIds[i]
-			const assignment = assignments[i]
-			const message = await channel.messages.cache.get(notifyMessageId)
-			if (message) {
-				if (assignment) {
-					promises.push(
-						message.edit({
-							embeds: [assignment.getFormatted(colors)]
-						})
-					)
-				} else {
-					await this.removeNotifyMessageId(notifyMessageId)
-				}
-			}
-		}
-
-		await Promise.allSettled(promises)
-	}
-
-	public async updateModifyChannel(channel: TextChannel) {
-		const draft = this.getDraft()
-
-		const modifyMessageId = this.getModifyMessageId()
-		const message = channel.messages.cache.get(modifyMessageId)
-
-		const DraftsButton = new MessageButton()
-			.setLabel("Drafts")
-			.setStyle("PRIMARY")
-			.setEmoji("✏")
-			.setCustomId("enable_drafts")
-		const SubjectsButton = new MessageButton()
-			.setLabel("Subjects")
-			.setStyle("SUCCESS")
-			.setEmoji("📚")
-			.setCustomId("enable_subjects")
-
-		const ButtonActionRow = new MessageActionRow().addComponents(
-			DraftsButton,
-			SubjectsButton
-		)
-
-		const embed =
-			this.getMenuState() === "drafts"
-				? Draft.getFormatted(draft)
-				: this.getSubjectsFormatted()
+		const reminders = this.getReminders()
+		const embeds = reminders.map(reminder => reminder.getFormatted())
+		const message = channel.messages.cache.get(remindersMessageId)
 
 		if (message) {
 			await message.edit({
-				content: "\u200B",
-				components: [ButtonActionRow],
-				embeds: [embed]
+				content: embeds.length === 0 ? "No reminders!" : "\u200B",
+				embeds
 			})
 		} else {
-			// ! Modify message doesn't exist
-			console.warn(
-				`Channel(${channel.name}) has no Message(${modifyMessageId})`
-			)
-			const main = await channel.send({
-				content: "\u200B",
-				components: [ButtonActionRow],
-				embeds: [embed]
+			const message = await channel.send({
+				content: embeds.length === 0 ? "No reminders!" : "\u200B",
+				embeds
 			})
-			await this.setModifyMessageId(main.id)
+			await this.setRemindersMessageId(message.id)
 		}
 	}
 
-	public async updatePingChannel(assignment: Assignment) {
+	public async updatePingChannel(reminder: Reminder) {
 		const pingChannelId = this.getPingChannelId()
 
 		const channel = this.guild.channels.cache.get(pingChannelId)
 		if (channel instanceof TextChannel) {
 			channel
 				.send({
-					content: `@everyone ${assignment.getSubject()} ${assignment.getName()} is due in ${new DateFunctions(
-						assignment.getDate()
+					content: `@everyone ${
+						reminder.name
+					} is due in ${new DateFunctions(
+						reminder.date
 					).getDueIn()}!`,
-					embeds: [assignment.getFormatted(this.getColors())]
+					embeds: [reminder.getFormatted()]
 				})
 				.then()
 		}
 	}
 
-	public async updateNotifyChannelInline() {
-		const channel = this.guild.channels.cache.get(this.getNotifyChannelId())
-		if (channel instanceof TextChannel) {
-			await this.updateNotifyChannel(channel)
-		}
-	}
-
-	public async updateModifyChannelInline() {
-		const channel = this.guild.channels.cache.get(this.getModifyChannelId())
-		if (channel instanceof TextChannel) {
-			await this.updateModifyChannel(channel)
-		}
-	}
-
 	/**
 	 * Get the reference to the object in Firestore
-	 * @param id Assignment ID
+	 * @param id Reminder ID
 	 * @returns Reference to object in Firestore
 	 */
-	public getAssignmentRef(id: string) {
-		return this.ref.collection("assignments").doc(id)
+	public getReminderRef(id: string) {
+		return this.ref.collection("reminders").doc(id)
 	}
 
-	public getModifyChannelId() {
-		return this.document.value.modify_channel_id
+	public getRemindersChannelId() {
+		return this.document.value.reminders_channel_id
 	}
 
-	public async setModifyChannelId(modify_channel_id: string) {
-		this.document.value.modify_channel_id = modify_channel_id
-		await this.ref.update({ modify_channel_id })
+	public async setRemindersChannelId(reminders_channel_id: string) {
+		this.document.value.reminders_channel_id = reminders_channel_id
+		await this.ref.update({ reminders_channel_id })
 	}
 
-	public getModifyMessageId() {
-		return this.document.value.modify_message_id
+	public getRemindersMessageId() {
+		return this.document.value.reminders_message_id
 	}
 
-	public async setModifyMessageId(modify_message_id: string) {
-		this.document.value.modify_message_id = modify_message_id
-		await this.ref.update({ modify_message_id })
-	}
-
-	public getNotifyChannelId() {
-		return this.document.value.notify_channel_id
-	}
-
-	public async setNotifyChannelId(notify_channel_id: string) {
-		this.document.value.notify_channel_id = notify_channel_id
-		await this.ref.update({ notify_channel_id })
-	}
-
-	public getNotifyMessageIds() {
-		return this.document.value.notify_message_ids
-	}
-
-	public async pushNotifyMessageId(notify_message_id: string) {
-		this.document.value.notify_message_ids.push(notify_message_id)
-		await this.ref.update({
-			notify_message_ids: this.document.value.notify_message_ids
-		})
-	}
-
-	public async removeNotifyMessageId(notify_message_id: string) {
-		this.document.value.notify_message_ids =
-			this.document.value.notify_message_ids.filter(
-				id => id !== notify_message_id
-			)
-		await this.ref.update({
-			notify_message_ids: this.document.value.notify_message_ids
-		})
+	public async setRemindersMessageId(reminders_message_id: string) {
+		this.document.value.reminders_message_id = reminders_message_id
+		await this.ref.update({ reminders_message_id })
 	}
 
 	public getPingChannelId() {
@@ -312,36 +151,36 @@ export default class GuildCache {
 		await this.ref.update({ ping_channel_id })
 	}
 
-	public generateAssignmentId() {
-		return this.ref.collection("assignments").doc().id
+	public generateReminderId() {
+		return this.ref.collection("reminders").doc().id
 	}
 
-	public getAssignment(id: string): Assignment | undefined {
-		return this.getAssignments().filter(a => a.getId() === id)[0]
+	public getReminder(id: string): Reminder | undefined {
+		return this.getReminders().filter(a => a.id === id)[0]
 	}
 
-	public getAssignments() {
-		return this.assignments
+	public getReminders() {
+		return this.reminders
 	}
 
 	/**
-	 * @async Creates a new Assignment in the Guild Cache
-	 * @param assignment Assignment to add to Firestore
+	 * @async Creates a new Reminder in the Guild Cache
+	 * @param reminder Reminder to add to Firestore
 	 */
-	public async pushAssignment(assignment: Assignment) {
-		this.assignments.push(assignment)
-		await this.ref.collection("assignments").doc(assignment.getId()).set({
-			id: assignment.getId(),
-			name: assignment.getName(),
-			subject: assignment.getSubject(),
-			date: assignment.getDate(),
-			details: assignment.getDetails()
+	public async pushReminder(reminder: Reminder) {
+		this.reminders.push(reminder)
+		await this.ref.collection("reminders").doc(reminder.id).set({
+			id: reminder.id,
+			name: reminder.name,
+			date: reminder.date,
+			details: reminder.details,
+			priority: reminder.priority
 		})
 	}
 
-	public async removeAssignment(id: string) {
-		this.assignments = this.assignments.filter(a => a.getId() !== id)
-		await this.ref.collection("assignments").doc(id).delete()
+	public async removeReminder(id: string) {
+		this.reminders = this.reminders.filter(a => a.id !== id)
+		await this.ref.collection("reminders").doc(id).delete()
 	}
 
 	public getDraft() {
@@ -357,51 +196,5 @@ export default class GuildCache {
 			await this.draft.delete()
 			this.draft = undefined
 		}
-	}
-
-	public getColors() {
-		return this.document.value.colors
-	}
-
-	public getSubjectsFormatted() {
-		return new MessageEmbed()
-			.setTitle("Subjects")
-			.setDescription(
-				Object.keys(this.document.value.colors)
-					.map(code => `${code}: ${this.document.value.colors[code]}`)
-					.join("\n")
-			)
-			.setColor("#3BA55C")
-			.addField("\u200B", "\u200B")
-			.addField("Find a color here", "https://htmlcolorcodes.com")
-			.addField(
-				"Notice",
-				"You can't rename a subject, but you can delete it and create it again!"
-			)
-			.addField("Create new subject", "`--create <subject code> <color>`")
-			.addField("Change subject color", "`--edit <subject code> <color>`")
-			.addField("Delete subject", "`--delete <subject code>`")
-	}
-
-	public getSubjects() {
-		return Object.keys(this.document.value.colors)
-	}
-
-	public async changeSubject(name: string, color: string) {
-		this.document.value.colors[name] = color
-		await this.ref.update({ colors: this.document.value.colors })
-	}
-
-	public async deleteSubject(name: string) {
-		delete this.document.value.colors[name]
-		await this.ref.update({ colors: this.document.value.colors })
-	}
-
-	public getMenuState() {
-		return this.menu_state
-	}
-
-	public setMenuState(menu_state: "drafts" | "subjects") {
-		this.menu_state = menu_state
 	}
 }

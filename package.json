@@ -1,7 +1,7 @@
 {
-	"name": "ts-assignmentbot",
+	"name": "ts-discord-reminder",
 	"version": "1.0.0",
-	"description": "Assignment timer bot",
+	"description": "Reminder bot",
 	"main": "build/app.js",
 	"author": "zS1L3NT",
 	"scripts": {
@@ -23,6 +23,7 @@
 	"engineStrict": true,
 	"devDependencies": {
 		"@types/node": "^15.6.1",
+		"@types/node-fetch": "^2.5.12",
 		"@types/ws": "^7.4.4",
 		"ts-node": "^10.0.0",
 		"typescript": "^4.3.2"

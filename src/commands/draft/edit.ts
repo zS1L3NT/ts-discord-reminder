@@ -1,15 +1,16 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { iInteractionSubcommandFile } from "../../app"
+import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
+import { Draft } from "../../models/Reminder"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
 		.setName("edit")
-		.setDescription("Move an assignment to the draft for editing")
+		.setDescription("Move an reminder to the draft for editing")
 		.addStringOption(option =>
 			option
 				.setName("id")
 				.setDescription(
-					"ID of the assignment. This is show in each assignment"
+					"ID of the reminder. This is show in each reminder"
 				)
 				.setRequired(true)
 		),
@@ -19,18 +20,20 @@ module.exports = {
 		}
 
 		const id = helper.string("id", true)!
-		const assignment = helper.cache.getAssignment(id)
+		const reminder = helper.cache.getReminder(id)
 
-		if (!assignment) {
-			return helper.respond(`❌ Assignment does not exist`)
+		if (!reminder) {
+			return helper.respond(`❌ Reminder does not exist`)
 		}
 
-		const draft = await assignment.toDraft(helper.cache)
+		const draft = await reminder.toDraft(helper.cache)
 		await draft.saveToFirestore()
 		helper.cache.setDraft(draft)
-		await helper.cache.updateNotifyChannelInline()
-		await helper.cache.updateModifyChannelInline()
+		helper.cache.updateRemindersChannel().then()
 
-		helper.respond("✅ Assignment moved to draft")
+		helper.respond({
+			content: "✅ Reminder moved to draft",
+			embeds: [Draft.getFormatted(draft)]
+		})
 	}
 } as iInteractionSubcommandFile

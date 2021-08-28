@@ -1,11 +1,11 @@
-import { iInteractionSubcommandFile } from "../../app"
+import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import Draft from "../../models/Draft"
+import { Draft } from "../../models/Reminder"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
 		.setName("create")
-		.setDescription("Create a draft of an assignment to make changes to"),
+		.setDescription("Create a draft of a reminder to make changes to"),
 	execute: async helper => {
 		const draft = helper.cache.getDraft()
 		if (draft) {
@@ -14,21 +14,20 @@ module.exports = {
 			)
 		}
 
-		const assignment = new Draft(
+		const reminder = new Draft(
 			helper.cache,
-			helper.cache.generateAssignmentId(),
+			helper.cache.generateReminderId(),
 			"",
-			"",
-			new Date().getTime(),
-			[]
+			Date.now(),
+			[],
+			1
 		)
-		await assignment.saveToFirestore()
-		helper.cache.setDraft(assignment)
-		await helper.cache.updateModifyChannelInline()
+		await reminder.saveToFirestore()
+		helper.cache.setDraft(reminder)
 
 		helper.respond({
 			content: `✅ Created draft`,
-			embeds: [Draft.getFormatted(draft)]
+			embeds: [Draft.getFormatted(helper.cache.getDraft())]
 		})
 	}
 } as iInteractionSubcommandFile

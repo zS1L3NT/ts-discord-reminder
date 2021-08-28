@@ -1,23 +1,21 @@
-import Assignment from "../models/Assignment"
+import { Draft, Reminder } from "../models/Reminder"
 import GuildCache from "../models/GuildCache"
-import Draft from "../models/Draft"
 
 export default class DocumentConverter {
-	public static toAssignments(
+	public static toReminders(
 		docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[],
-		getAssignmentRef: (
+		getReminderRef: (
 			id: string
 		) => FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
 	) {
-		const items: Assignment[] = []
-		for (let i = 0, il = docs.length; i < il; i++) {
-			const doc = docs[i]
+		const items: Reminder[] = []
+		for (const doc of docs) {
 			const { id, name, subject, date, details } = doc.data()
 			if (doc.id === "draft") continue
 
 			items.push(
-				new Assignment(
-					getAssignmentRef(id),
+				new Reminder(
+					getReminderRef(id),
 					id,
 					name,
 					subject,
@@ -32,13 +30,12 @@ export default class DocumentConverter {
 
 	public static toDraft(
 		docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[],
-		this_: GuildCache
+		cache: GuildCache
 	) {
-		for (let i = 0, il = docs.length; i < il; i++) {
-			const doc = docs[i]
+		for (const doc of docs) {
 			const { id, name, subject, date, details } = doc.data()
 			if (doc.id === "draft")
-				return new Draft(this_, id, name, subject, date, details)
+				return new Draft(cache, id, name, subject, date, details)
 		}
 	}
 }

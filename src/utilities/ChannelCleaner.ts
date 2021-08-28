@@ -14,12 +14,12 @@ export default class ChannelCleaner {
 	}
 
 	/**
-	 * Set a filter to remove messages that meet a condition
-	 * {true} if excluding message from deletion
+	 * Set a filter to remove messages that meet a condition.
+	 * TRUE if excluding message from deletion
 	 *
 	 * @param filter Filter
 	 */
-	public setFilter(filter: iFilter) {
+	public setExcluded(filter: iFilter) {
 		this.filter = filter
 		return this
 	}

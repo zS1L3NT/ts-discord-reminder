@@ -1,5 +1,6 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { iInteractionSubcommandFile } from "../../app"
+import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
+import { Draft } from "../../models/Reminder"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -22,11 +23,13 @@ module.exports = {
 		}
 
 		const position = helper.integer("position", true)! - 1
-		if (position < helper.cache.getDraft()!.getDetails().length) {
+		if (position < helper.cache.getDraft()!.details.length) {
 			await draft.removeDetail(position)
-			await helper.cache.updateModifyChannelInline()
 
-			helper.respond(`✅ Detail removed from draft`)
+			helper.respond({
+				content: `✅ Draft detail removed`,
+				embeds: [Draft.getFormatted(draft)]
+			})
 		} else {
 			helper.respond(`❌ Detail at index ${position + 1} doesn't exist`)
 		}

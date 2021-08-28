@@ -1,30 +1,25 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { iInteractionSubcommandFile } from "../../app"
+import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { TextChannel } from "discord.js"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
-		.setName("assignments-channel")
+		.setName("reminders-channel")
 		.setDescription(
-			"Set the channel that all the assignment embeds show up in"
+			"Set the channel that all the reminder embeds show up in"
 		)
 		.addChannelOption(option =>
 			option
 				.setName("channel")
-				.setDescription("Leave empty to unset the assignments channel")
+				.setDescription("Leave empty to unset the reminders channel")
 		),
 	execute: async helper => {
 		const channel = helper.channel("channel")
 		if (channel instanceof TextChannel) {
 			switch (channel.id) {
-				case helper.cache.getNotifyChannelId():
+				case helper.cache.getRemindersChannelId():
 					helper.respond(
-						"❌ This channel is already the notify channel!"
-					)
-					break
-				case helper.cache.getModifyChannelId():
-					helper.respond(
-						"❌ This channel is already the modify channel!"
+						"❌ This channel is already the reminders channel!"
 					)
 					break
 				case helper.cache.getPingChannelId():
@@ -33,15 +28,17 @@ module.exports = {
 					)
 					break
 				default:
-					await helper.cache.setNotifyChannelId(channel.id)
+					const message = await channel.send("\u200B")
+					await helper.cache.setRemindersChannelId(channel.id)
+					await helper.cache.setRemindersMessageId(message.id)
 					helper.respond(
-						`✅ Assignments channel reassigned to ${channel.toString()}`
+						`✅ Reminders channel reassigned to ${channel.toString()}`
 					)
 					break
 			}
 		} else if (channel === null) {
-			await helper.cache.setNotifyChannelId("")
-			helper.respond(`✅ Assignments channel unassigned`)
+			await helper.cache.setRemindersChannelId("")
+			helper.respond(`✅ Reminders channel unassigned`)
 		} else {
 			helper.respond(`❌ Please select a text channel`)
 		}

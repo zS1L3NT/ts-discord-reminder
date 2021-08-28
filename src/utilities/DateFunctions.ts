@@ -69,14 +69,14 @@ export default class DateFunctions {
 		return new Date(yearInt, monthInt - 1, dayInt, hourInt, minuteInt)
 	}
 
-	public isBetweenRange(actual: number, range: number) {
-		const high = actual + range
-		const low = actual - range
+	public plusMinus(actual: number) {
+		const high = actual + 30000
+		const low = actual - 30000
 		return this.time >= low && this.time <= high
 	}
 
 	public getDueIn() {
-		const ms = this.time - new Date().getTime() + 30000
+		const ms = this.time - Date.now() + 30000
 
 		if (ms < 1000) {
 			return "NOW"

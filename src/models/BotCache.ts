@@ -18,7 +18,7 @@ export default class BotCache {
 			databaseURL: config.firebase.database_url
 		})
 		this.bot = bot
-		this.ref = admin.firestore().collection("ts-assignmentbot")
+		this.ref = admin.firestore().collection(config.firebase.collection)
 	}
 
 	public getGuildCache(guild: Guild): Promise<GuildCache> {
@@ -45,9 +45,17 @@ export default class BotCache {
 	}
 
 	public async deleteGuildCache(guildId: string) {
+		const promises: Promise<any>[] = []
+
 		const doc = await this.ref.doc(guildId).get()
 		if (doc.exists) {
-			await this.ref.doc(guildId).delete()
+			const doc = this.ref.doc(guildId)
+			;(await doc.collection("reminders").get()).forEach(snap => {
+				promises.push(doc.collection("reminders").doc(snap.id).delete())
+			})
+			promises.push(doc.delete())
+
+			await Promise.allSettled(promises)
 		}
 	}
 }

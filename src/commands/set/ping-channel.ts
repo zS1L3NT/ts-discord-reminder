@@ -1,12 +1,12 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { iInteractionSubcommandFile } from "../../app"
+import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { TextChannel } from "discord.js"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
 		.setName("ping-channel")
 		.setDescription(
-			"Set the channel where the bot pings all users about assignments"
+			"Set the channel where the bot pings all users about reminders"
 		)
 		.addChannelOption(option =>
 			option
@@ -17,14 +17,9 @@ module.exports = {
 		const channel = helper.channel("channel")
 		if (channel instanceof TextChannel) {
 			switch (channel.id) {
-				case helper.cache.getNotifyChannelId():
+				case helper.cache.getRemindersChannelId():
 					helper.respond(
-						"❌ This channel is already the notify channel!"
-					)
-					break
-				case helper.cache.getModifyChannelId():
-					helper.respond(
-						"❌ This channel is already the modify channel!"
+						"❌ This channel is already the reminders channel!"
 					)
 					break
 				case helper.cache.getPingChannelId():

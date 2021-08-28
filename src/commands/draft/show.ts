@@ -1,18 +1,14 @@
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { Draft } from "../../models/Reminder"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
-		.setName("discard")
-		.setDescription("Discard the existing draft"),
+		.setName("show")
+		.setDescription("Show the current draft"),
 	execute: async helper => {
-		const draft = helper.cache.getDraft()
-		if (!draft) {
-			return helper.respond("❌ No draft to discard")
-		}
-
-		await helper.cache.removeDraft()
-
-		helper.respond("✅ Draft discarded")
+		helper.respond({
+			embeds: [Draft.getFormatted(helper.cache.getDraft())]
+		})
 	}
 } as iInteractionSubcommandFile

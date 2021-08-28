@@ -1,7 +1,7 @@
-import { iInteractionSubcommandFile } from "../../app"
+import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import DateFunctions from "../../utilities/DateFunctions"
-import Draft from "../../models/Draft"
+import { Draft } from "../../models/Reminder"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -11,7 +11,7 @@ module.exports = {
 			option
 				.setName("date")
 				.setDescription(
-					"Due date of the assignment.\nMake sure the date is in the format `<DD>/<MM>/<YYYY> <hh>:<mm>`"
+					"Due date of the reminder. Make sure the date is in the format `<DD>/<MM>/<YYYY> <hh>:<mm>`"
 				)
 				.setRequired(true)
 		),
@@ -40,7 +40,6 @@ module.exports = {
 		}
 
 		await draft.setDate(date.getTime())
-		await helper.cache.updateModifyChannelInline()
 
 		helper.respond({
 			content: `✅ Draft date updated`,

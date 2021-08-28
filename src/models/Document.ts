@@ -1,10 +1,7 @@
 export interface iDocument {
-	modify_channel_id: string
-	modify_message_id: string
-	notify_channel_id: string
-	notify_message_ids: string[]
+	reminders_channel_id: string
+	reminders_message_id: string
 	ping_channel_id: string
-	colors: { [subject_name: string]: string }
 }
 
 export default class Document {
@@ -16,12 +13,9 @@ export default class Document {
 
 	public static getEmpty(): Document {
 		return new Document({
-			modify_channel_id: "",
-			modify_message_id: "",
-			notify_channel_id: "",
-			notify_message_ids: [],
-			ping_channel_id: "",
-			colors: {}
+			reminders_channel_id: "",
+			reminders_message_id: "",
+			ping_channel_id: ""
 		})
 	}
 }

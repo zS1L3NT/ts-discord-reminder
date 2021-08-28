@@ -1,29 +1,29 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { iInteractionSubcommandFile } from "../../app"
+import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
 		.setName("delete")
-		.setDescription("Delete an assignment by it's ID")
+		.setDescription("Delete an reminder by it's ID")
 		.addStringOption(option =>
 			option
 				.setName("id")
 				.setDescription(
-					"ID of the assignment. This is show in each assignment"
+					"ID of the reminder. This is show in each reminder"
 				)
 				.setRequired(true)
 		),
 	execute: async helper => {
 		const id = helper.string("id", true)!
-		const assignment = helper.cache.getAssignment(id)
+		const reminder = helper.cache.getReminder(id)
 
-		if (!assignment) {
-			return helper.respond(`❌ Assignment does not exist`)
+		if (!reminder) {
+			return helper.respond(`❌ Reminder does not exist`)
 		}
 
-		await helper.cache.removeAssignment(id)
-		await helper.cache.updateNotifyChannelInline()
+		await helper.cache.removeReminder(id)
+		helper.cache.updateRemindersChannel().then()
 
-		helper.respond(`✅ Assignment deleted`)
+		helper.respond(`✅ Reminder deleted`)
 	}
 } as iInteractionSubcommandFile

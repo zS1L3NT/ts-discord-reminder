@@ -1,5 +1,6 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { iInteractionSubcommandFile } from "../../app"
+import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
+import { Draft } from "../../models/Reminder"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -8,7 +9,7 @@ module.exports = {
 		.addStringOption(option =>
 			option
 				.setName("name")
-				.setDescription("Name of the assignment")
+				.setDescription("Name of the reminder")
 				.setRequired(true)
 		),
 	execute: async helper => {
@@ -19,8 +20,10 @@ module.exports = {
 
 		const name = helper.string("name", true)!
 		await draft.setName(name)
-		await helper.cache.updateModifyChannelInline()
 
-		helper.respond("✅ Draft name updated")
+		helper.respond({
+			content: "✅ Draft name updated",
+			embeds: [Draft.getFormatted(draft)]
+		})
 	}
 } as iInteractionSubcommandFile
