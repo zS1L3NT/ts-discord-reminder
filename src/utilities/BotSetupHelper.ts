@@ -6,31 +6,36 @@ import {
 } from "@discordjs/builders"
 import InteractionHelper from "./InteractionHelper"
 import MessageHelper from "./MessageHelper"
+import ButtonHelper from "./ButtonHelper"
+import MenuHelper from "./MenuHelper"
 import fs from "fs"
 import path from "path"
 import SlashCommandDeployer from "./SlashCommandDeployer"
 
 export default class BotSetupHelper {
-	private readonly bot: Client
 	public cache: BotCache
 
+	public interactionFiles: Collection<string,
+		iInteractionFile | iInteractionFolder>
+	public buttonFiles: Collection<string,
+		iButtonFile>
+	public menuFolders: Collection<string, Collection<string, iMenuFile>>
+	private readonly bot: Client
 	private readonly messageFiles: iMessageFile[]
-	public interactionFiles: Collection<
-		string,
-		iInteractionFile | iInteractionFolder
-	>
 
 	constructor(bot: Client) {
 		this.bot = bot
 		this.cache = new BotCache(this.bot)
 		this.messageFiles = []
-		this.interactionFiles = new Collection<
-			string,
-			iInteractionFile | iInteractionFolder
-		>()
+		this.interactionFiles = new Collection<string,
+			iInteractionFile | iInteractionFolder>()
+		this.buttonFiles = new Collection<string, iButtonFile>()
+		this.menuFolders = new Collection<string, Collection<string, iMenuFile>>()
 
 		this.setupMessageCommands()
 		this.setupInteractionCommands()
+		this.setupButtonCommands()
+		this.setupMenuCommands()
 
 		this.bot.on("messageCreate", async message => {
 			if (message.author.bot) return
@@ -53,8 +58,8 @@ export default class BotSetupHelper {
 
 		this.bot.on("interactionCreate", async interaction => {
 			if (!interaction.guild) return
-
 			const cache = await this.cache.getGuildCache(interaction.guild!)
+
 			if (interaction.isCommand()) {
 				await interaction.deferReply({ ephemeral: true })
 				const interactionFile = this.interactionFiles.get(
@@ -82,6 +87,41 @@ export default class BotSetupHelper {
 					console.error(error)
 					await interaction.followUp(
 						"There was an error while executing this command!"
+					)
+				}
+			}
+
+			if (interaction.isButton()) {
+				await interaction.deferReply({ ephemeral: true })
+				const buttonFile = this.buttonFiles.get(interaction.customId)
+				if (!buttonFile) return
+
+				const helper = new ButtonHelper(cache, interaction)
+				try {
+					await buttonFile.execute(helper)
+				} catch (error) {
+					console.error(error)
+					await interaction.followUp(
+						"There was an error while executing this button!"
+					)
+				}
+			}
+
+			if (interaction.isSelectMenu()) {
+				await interaction.deferReply({ ephemeral: true })
+				const menuFolder = this.menuFolders.get(interaction.customId)
+				if (!menuFolder) return
+
+				const menuFile = menuFolder.get(interaction.values[0] ?? "")
+				if (!menuFile) return
+
+				const helper = new MenuHelper(cache, interaction)
+				try {
+					await menuFile.execute(helper)
+				} catch (error) {
+					console.error(error)
+					await interaction.followUp(
+						"There was an error while executing this menu item!"
 					)
 				}
 			}
@@ -116,61 +156,85 @@ export default class BotSetupHelper {
 		return file.endsWith(".ts") || file.endsWith(".js")
 	}
 
-	private setupMessageFolder(location: string) {
-		const units = fs.readdirSync(path.join(__dirname, location))
+	private setupMessageCommands() {
+		const fileNames = fs
+			.readdirSync(path.join(__dirname, "../messages"))
+			.filter(f => BotSetupHelper.isFile(f))
 
-		for (const commandFolder of units.filter(
-			f => !BotSetupHelper.isFile(f)
-		)) {
-			this.setupMessageFolder(`${location}/${commandFolder}`)
-		}
-
-		for (const commandFile of units.filter(f => BotSetupHelper.isFile(f))) {
-			const file = require(`${location}/${commandFile}`) as iMessageFile
+		for (const messageFileName of fileNames) {
+			const file = require(`../messages/${messageFileName}`) as iMessageFile
 			this.messageFiles.push(file)
 		}
 	}
 
-	private setupMessageCommands() {
-		this.setupMessageFolder("../messages")
-	}
-
 	private setupInteractionCommands() {
-		const files = fs.readdirSync(path.join(__dirname, "../commands"))
+		const units = fs
+			.readdirSync(path.join(__dirname, "../commands"))
 
 		// Slash subcommands
-		for (const interactionFolder of files.filter(
-			f => !BotSetupHelper.isFile(f)
-		)) {
-			const interactionFiles = fs.readdirSync(
-				path.join(__dirname, `../commands/${interactionFolder}`)
+		for (const interactionFolderName of units
+			.filter(f => !BotSetupHelper.isFile(f))) {
+			const interactionFileNames = fs.readdirSync(
+				path.join(__dirname, `../commands/${interactionFolderName}`)
 			)
 			const command = new SlashCommandBuilder()
-				.setName(interactionFolder)
-				.setDescription(`Commands for ${interactionFolder}`)
+				.setName(interactionFolderName)
+				.setDescription(`Commands for ${interactionFolderName}`)
 
 			const files: Collection<string, iInteractionSubcommandFile> =
 				new Collection()
-			for (const commandFile of interactionFiles.filter(f =>
+			for (const commandFile of interactionFileNames.filter(f =>
 				BotSetupHelper.isFile(f)
 			)) {
 				const file =
-					require(`../commands/${interactionFolder}/${commandFile}`) as iInteractionSubcommandFile
+					require(`../commands/${interactionFolderName}/${commandFile}`) as iInteractionSubcommandFile
 				files.set(file.data.name, file)
 				command.addSubcommand(file.data)
 			}
 
-			this.interactionFiles.set(interactionFolder, {
+			this.interactionFiles.set(interactionFolderName, {
 				data: command,
 				files
 			})
 		}
 
 		// Slash commands
-		for (const commandFile of files.filter(f => BotSetupHelper.isFile(f))) {
-			const file =
-				require(`../commands/${commandFile}`) as iInteractionFile
-			this.interactionFiles.set(file.data.name, file)
+		for (const interactionFileNames of units
+			.filter(f => BotSetupHelper.isFile(f))) {
+			const iInteractionFile =
+				require(`../commands/${interactionFileNames}`) as iInteractionFile
+			this.interactionFiles.set(iInteractionFile.data.name, iInteractionFile)
+		}
+	}
+
+	private setupButtonCommands() {
+		const fileNames = fs
+			.readdirSync(path.join(__dirname, "../buttons"))
+			.filter(f => BotSetupHelper.isFile(f))
+
+		for (const buttonFileName of fileNames) {
+			const buttonFile = require(`../buttons/${buttonFileName}`) as iButtonFile
+			this.buttonFiles.set(buttonFile.id, buttonFile)
+		}
+	}
+
+	private setupMenuCommands() {
+		const folderNames = fs
+			.readdirSync(path.join(__dirname, "../menus"))
+			.filter(f => !BotSetupHelper.isFile(f))
+
+		for (const menuFolderName of folderNames) {
+			const fileNames = fs
+				.readdirSync(path.join(__dirname, "../menus", menuFolderName))
+				.filter(f => BotSetupHelper.isFile(f))
+			const menuCollection = new Collection<string, iMenuFile>()
+
+			for (const menuFileName of fileNames) {
+				const menuFile = require(`../menus/${menuFolderName}/${menuFileName}`) as iMenuFile
+				menuCollection.set(menuFile.id, menuFile)
+			}
+
+			this.menuFolders.set(menuFolderName, menuCollection)
 		}
 	}
 }
@@ -194,4 +258,14 @@ export interface iInteractionSubcommandFile {
 export interface iInteractionFolder {
 	data: SlashCommandBuilder
 	files: Collection<string, iInteractionSubcommandFile>
+}
+
+export interface iButtonFile {
+	id: string
+	execute: (helper: ButtonHelper) => Promise<any>
+}
+
+export interface iMenuFile {
+	id: string
+	execute: (helper: MenuHelper) => Promise<any>
 }
