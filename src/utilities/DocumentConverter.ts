@@ -10,7 +10,7 @@ export default class DocumentConverter {
 	) {
 		const items: Reminder[] = []
 		for (const doc of docs) {
-			const { id, name, subject, date, details } = doc.data()
+			const { id, name, date, details, priority } = doc.data()
 			if (doc.id === "draft") continue
 
 			items.push(
@@ -18,9 +18,9 @@ export default class DocumentConverter {
 					getReminderRef(id),
 					id,
 					name,
-					subject,
 					date,
-					details
+					details,
+					priority
 				)
 			)
 		}
@@ -33,9 +33,9 @@ export default class DocumentConverter {
 		cache: GuildCache
 	) {
 		for (const doc of docs) {
-			const { id, name, subject, date, details } = doc.data()
+			const { id, name, date, details, priority } = doc.data()
 			if (doc.id === "draft")
-				return new Draft(cache, id, name, subject, date, details)
+				return new Draft(cache, id, name, date, details, priority)
 		}
 	}
 }
