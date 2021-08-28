@@ -43,7 +43,8 @@ export default class DateFunctions {
 		if (LongerMonths.includes(monthInt)) {
 			if (dayInt > 31)
 				throw new Error(`This month cannot have ${dayInt} days`)
-		} else {
+		}
+		else {
 			if (dayInt > 30)
 				throw new Error(`This month cannot have ${dayInt} days`)
 		}
@@ -61,10 +62,11 @@ export default class DateFunctions {
 		if (minuteInt > 59) throw new Error("Minute must not exceed 59")
 
 		// Handle timezone change
-		if (new Date().getUTCHours() == new Date().getHours()) {
-			let UTC_hour = hourInt - 8
-			if (UTC_hour < 0) UTC_hour += 24
-			return new Date(yearInt, monthInt - 1, dayInt, UTC_hour, minuteInt)
+		if (new Date().getUTCHours() === new Date().getHours()) {
+			return new Date(
+				new Date(yearInt, monthInt - 1, dayInt, hourInt, minuteInt).getTime() -
+				28800000
+			)
 		}
 		return new Date(yearInt, monthInt - 1, dayInt, hourInt, minuteInt)
 	}
@@ -115,7 +117,8 @@ export default class DateFunctions {
 		if (date.getUTCHours() === date.getHours()) {
 			// Wrong timezone, in UK
 			localDate = new Date(this.time + 28800000)
-		} else {
+		}
+		else {
 			localDate = date
 		}
 
@@ -133,11 +136,11 @@ export default class DateFunctions {
 				? hours === 12
 					? `12:${minutes.toString().padStart(2, "0")}pm`
 					: `${(hours - 12).toString().padStart(2, "0")}:${minutes
-							.toString()
-							.padStart(2, "0")}pm`
-				: `${hours.toString().padStart(2, "0")}:${minutes
 						.toString()
-						.padStart(2, "0")}am`
+						.padStart(2, "0")}pm`
+				: `${hours.toString().padStart(2, "0")}:${minutes
+					.toString()
+					.padStart(2, "0")}am`
 
 		return `${day_of_week}, ${date_in_month} ${name_of_month} ${year} at ${time}`
 	}
