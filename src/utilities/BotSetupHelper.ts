@@ -1,9 +1,6 @@
 import { Client, Collection, Guild } from "discord.js"
 import BotCache from "../models/BotCache"
-import {
-	SlashCommandBuilder,
-	SlashCommandSubcommandBuilder
-} from "@discordjs/builders"
+import { SlashCommandBuilder, SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import InteractionHelper from "./InteractionHelper"
 import MessageHelper from "./MessageHelper"
 import ButtonHelper from "./ButtonHelper"
@@ -130,6 +127,7 @@ export default class BotSetupHelper {
 		this.bot.on("guildCreate", async guild => {
 			console.log(`Added to Guild(${guild.name})`)
 			await this.cache.createGuildCache(guild)
+			await this.deploySlashCommands(guild)
 		})
 
 		this.bot.on("guildDelete", async guild => {
@@ -143,13 +141,7 @@ export default class BotSetupHelper {
 		this.interactionFiles.forEach(command =>
 			deployer.addCommand(command.data)
 		)
-		try {
-			await deployer.deploy()
-		} catch (err) {
-			console.error(
-				`Failed to deploy slash commands for Guild(${guild.name}): ${err.message}`
-			)
-		}
+		await deployer.deploy()
 	}
 
 	private static isFile(file: string): boolean {

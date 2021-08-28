@@ -1,5 +1,5 @@
 import admin from "firebase-admin"
-import { Client, Guild } from "discord.js"
+import { Client, Collection, Guild } from "discord.js"
 import GuildCache from "./GuildCache"
 import Document from "./Document"
 
@@ -8,9 +8,7 @@ const config = require("../../config.json")
 export default class BotCache {
 	public bot: Client
 	private ref: FirebaseFirestore.CollectionReference<FirebaseFirestore.DocumentData>
-	private guilds: {
-		[guildId: string]: GuildCache
-	} = {}
+	private guilds: Collection<string, GuildCache>
 
 	public constructor(bot: Client) {
 		admin.initializeApp({
@@ -19,19 +17,32 @@ export default class BotCache {
 		})
 		this.bot = bot
 		this.ref = admin.firestore().collection(config.firebase.collection)
+		this.guilds = new Collection<string, GuildCache>()
 	}
 
 	public getGuildCache(guild: Guild): Promise<GuildCache> {
-		return new Promise<GuildCache>(resolve => {
-			if (!this.guilds[guild.id]) {
-				this.guilds[guild.id] = new GuildCache(
-					this.bot,
-					guild,
-					this.ref.doc(guild.id),
-					resolve
+		return new Promise<GuildCache>((resolve, reject) => {
+			const cache = this.guilds.get(guild.id)
+			if (!cache) {
+				this.guilds.set(
+					guild.id,
+					new GuildCache(
+						this.bot,
+						guild,
+						this.ref.doc(guild.id),
+						resolve
+					)
 				)
-			} else {
-				resolve(this.guilds[guild.id])
+
+				this.ref
+					.doc(guild.id)
+					.get()
+					.then(snap => {
+						if (!snap.exists) reject()
+					})
+			}
+			else {
+				resolve(cache)
 			}
 		})
 	}
@@ -39,7 +50,7 @@ export default class BotCache {
 	public async createGuildCache(guild: Guild) {
 		const doc = await this.ref.doc(guild.id).get()
 		if (!doc.exists) {
-			await this.ref.doc(guild.id).set(Document.getEmpty())
+			await this.ref.doc(guild.id).set(Document.getEmpty().value)
 		}
 		await this.getGuildCache(guild)
 	}
@@ -57,5 +68,6 @@ export default class BotCache {
 
 			await Promise.allSettled(promises)
 		}
+		this.guilds.delete(guildId)
 	}
 }

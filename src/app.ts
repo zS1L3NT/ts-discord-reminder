@@ -1,8 +1,9 @@
 import { Client, Intents } from "discord.js"
 import AfterEvery from "after-every"
-import DateFunctions from "./utilities/DateFunctions"
-import { Reminder } from "./models/Reminder"
 import BotSetupHelper from "./utilities/BotSetupHelper"
+import GuildCache from "./models/GuildCache"
+import { Reminder } from "./models/Reminder"
+import DateFunctions from "./utilities/DateFunctions"
 
 const config = require("../config.json")
 
@@ -20,21 +21,36 @@ const { cache: botCache } = botSetupHelper
 // endregion
 
 void bot.login(config.discord.token)
-bot.on("ready", () => {
+bot.on("ready", async () => {
 	console.log("Logged in as Reminder Bot#2744")
 
-	bot.guilds.cache.forEach(async guild => {
-		const cache = await botCache.getGuildCache(guild)
+	let debugCount = 0
 
-		await botSetupHelper.deploySlashCommands(guild)
+	let i = 0
+	let count = bot.guilds.cache.size
+	for (const guild of bot.guilds.cache.toJSON()) {
+		const tag = `${(++i).toString().padStart(count.toString().length, "0")}/${count}`
+		let cache: GuildCache | undefined
+		try {
+			cache = await botCache.getGuildCache(guild)
+		} catch (err) {
+			console.error(`${tag} ❌ Couldn't find a Firebase Document for Guild(${guild.name})`)
+			guild.leave()
+			return
+		}
 
-		console.log(`Restored cache for Guild(${guild.name})`)
-		let debugCount = 0
+		try {
+			await botSetupHelper.deploySlashCommands(guild)
+		} catch (err) {
+			console.error(`${tag} ❌ Couldn't get Slash Command permission for Guild(${guild.name})`)
+			guild.leave()
+			return
+		}
 
 		cache.updateMinutely(debugCount).then()
 		AfterEvery(1).minutes(() => {
 			// region Check if reminder is due soon
-			const reminders = cache.getReminders()
+			const reminders = cache!.getReminders()
 			for (const reminder of reminders) {
 				const timeDiff = reminder.date - Date.now()
 
@@ -43,7 +59,7 @@ bot.on("ready", () => {
 						new DateFunctions(timeDiff).plusMinus(ONE_DAY) ||
 						new DateFunctions(timeDiff).plusMinus(6 * ONE_HOUR)
 					) {
-						cache.updatePingChannel(reminder)
+						cache!.updatePingChannel(reminder)
 					}
 				}
 
@@ -56,13 +72,25 @@ bot.on("ready", () => {
 						new DateFunctions(timeDiff).plusMinus(ONE_HOUR) ||
 						new DateFunctions(timeDiff).plusMinus(30 * ONE_MINUTE)
 					) {
-						cache.updatePingChannel(reminder)
+						cache!.updatePingChannel(reminder)
 					}
 				}
 			}
 			// endregion
-
-			cache.updateMinutely(++debugCount).then()
 		})
+
+		console.log(`${tag} ✅ Restored cache for Guild(${guild.name})`)
+	}
+	console.log(`✅ All bot cache restored`)
+	console.log("|")
+
+	AfterEvery(1).minutes(async () => {
+		debugCount++
+		for (const guild of bot.guilds.cache.toJSON()) {
+			const cache = await botCache.getGuildCache(guild)
+			cache.updateMinutely(debugCount).then()
+		}
+
+		console.log("|")
 	})
 })
