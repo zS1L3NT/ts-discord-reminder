@@ -11,12 +11,9 @@ import SlashCommandDeployer from "./SlashCommandDeployer"
 
 export default class BotSetupHelper {
 	public cache: BotCache
-
-	public interactionFiles: Collection<string,
-		iInteractionFile | iInteractionFolder>
-	public buttonFiles: Collection<string,
-		iButtonFile>
-	public menuFolders: Collection<string, Collection<string, iMenuFile>>
+	public interactionFiles: Collection<string, iInteractionFile | iInteractionFolder>
+	public buttonFiles: Collection<string, iButtonFile>
+	public menuFiles: Collection<string, iMenuFile>
 	private readonly bot: Client
 	private readonly messageFiles: iMessageFile[]
 
@@ -24,10 +21,9 @@ export default class BotSetupHelper {
 		this.bot = bot
 		this.cache = new BotCache(this.bot)
 		this.messageFiles = []
-		this.interactionFiles = new Collection<string,
-			iInteractionFile | iInteractionFolder>()
+		this.interactionFiles = new Collection<string, iInteractionFile | iInteractionFolder>()
 		this.buttonFiles = new Collection<string, iButtonFile>()
-		this.menuFolders = new Collection<string, Collection<string, iMenuFile>>()
+		this.menuFiles = new Collection<string, iMenuFile>()
 
 		this.setupMessageCommands()
 		this.setupInteractionCommands()
@@ -106,10 +102,7 @@ export default class BotSetupHelper {
 
 			if (interaction.isSelectMenu()) {
 				await interaction.deferReply({ ephemeral: true })
-				const menuFolder = this.menuFolders.get(interaction.customId)
-				if (!menuFolder) return
-
-				const menuFile = menuFolder.get(interaction.values[0] ?? "")
+				const menuFile = this.menuFiles.get(interaction.customId)
 				if (!menuFile) return
 
 				const helper = new MenuHelper(cache, interaction)
@@ -136,16 +129,22 @@ export default class BotSetupHelper {
 		})
 	}
 
+	private static isFile(file: string): boolean {
+		return file.endsWith(".ts") || file.endsWith(".js")
+	}
+
 	public async deploySlashCommands(guild: Guild) {
 		const deployer = new SlashCommandDeployer(guild.id)
 		this.interactionFiles.forEach(command =>
 			deployer.addCommand(command.data)
 		)
-		await deployer.deploy()
-	}
-
-	private static isFile(file: string): boolean {
-		return file.endsWith(".ts") || file.endsWith(".js")
+		try {
+			await deployer.deploy()
+		} catch (err) {
+			console.error(
+				`Failed to deploy slash commands for Guild(${guild.name}): ${err.message}`
+			)
+		}
 	}
 
 	private setupMessageCommands() {
@@ -211,22 +210,13 @@ export default class BotSetupHelper {
 	}
 
 	private setupMenuCommands() {
-		const folderNames = fs
+		const fileNames = fs
 			.readdirSync(path.join(__dirname, "../menus"))
-			.filter(f => !BotSetupHelper.isFile(f))
+			.filter(f => BotSetupHelper.isFile(f))
 
-		for (const menuFolderName of folderNames) {
-			const fileNames = fs
-				.readdirSync(path.join(__dirname, "../menus", menuFolderName))
-				.filter(f => BotSetupHelper.isFile(f))
-			const menuCollection = new Collection<string, iMenuFile>()
-
-			for (const menuFileName of fileNames) {
-				const menuFile = require(`../menus/${menuFolderName}/${menuFileName}`) as iMenuFile
-				menuCollection.set(menuFile.id, menuFile)
-			}
-
-			this.menuFolders.set(menuFolderName, menuCollection)
+		for (const menuFileName of fileNames) {
+			const menuFile = require(`../menus/${menuFileName}`) as iMenuFile
+			this.menuFiles.set(menuFile.id, menuFile)
 		}
 	}
 }
