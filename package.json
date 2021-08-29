@@ -1,7 +1,7 @@
 {
 	"name": "ts-discord-reminder",
 	"version": "1.0.0",
-	"description": "Reminder bot",
+	"description": "Reminder Bot",
 	"main": "build/app.js",
 	"author": "zS1L3NT",
 	"scripts": {
