@@ -64,6 +64,7 @@ export default class GuildCache {
 	public async updateRemindersChannel() {
 		const remindersChannelId = this.getRemindersChannelId()
 		const remindersMessageId = this.getRemindersMessageId()
+		if (remindersChannelId === "") return
 
 		let channel: TextChannel | undefined
 
