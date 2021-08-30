@@ -36,7 +36,7 @@ bot.on("ready", async () => {
 		} catch (err) {
 			console.error(`${tag} ❌ Couldn't find a Firebase Document for Guild(${guild.name})`)
 			guild.leave()
-			return
+			continue
 		}
 
 		try {
@@ -44,7 +44,7 @@ bot.on("ready", async () => {
 		} catch (err) {
 			console.error(`${tag} ❌ Couldn't get Slash Command permission for Guild(${guild.name})`)
 			guild.leave()
-			return
+			continue
 		}
 
 		cache.updateMinutely(debugCount).then()
