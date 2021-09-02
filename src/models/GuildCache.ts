@@ -63,15 +63,20 @@ export default class GuildCache {
 
 	public async updateRemindersChannel() {
 		const remindersChannelId = this.getRemindersChannelId()
-		const remindersMessageId = this.getRemindersMessageId()
 		if (remindersChannelId === "") return
 
 		let channel: TextChannel | undefined
 
 		try {
-			channel = await new ChannelCleaner(this, remindersChannelId)
-				.setExcluded(message => message.id === remindersMessageId)
-				.clean()
+			const remindersMessageId = this.getRemindersMessageId()
+			const cleaner = new ChannelCleaner(this, remindersChannelId, [remindersMessageId])
+			await cleaner.clean()
+			channel = cleaner.getChannel()
+
+			const newRemindersMessageId = cleaner.getMessageIds()[0]
+			if (newRemindersMessageId !== remindersMessageId) {
+				this.setRemindersMessageId(newRemindersMessageId).then()
+			}
 		} catch (err) {
 			console.warn(
 				`Guild(${this.guild.name}) has no Channel(${remindersChannelId})`
@@ -81,21 +86,20 @@ export default class GuildCache {
 		}
 
 		const reminders = this.getReminders()
+			.filter(assignment => {
+				if (assignment.date < Date.now()) {
+					this.removeReminder(assignment.id)
+					return false
+				}
+				return true
+			})
+			.sort((a, b) => b.date - a.date)
 		const embeds = reminders.map(reminder => reminder.getFormatted())
-		const message = channel.messages.cache.get(remindersMessageId)
-
-		if (message) {
-			await message.edit({
-				content: embeds.length === 0 ? "No reminders!" : "\u200B",
-				embeds
-			})
-		} else {
-			const message = await channel.send({
-				content: embeds.length === 0 ? "No reminders!" : "\u200B",
-				embeds
-			})
-			await this.setRemindersMessageId(message.id)
-		}
+		const message = channel.messages.cache.get(this.getRemindersMessageId())!
+		await message.edit({
+			content: embeds.length === 0 ? "No reminders!" : "\u200B",
+			embeds
+		})
 	}
 
 	public async updatePingChannel(reminder: Reminder) {
