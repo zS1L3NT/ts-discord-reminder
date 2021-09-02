@@ -1,4 +1,4 @@
-import { Message, TextChannel } from "discord.js"
+import { Collection, Message, TextChannel } from "discord.js"
 import GuildCache from "../models/GuildCache"
 
 type iFilter = (message: Message) => boolean
@@ -9,12 +9,15 @@ export default class ChannelCleaner {
 	private messageIds: string[]
 
 	private channel?: TextChannel
+	private messages: Collection<string, Message>
 
 	public constructor(cache: GuildCache, channelId: string, messageIds: string[]) {
 		this.excluded = () => false
 		this.cache = cache
 		this.channelId = channelId
 		this.messageIds = messageIds
+
+		this.messages = new Collection<string, Message>()
 	}
 
 	/**
@@ -37,6 +40,8 @@ export default class ChannelCleaner {
 				if (!this.excluded(message) && !this.messageIds.includes(message.id)) {
 					console.warn(`Message(${message.id}) shouldn't be in Channel(${channel.id})`)
 					message.delete().catch()
+				} else {
+					this.messages.set(message.id, message)
 				}
 			}
 
@@ -52,7 +57,9 @@ export default class ChannelCleaner {
 
 			// Add back fresh messages to the channel
 			for (let i = 0; i < removeCount; i++) {
-				this.messageIds.push((await channel.send("\u200B")).id)
+				const message = await channel.send("\u200B")
+				this.messageIds.push(message.id)
+				this.messages.set(message.id, message)
 			}
 
 			this.channel = channel
@@ -71,5 +78,9 @@ export default class ChannelCleaner {
 
 	public getMessageIds() {
 		return this.messageIds
+	}
+
+	public getMessages() {
+		return this.messages
 	}
 }
