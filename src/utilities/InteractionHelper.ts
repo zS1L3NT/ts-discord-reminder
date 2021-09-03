@@ -18,8 +18,20 @@ export default class InteractionHelper {
 		this.interaction.followUp(options).catch()
 	}
 
+	public mentionable(name: string, required?: boolean) {
+		return this.interaction.options.getMentionable(name, required)
+	}
+
 	public channel(name: string, required?: boolean) {
 		return this.interaction.options.getChannel(name, required)
+	}
+
+	public role(name: string, required?: boolean) {
+		return this.interaction.options.getRole(name, required)
+	}
+
+	public user(name: string, required?: boolean) {
+		return this.interaction.options.getUser(name, required)
 	}
 
 	public string(name: string, required?: boolean) {
@@ -28,5 +40,9 @@ export default class InteractionHelper {
 
 	public integer(name: string, required?: boolean) {
 		return this.interaction.options.getInteger(name, required)
+	}
+
+	public boolean(name: string, required?: boolean) {
+		return this.interaction.options.getBoolean(name, required)
 	}
 }
