@@ -1,20 +1,17 @@
 import { Client, Guild, TextChannel } from "discord.js"
 import Document, { iDocument } from "./Document"
-import { Draft, Reminder } from "./Reminder"
-import DocumentConverter from "../utilities/DocumentConverter"
+import Reminder from "./Reminder"
 import ChannelCleaner from "../utilities/ChannelCleaner"
-import DateFunctions from "../utilities/DateFunctions"
+import DateHelper from "../utilities/DateHelper"
+import FirestoreParser from "../utilities/FirestoreParser"
 
 export default class GuildCache {
 	public bot: Client
 	public guild: Guild
-	private ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
+	public ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
+	public reminders: Reminder[] = []
+	public draft: Reminder | undefined
 	private document: Document = Document.getEmpty()
-
-	private reminders: Reminder[] = []
-	private draft: Draft | undefined
-
-	private init: number = 0
 
 	public constructor(
 		bot: Client,
@@ -28,21 +25,13 @@ export default class GuildCache {
 		this.ref.onSnapshot(snap => {
 			if (snap.exists) {
 				this.document = new Document(snap.data() as iDocument)
-
-				if (this.init < 3) this.init++
-				if (this.init === 2) resolve(this)
+				resolve(this)
 			}
 		})
 		this.ref.collection("reminders").onSnapshot(snap => {
-			// Set the cache from Firestore
-			this.reminders = DocumentConverter.toReminders(
-				snap.docs,
-				this.getReminderRef.bind(this)
-			)
-			this.draft = DocumentConverter.toDraft(snap.docs, this)
-
-			if (this.init < 3) this.init++
-			if (this.init === 2) resolve(this)
+			const converter = new FirestoreParser(this, snap.docs)
+			this.reminders = converter.getReminders()
+			this.draft = converter.getDraft()
 		})
 	}
 
@@ -50,22 +39,18 @@ export default class GuildCache {
 	 * Method run every minute
 	 */
 	public async updateMinutely(debug: number) {
-		console.time(
-			`Updated Channels for Guild(${this.guild.name}) [${debug}]`
-		)
+		console.time(`Updated Channels for Guild(${this.guild.name}) [${debug}]`)
 
 		await this.updateRemindersChannel()
 
-		console.timeEnd(
-			`Updated Channels for Guild(${this.guild.name}) [${debug}]`
-		)
+		console.timeEnd(`Updated Channels for Guild(${this.guild.name}) [${debug}]`)
 	}
 
 	public async updateRemindersChannel() {
 		const remindersChannelId = this.getRemindersChannelId()
 		if (remindersChannelId === "") return
 
-		let channel: TextChannel | undefined
+		let channel: TextChannel
 
 		try {
 			const remindersMessageId = this.getRemindersMessageId()
@@ -85,16 +70,17 @@ export default class GuildCache {
 			return
 		}
 
-		const reminders = this.getReminders()
-			.filter(assignment => {
-				if (assignment.date < Date.now()) {
-					this.removeReminder(assignment.id)
-					return false
-				}
-				return true
-			})
-			.sort((a, b) => b.date - a.date)
-		const embeds = reminders.map(reminder => reminder.getFormatted())
+		// Remove expired reminders
+		for (const reminder of this.reminders) {
+			if (reminder.value.due_date < Date.now()) {
+				this.reminders = this.reminders.filter(rem => rem.value.id !== reminder.value.id)
+				await this.getReminderDoc(reminder.value.id).delete()
+			}
+		}
+
+		const embeds = this.reminders
+			.sort((a, b) => b.value.due_date - a.value.due_date)
+			.map(reminder => reminder.getEmbed())
 		const message = channel.messages.cache.get(this.getRemindersMessageId())!
 		await message.edit({
 			content: embeds.length === 0 ? "No reminders!" : "\u200B",
@@ -110,23 +96,24 @@ export default class GuildCache {
 			channel
 				.send({
 					content: `@everyone ${
-						reminder.name
-					} is due in ${new DateFunctions(
-						reminder.date
+						reminder.value.title
+					} is due in ${new DateHelper(
+						reminder.value.due_date
 					).getDueIn()}!`,
-					embeds: [reminder.getFormatted()]
+					embeds: [reminder.getEmbed()]
 				})
 				.then()
 		}
 	}
 
-	/**
-	 * Get the reference to the object in Firestore
-	 * @param id Reminder ID
-	 * @returns Reference to object in Firestore
-	 */
-	public getReminderRef(id: string) {
-		return this.ref.collection("reminders").doc(id)
+	public getDraftDoc() {
+		return this.getReminderDoc("draft")
+	}
+
+	public getReminderDoc(reminder_id?: string) {
+		return reminder_id
+			? this.ref.collection("reminders").doc(reminder_id)
+			: this.ref.collection("reminders").doc()
 	}
 
 	public getRemindersChannelId() {
@@ -154,52 +141,5 @@ export default class GuildCache {
 	public async setPingChannelId(ping_channel_id: string) {
 		this.document.value.ping_channel_id = ping_channel_id
 		await this.ref.update({ ping_channel_id })
-	}
-
-	public generateReminderId() {
-		return this.ref.collection("reminders").doc().id
-	}
-
-	public getReminder(id: string): Reminder | undefined {
-		return this.getReminders().filter(a => a.id === id)[0]
-	}
-
-	public getReminders() {
-		return this.reminders
-	}
-
-	/**
-	 * @async Creates a new Reminder in the Guild Cache
-	 * @param reminder Reminder to add to Firestore
-	 */
-	public async pushReminder(reminder: Reminder) {
-		this.reminders.push(reminder)
-		await this.ref.collection("reminders").doc(reminder.id).set({
-			id: reminder.id,
-			name: reminder.name,
-			date: reminder.date,
-			details: reminder.details,
-			priority: reminder.priority
-		})
-	}
-
-	public async removeReminder(id: string) {
-		this.reminders = this.reminders.filter(a => a.id !== id)
-		await this.ref.collection("reminders").doc(id).delete()
-	}
-
-	public getDraft() {
-		return this.draft
-	}
-
-	public setDraft(draft: Draft) {
-		this.draft = draft
-	}
-
-	public async removeDraft() {
-		if (this.draft) {
-			await this.draft.delete()
-			this.draft = undefined
-		}
 	}
 }

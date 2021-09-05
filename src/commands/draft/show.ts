@@ -1,6 +1,6 @@
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { Draft } from "../../models/Reminder"
+import Reminder from "../../models/Reminder"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -8,7 +8,7 @@ module.exports = {
 		.setDescription("Show the current draft"),
 	execute: async helper => {
 		helper.respond({
-			embeds: [Draft.getFormatted(helper.cache.getDraft())]
+			embeds: [Reminder.getDraftEmbed(helper.cache.draft)]
 		})
 	}
 } as iInteractionSubcommandFile

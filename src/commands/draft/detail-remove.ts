@@ -1,6 +1,7 @@
+import admin from "firebase-admin"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
-import { Draft } from "../../models/Reminder"
+import Reminder from "../../models/Reminder"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -17,20 +18,26 @@ module.exports = {
 				.setRequired(true)
 		),
 	execute: async helper => {
-		const draft = helper.cache.getDraft()
+		const draft = helper.cache.draft
 		if (!draft) {
 			return helper.respond("❌ No draft to edit")
 		}
 
 		const position = helper.integer("position", true)! - 1
-		if (position < helper.cache.getDraft()!.details.length) {
-			await draft.removeDetail(position)
+		if (position < draft.value.details.length) {
+			const string = draft.value.details.splice(position, 1)[0]
+			await helper.cache
+				.getDraftDoc()
+				.set({
+					details: admin.firestore.FieldValue.arrayRemove(string)
+				}, { merge: true })
 
 			helper.respond({
 				content: `✅ Draft detail removed`,
-				embeds: [Draft.getFormatted(draft)]
+				embeds: [Reminder.getDraftEmbed(draft)]
 			})
-		} else {
+		}
+		else {
 			helper.respond(`❌ Detail at index ${position + 1} doesn't exist`)
 		}
 	}

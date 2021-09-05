@@ -4,16 +4,13 @@ import Reminder from "../../models/Reminder"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
-		.setName("priority")
-		.setDescription("Change the priority of the reminder")
-		.addIntegerOption(option =>
+		.setName("title")
+		.setDescription("Change the title of the existing draft")
+		.addStringOption(option =>
 			option
-				.setName("priority")
-				.setDescription("Can either be HIGH, MEDIUM or LOW priority")
+				.setName("title")
+				.setDescription("Title of the reminder")
 				.setRequired(true)
-				.addChoice("LOW", 0)
-				.addChoice("MEDIUM", 1)
-				.addChoice("HIGH", 2)
 		),
 	execute: async helper => {
 		const draft = helper.cache.draft
@@ -21,16 +18,16 @@ module.exports = {
 			return helper.respond("❌ No draft to edit")
 		}
 
-		const priority = helper.integer("priority", true) as 0 | 1 | 2
-		draft.value.priority = priority
+		const title = helper.string("title", true)!
+		draft.value.title = title
 		await helper.cache
 			.getDraftDoc()
 			.set({
-				priority
+				title
 			}, { merge: true })
 
 		helper.respond({
-			content: "✅ Draft priority updated",
+			content: "✅ Draft title updated",
 			embeds: [Reminder.getDraftEmbed(draft)]
 		})
 	}

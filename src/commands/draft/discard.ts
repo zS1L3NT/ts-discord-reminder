@@ -6,12 +6,15 @@ module.exports = {
 		.setName("discard")
 		.setDescription("Discard the existing draft"),
 	execute: async helper => {
-		const draft = helper.cache.getDraft()
+		const draft = helper.cache.draft
 		if (!draft) {
 			return helper.respond("❌ No draft to discard")
 		}
 
-		await helper.cache.removeDraft()
+		delete helper.cache.draft
+		await helper.cache
+			.getDraftDoc()
+			.delete()
 
 		helper.respond("✅ Draft discarded")
 	}

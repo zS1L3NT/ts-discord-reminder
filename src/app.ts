@@ -2,8 +2,8 @@ import { Client, Intents } from "discord.js"
 import AfterEvery from "after-every"
 import BotSetupHelper from "./utilities/BotSetupHelper"
 import GuildCache from "./models/GuildCache"
-import { Reminder } from "./models/Reminder"
-import DateFunctions from "./utilities/DateFunctions"
+import Reminder from "./models/Reminder"
+import DateHelper from "./utilities/DateHelper"
 
 const config = require("../config.json")
 
@@ -30,7 +30,7 @@ bot.on("ready", async () => {
 	let count = bot.guilds.cache.size
 	for (const guild of bot.guilds.cache.toJSON()) {
 		const tag = `${(++i).toString().padStart(count.toString().length, "0")}/${count}`
-		let cache: GuildCache | undefined
+		let cache: GuildCache
 		try {
 			cache = await botCache.getGuildCache(guild)
 		} catch (err) {
@@ -50,29 +50,28 @@ bot.on("ready", async () => {
 		cache.updateMinutely(debugCount).then()
 		AfterEvery(1).minutes(() => {
 			// region Check if reminder is due soon
-			const reminders = cache!.getReminders()
-			for (const reminder of reminders) {
-				const timeDiff = reminder.date - Date.now()
+			for (const reminder of cache.reminders) {
+				const timeDiff = reminder.value.due_date - Date.now()
 
-				if (reminder.priority === Reminder.PRIORITY_LOW) {
+				if (reminder.value.priority === Reminder.PRIORITY_MEDIUM) {
 					if (
-						new DateFunctions(timeDiff).plusMinus(ONE_DAY) ||
-						new DateFunctions(timeDiff).plusMinus(6 * ONE_HOUR)
+						new DateHelper(timeDiff).plusMinus(ONE_DAY) ||
+						new DateHelper(timeDiff).plusMinus(6 * ONE_HOUR)
 					) {
-						cache!.updatePingChannel(reminder)
+						cache.updatePingChannel(reminder)
 					}
 				}
 
-				if (reminder.priority === Reminder.PRIORITY_HIGH) {
+				if (reminder.value.priority === Reminder.PRIORITY_HIGH) {
 					if (
-						new DateFunctions(timeDiff).plusMinus(7 * ONE_DAY) ||
-						new DateFunctions(timeDiff).plusMinus(ONE_DAY) ||
-						new DateFunctions(timeDiff).plusMinus(12 * ONE_HOUR) ||
-						new DateFunctions(timeDiff).plusMinus(2 * ONE_HOUR) ||
-						new DateFunctions(timeDiff).plusMinus(ONE_HOUR) ||
-						new DateFunctions(timeDiff).plusMinus(30 * ONE_MINUTE)
+						new DateHelper(timeDiff).plusMinus(7 * ONE_DAY) ||
+						new DateHelper(timeDiff).plusMinus(ONE_DAY) ||
+						new DateHelper(timeDiff).plusMinus(12 * ONE_HOUR) ||
+						new DateHelper(timeDiff).plusMinus(2 * ONE_HOUR) ||
+						new DateHelper(timeDiff).plusMinus(ONE_HOUR) ||
+						new DateHelper(timeDiff).plusMinus(30 * ONE_MINUTE)
 					) {
-						cache!.updatePingChannel(reminder)
+						cache.updatePingChannel(reminder)
 					}
 				}
 			}
