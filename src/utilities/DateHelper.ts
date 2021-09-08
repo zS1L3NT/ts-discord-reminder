@@ -85,7 +85,7 @@ export default class DateHelper {
 		return this.time >= low && this.time <= high
 	}
 
-	public getDueIn() {
+	public getTimeLeft() {
 		const ms = this.time - Date.now() + 30000
 
 		if (ms < 1000) {
@@ -119,7 +119,7 @@ export default class DateHelper {
 		return w + "w " + dr + "d " + hr + "h " + mr + "m"
 	}
 
-	public getDueDate() {
+	public getDate() {
 		const date = new Date(this.time)
 		let localDate: Date
 		if (date.getUTCHours() === date.getHours()) {

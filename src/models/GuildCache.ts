@@ -99,7 +99,7 @@ export default class GuildCache {
 						reminder.value.title
 					} is due in ${new DateHelper(
 						reminder.value.due_date
-					).getDueIn()}!`,
+					).getTimeLeft()}!`,
 					embeds: [reminder.getEmbed()]
 				})
 				.then()

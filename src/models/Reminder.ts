@@ -50,7 +50,7 @@ export default class Reminder {
 
 			embed.addField("Title", reminder.value.title || "\u200B")
 			embed.addField("Priority", priority)
-			embed.addField("Date", new DateHelper(reminder.value.due_date).getDueDate())
+			embed.addField("Date", new DateHelper(reminder.value.due_date).getDate())
 			embed.addField("Details", reminder.value.details.join("\n") || "\u200B")
 		}
 
@@ -80,7 +80,7 @@ export default class Reminder {
 			.setTitle(this.value.title)
 			.setDescription(this.value.details.join("\n"))
 			.addField("ID", this.value.id)
-			.addField("Due date", new DateHelper(this.value.due_date).getDueDate())
-			.addField("Due in", new DateHelper(this.value.due_date).getDueIn())
+			.addField("Due date", new DateHelper(this.value.due_date).getDate())
+			.addField("Due in", new DateHelper(this.value.due_date).getTimeLeft())
 	}
 }
