@@ -45,7 +45,7 @@ module.exports = {
 		}
 
 		if (member_or_role instanceof GuildMember) {
-			if (reminder.value.pings.roles.includes(id)) {
+			if (reminder.value.pings.members.includes(id)) {
 				return helper.respond("❌ Member already being pinged!")
 			}
 

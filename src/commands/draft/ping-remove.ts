@@ -39,7 +39,7 @@ module.exports = {
 		}
 
 		if (member_or_role instanceof GuildMember) {
-			if (!draft.value.pings.roles.includes(id)) {
+			if (!draft.value.pings.members.includes(id)) {
 				return helper.respond("❌ Member not being pinged!")
 			}
 
