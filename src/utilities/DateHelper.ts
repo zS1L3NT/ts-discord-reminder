@@ -79,7 +79,7 @@ export default class DateHelper {
 		return new Date(year, month, day, hour, minute)
 	}
 
-	public plusMinus(actual: number) {
+	public approximately(actual: number) {
 		const high = actual + 30000
 		const low = actual - 30000
 		return this.time >= low && this.time <= high

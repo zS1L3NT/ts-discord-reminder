@@ -55,8 +55,8 @@ bot.on("ready", async () => {
 
 				if (reminder.value.priority === Reminder.PRIORITY_MEDIUM) {
 					if (
-						new DateHelper(timeDiff).plusMinus(ONE_DAY) ||
-						new DateHelper(timeDiff).plusMinus(6 * ONE_HOUR)
+						new DateHelper(timeDiff).approximately(ONE_DAY) ||
+						new DateHelper(timeDiff).approximately(2 * ONE_HOUR)
 					) {
 						cache.updatePingChannel(reminder)
 					}
@@ -64,12 +64,12 @@ bot.on("ready", async () => {
 
 				if (reminder.value.priority === Reminder.PRIORITY_HIGH) {
 					if (
-						new DateHelper(timeDiff).plusMinus(7 * ONE_DAY) ||
-						new DateHelper(timeDiff).plusMinus(ONE_DAY) ||
-						new DateHelper(timeDiff).plusMinus(12 * ONE_HOUR) ||
-						new DateHelper(timeDiff).plusMinus(2 * ONE_HOUR) ||
-						new DateHelper(timeDiff).plusMinus(ONE_HOUR) ||
-						new DateHelper(timeDiff).plusMinus(30 * ONE_MINUTE)
+						new DateHelper(timeDiff).approximately(7 * ONE_DAY) ||
+						new DateHelper(timeDiff).approximately(ONE_DAY) ||
+						new DateHelper(timeDiff).approximately(12 * ONE_HOUR) ||
+						new DateHelper(timeDiff).approximately(2 * ONE_HOUR) ||
+						new DateHelper(timeDiff).approximately(ONE_HOUR) ||
+						new DateHelper(timeDiff).approximately(30 * ONE_MINUTE)
 					) {
 						cache.updatePingChannel(reminder)
 					}
