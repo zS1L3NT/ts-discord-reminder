@@ -95,7 +95,9 @@ export default class GuildCache {
 		if (channel instanceof TextChannel) {
 			channel
 				.send({
-					content: `@everyone ${
+					content: `${
+						reminder.getPingString()
+					}\n${
 						reminder.value.title
 					} is due in ${new DateHelper(
 						reminder.value.due_date

@@ -7,6 +7,10 @@ export interface iReminder {
 	due_date: number
 	details: string[]
 	priority: 0 | 1 | 2
+	pings: {
+		members: string[]
+		roles: string[]
+	}
 }
 
 export default class Reminder {
@@ -25,13 +29,30 @@ export default class Reminder {
 			title: "",
 			due_date: 0,
 			details: [],
-			priority: 1
+			priority: 1,
+			pings: {
+				members: [],
+				roles: []
+			}
 		})
 	}
 
 	public static getDraftEmbed(reminder: Reminder | undefined) {
+		let color: "#5865F2" | "#00FF00" | "#FFFF00" | "#FF0000" = "#5865F2"
+		switch (reminder?.value?.priority ?? -1) {
+			case Reminder.PRIORITY_LOW:
+				color = "#00FF00"
+				break
+			case Reminder.PRIORITY_MEDIUM:
+				color = "#FFFF00"
+				break
+			case Reminder.PRIORITY_HIGH:
+				color = "#FF0000"
+				break
+		}
+
 		const embed = new MessageEmbed()
-			.setColor("#5865F2")
+			.setColor(color)
 			.setTitle(reminder ? "Draft" : "No draft")
 
 		if (reminder) {
@@ -50,6 +71,7 @@ export default class Reminder {
 
 			embed.addField("Title", reminder.value.title || "\u200B")
 			embed.addField("Priority", priority)
+			embed.addField("Pinging", reminder.getPingString())
 			embed.addField("Date", new DateHelper(reminder.value.due_date).getDate())
 			embed.addField("Details", reminder.value.details.join("\n") || "\u200B")
 		}
@@ -80,7 +102,19 @@ export default class Reminder {
 			.setTitle(this.value.title)
 			.setDescription(this.value.details.join("\n"))
 			.addField("ID", this.value.id)
+			.addField("Pinging", this.getPingString())
 			.addField("Due date", new DateHelper(this.value.due_date).getDate())
 			.addField("Due in", new DateHelper(this.value.due_date).getTimeLeft())
+	}
+
+	public getPingString() {
+		let string = ""
+		this.value.pings.roles.forEach(role => {
+			string += `<@&${role}>`
+		})
+		this.value.pings.members.forEach(member => {
+			string += `<@!${member}>`
+		})
+		return string || "Not pinging anyone"
 	}
 }
