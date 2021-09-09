@@ -39,7 +39,8 @@ export default class ChannelCleaner {
 			for (const message of messages.values()) {
 				if (!this.excluded(message) && !this.messageIds.includes(message.id)) {
 					console.warn(`Message(${message.id}) shouldn't be in Channel(${channel.id})`)
-					message.delete().catch()
+					message.delete().catch(() => {
+					})
 				} else {
 					this.messages.set(message.id, message)
 				}
