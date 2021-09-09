@@ -35,9 +35,8 @@ module.exports = {
 					)
 					break
 				default:
-					const message = await channel.send("\u200B")
 					await helper.cache.setRemindersChannelId(channel.id)
-					await helper.cache.setRemindersMessageId(message.id)
+					helper.cache.updateRemindersChannel().then()
 					helper.respond(
 						`✅ Reminders channel reassigned to ${channel.toString()}`
 					)

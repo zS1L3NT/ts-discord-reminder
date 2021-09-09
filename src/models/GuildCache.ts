@@ -1,9 +1,10 @@
-import { Client, Guild, TextChannel } from "discord.js"
+import { Client, Collection, Guild, Message, TextChannel } from "discord.js"
 import Document, { iDocument } from "./Document"
 import Reminder from "./Reminder"
 import ChannelCleaner from "../utilities/ChannelCleaner"
 import DateHelper from "../utilities/DateHelper"
 import FirestoreParser from "../utilities/FirestoreParser"
+import equal from "deep-equal"
 
 export default class GuildCache {
 	public bot: Client
@@ -50,17 +51,17 @@ export default class GuildCache {
 		const remindersChannelId = this.getRemindersChannelId()
 		if (remindersChannelId === "") return
 
-		let channel: TextChannel
+		let messages: Collection<string, Message>
 
 		try {
-			const remindersMessageId = this.getRemindersMessageId()
-			const cleaner = new ChannelCleaner(this, remindersChannelId, [remindersMessageId])
+			const remindersMessageIds = this.getRemindersMessageIds()
+			const cleaner = new ChannelCleaner(this, remindersChannelId, remindersMessageIds)
 			await cleaner.clean()
-			channel = cleaner.getChannel()
+			messages = cleaner.getMessages()
 
-			const newRemindersMessageId = cleaner.getMessageIds()[0]
-			if (newRemindersMessageId !== remindersMessageId) {
-				this.setRemindersMessageId(newRemindersMessageId).then()
+			const newRemindersMessageIds = cleaner.getMessageIds()
+			if (!equal(newRemindersMessageIds, remindersMessageIds)) {
+				this.setRemindersMessageIds(newRemindersMessageIds).then()
 			}
 		} catch (err) {
 			console.warn(
@@ -81,11 +82,26 @@ export default class GuildCache {
 		const embeds = this.reminders
 			.sort((a, b) => b.value.due_date - a.value.due_date)
 			.map(reminder => reminder.getEmbed())
-		const message = channel.messages.cache.get(this.getRemindersMessageId())!
-		await message.edit({
-			content: embeds.length === 0 ? "No reminders!" : "\u200B",
-			embeds
-		})
+
+		const remindersMessageIds = this.getRemindersMessageIds()
+
+		if (embeds.length === remindersMessageIds.length) {
+			for (let i = 0, il = embeds.length; i < il; i++) {
+				const messageId = remindersMessageIds[i]
+				const embed = embeds[i]
+				const message = messages.get(messageId)!
+				message.edit({ embeds: [embed] }).then()
+			}
+		}
+		else {
+			console.error("Embed count doesn't match up to reminder message id count!")
+			if (embeds.length > remindersMessageIds.length) {
+				console.log("Embeds > Message IDs")
+			}
+			else {
+				console.log("Message IDs > Embeds")
+			}
+		}
 	}
 
 	public async updatePingChannel(reminder: Reminder) {
@@ -127,13 +143,13 @@ export default class GuildCache {
 		await this.ref.update({ reminders_channel_id })
 	}
 
-	public getRemindersMessageId() {
-		return this.document.value.reminders_message_id
+	public getRemindersMessageIds() {
+		return this.document.value.reminders_message_ids
 	}
 
-	public async setRemindersMessageId(reminders_message_id: string) {
-		this.document.value.reminders_message_id = reminders_message_id
-		await this.ref.update({ reminders_message_id })
+	public async setRemindersMessageIds(reminders_message_ids: string[]) {
+		this.document.value.reminders_message_ids = reminders_message_ids
+		await this.ref.update({ reminders_message_ids })
 	}
 
 	public getPingChannelId() {

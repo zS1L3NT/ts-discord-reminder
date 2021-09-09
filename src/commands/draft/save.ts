@@ -1,3 +1,4 @@
+import admin from "firebase-admin"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 
@@ -13,16 +14,20 @@ module.exports = {
 
 		if (draft.value.due_date < Date.now()) {
 			return helper.respond(
-				"❌ Existing draft date is invalid, please set it again"
+				"❌ Existing draft due date is invalid, please set it again"
 			)
 		}
 
 		if (draft.value.title === "") {
-			return helper.respond("❌ Existing draft has no name")
+			return helper.respond("❌ Existing draft has no title")
 		}
 
 		const doc = helper.cache.getReminderDoc()
 		draft.value.id = doc.id
+		await helper.cache.ref
+			.set({
+				reminders_message_ids: admin.firestore.FieldValue.arrayUnion("")
+			}, { merge: true })
 		await doc.set(draft.value)
 		delete helper.cache.draft
 		await helper.cache

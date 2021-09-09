@@ -1,3 +1,4 @@
+import admin from "firebase-admin"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 
@@ -21,6 +22,10 @@ module.exports = {
 
 		helper.cache.reminders = helper.cache.reminders
 			.filter(reminder => reminder.value.id !== reminder_id)
+		await helper.cache.ref
+			.set({
+				reminders_message_ids: admin.firestore.FieldValue.arrayRemove(helper.cache.getRemindersMessageIds()[0])
+			}, { merge: true })
 		await helper.cache
 			.getReminderDoc(reminder_id)
 			.delete()
