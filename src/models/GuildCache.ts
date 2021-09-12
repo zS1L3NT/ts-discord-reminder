@@ -5,6 +5,7 @@ import ChannelCleaner from "../utilities/ChannelCleaner"
 import DateHelper from "../utilities/DateHelper"
 import FirestoreParser from "../utilities/FirestoreParser"
 import equal from "deep-equal"
+import admin from "firebase-admin"
 
 export default class GuildCache {
 	public bot: Client
@@ -76,6 +77,10 @@ export default class GuildCache {
 			if (reminder.value.due_date < Date.now()) {
 				this.reminders = this.reminders.filter(rem => rem.value.id !== reminder.value.id)
 				await this.getReminderDoc(reminder.value.id).delete()
+				await this.ref
+					.set({
+						reminders_message_ids: admin.firestore.FieldValue.arrayRemove(this.getRemindersMessageIds()[0])
+					}, { merge: true })
 			}
 		}
 
