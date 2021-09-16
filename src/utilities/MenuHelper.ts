@@ -1,5 +1,6 @@
 import { InteractionReplyOptions, MessagePayload, SelectMenuInteraction } from "discord.js"
 import GuildCache from "../models/GuildCache"
+import EmbedResponse from "./EmbedResponse"
 
 export default class MenuHelper {
 	public cache: GuildCache
@@ -10,8 +11,15 @@ export default class MenuHelper {
 		this.interaction = interaction
 	}
 
-	public respond(options: string | MessagePayload | InteractionReplyOptions) {
-		this.interaction.followUp(options).catch()
+	public respond(options: MessagePayload | InteractionReplyOptions | EmbedResponse) {
+		if (options instanceof EmbedResponse) {
+			this.interaction.followUp({
+				embeds: [options.create()]
+			}).catch()
+		}
+		else {
+			this.interaction.followUp(options).catch()
+		}
 	}
 
 	public value(): string | undefined {

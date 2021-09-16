@@ -1,6 +1,7 @@
 import admin from "firebase-admin"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
+import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -17,7 +18,10 @@ module.exports = {
 		const reminder = helper.cache.reminders
 			.find(reminder => reminder.value.id === reminder_id)
 		if (!reminder) {
-			return helper.respond(`❌ Reminder does not exist`)
+			return helper.respond(new EmbedResponse(
+				Emoji.BAD,
+				`Reminder does not exist`
+			))
 		}
 
 		helper.cache.reminders = helper.cache.reminders
@@ -31,6 +35,9 @@ module.exports = {
 			.delete()
 		helper.cache.updateRemindersChannel().then()
 
-		helper.respond(`✅ Reminder deleted`)
+		helper.respond(new EmbedResponse(
+			Emoji.GOOD,
+			`Reminder deleted`
+		))
 	}
 } as iInteractionSubcommandFile

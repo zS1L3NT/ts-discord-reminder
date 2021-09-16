@@ -1,6 +1,7 @@
 import admin from "firebase-admin"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -22,7 +23,10 @@ module.exports = {
 		const reminder_id = helper.string("reminder-id", true)!
 		const reminder = helper.cache.reminders.find(reminder => reminder.value.id === reminder_id)
 		if (!reminder) {
-			return helper.respond("❌ Reminder doesn't exist")
+			return helper.respond(new EmbedResponse(
+				Emoji.BAD,
+				"Reminder doesn't exist"
+			))
 		}
 
 		const detail = helper.string("detail", true)!
@@ -32,6 +36,9 @@ module.exports = {
 				details: admin.firestore.FieldValue.arrayUnion(detail)
 			}, { merge: true })
 
-		helper.respond(`✅ Reminder detail added`)
+		helper.respond(new EmbedResponse(
+			Emoji.GOOD,
+			`Reminder detail added`
+		))
 	}
 } as iInteractionSubcommandFile

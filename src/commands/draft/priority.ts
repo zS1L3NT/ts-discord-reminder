@@ -1,6 +1,7 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import Reminder from "../../models/Reminder"
+import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -18,7 +19,10 @@ module.exports = {
 	execute: async helper => {
 		const draft = helper.cache.draft
 		if (!draft) {
-			return helper.respond("❌ No draft to edit")
+			return helper.respond(new EmbedResponse(
+				Emoji.BAD,
+				"No draft to edit"
+			))
 		}
 
 		const priority = helper.integer("priority", true) as 0 | 1 | 2
@@ -30,8 +34,10 @@ module.exports = {
 			}, { merge: true })
 
 		helper.respond({
-			content: "✅ Draft priority updated",
-			embeds: [Reminder.getDraftEmbed(draft)]
+			embeds: [
+				new EmbedResponse(Emoji.GOOD, `Draft priority updated`).create(),
+				Reminder.getDraftEmbed(draft)
+			]
 		})
 	}
 } as iInteractionSubcommandFile

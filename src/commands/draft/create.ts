@@ -1,6 +1,7 @@
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import Reminder from "../../models/Reminder"
+import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -9,9 +10,10 @@ module.exports = {
 	execute: async helper => {
 		const draft = helper.cache.draft
 		if (draft) {
-			return helper.respond(
-				`❌ Discard the existing draft before creating a new one`
-			)
+			return helper.respond(new EmbedResponse(
+				Emoji.BAD,
+				"Discard the existing draft before creating a new one"
+			))
 		}
 
 		const reminder = Reminder.getEmpty()
@@ -23,8 +25,10 @@ module.exports = {
 		helper.cache.draft = reminder
 
 		helper.respond({
-			content: `✅ Created draft`,
-			embeds: [Reminder.getDraftEmbed(helper.cache.draft)]
+			embeds: [
+				new EmbedResponse(Emoji.GOOD, `Created draft`).create(),
+				Reminder.getDraftEmbed(helper.cache.draft)
+			]
 		})
 	}
 } as iInteractionSubcommandFile

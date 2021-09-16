@@ -1,7 +1,8 @@
+import admin from "firebase-admin"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { GuildMember, Role } from "discord.js"
-import admin from "firebase-admin"
+import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -16,14 +17,20 @@ module.exports = {
 	execute: async helper => {
 		const draft = helper.cache.draft
 		if (!draft) {
-			return helper.respond("❌ No draft to edit")
+			return helper.respond(new EmbedResponse(
+				Emoji.BAD,
+				"No draft to edit"
+			))
 		}
 
 		const member_or_role = helper.mentionable("member-or-role") as Role | GuildMember
 		const id = member_or_role.id
 		if (member_or_role instanceof Role) {
 			if (!draft.value.pings.roles.includes(id)) {
-				return helper.respond("❌ Role not being pinged!")
+				return helper.respond(new EmbedResponse(
+					Emoji.BAD,
+					"Role not being pinged!"
+				))
 			}
 
 			draft.value.pings.roles = draft.value.pings.roles.filter(r => r !== id)
@@ -35,12 +42,18 @@ module.exports = {
 					}
 				}, { merge: true })
 
-			helper.respond("✅ Role removed from ping list")
+			helper.respond(new EmbedResponse(
+				Emoji.GOOD,
+				"Role removed from ping list"
+			))
 		}
 
 		if (member_or_role instanceof GuildMember) {
 			if (!draft.value.pings.members.includes(id)) {
-				return helper.respond("❌ Member not being pinged!")
+				return helper.respond(new EmbedResponse(
+					Emoji.BAD,
+					"Member not being pinged!"
+				))
 			}
 
 			draft.value.pings.members = draft.value.pings.members.filter(m => m !== id)
@@ -52,7 +65,10 @@ module.exports = {
 					}
 				}, { merge: true })
 
-			helper.respond("✅ Member removed from ping list")
+			helper.respond(new EmbedResponse(
+				Emoji.GOOD,
+				"Member removed from ping list"
+			))
 		}
 	}
 } as iInteractionSubcommandFile

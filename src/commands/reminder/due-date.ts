@@ -1,6 +1,7 @@
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import DateHelper from "../../utilities/DateHelper"
+import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -52,7 +53,10 @@ module.exports = {
 		const reminder_id = helper.string("reminder-id", true)!
 		const reminder = helper.cache.reminders.find(reminder => reminder.value.id === reminder_id)
 		if (!reminder) {
-			return helper.respond("❌ Reminder doesn't exist")
+			return helper.respond(new EmbedResponse(
+				Emoji.BAD,
+				"Reminder doesn't exist"
+			))
 		}
 
 		const day = helper.integer("day")
@@ -63,7 +67,10 @@ module.exports = {
 
 		let due_date: number
 		if (!day && !month && !year && !hour && !minute) {
-			return helper.respond("❌ Update at least one field in the date")
+			return helper.respond(new EmbedResponse(
+				Emoji.BAD,
+				"Update at least one field in the date"
+			))
 		}
 		else {
 			const date = new Date(reminder.value.due_date)
@@ -76,7 +83,10 @@ module.exports = {
 					minute ?? date.getMinutes()
 				).getTime()
 			} catch (err) {
-				return helper.respond(`❌ ${err.message}`)
+				return helper.respond(new EmbedResponse(
+					Emoji.BAD,
+					`${err.message}`
+				))
 			}
 		}
 
@@ -86,6 +96,9 @@ module.exports = {
 				due_date
 			}, { merge: true })
 
-		helper.respond("✅ Reminder due date updated")
+		helper.respond(new EmbedResponse(
+			Emoji.GOOD,
+			"Reminder due date updated"
+		))
 	}
 } as iInteractionSubcommandFile

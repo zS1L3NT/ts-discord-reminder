@@ -2,6 +2,7 @@ import admin from "firebase-admin"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import Reminder from "../../models/Reminder"
+import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -16,7 +17,10 @@ module.exports = {
 	execute: async helper => {
 		const draft = helper.cache.draft
 		if (!draft) {
-			return helper.respond("❌ No draft to edit")
+			return helper.respond(new EmbedResponse(
+				Emoji.BAD,
+				"No draft to edit"
+			))
 		}
 
 		const detail = helper.string("detail", true)!
@@ -28,8 +32,10 @@ module.exports = {
 			}, { merge: true })
 
 		helper.respond({
-			content: `✅ Draft detail added`,
-			embeds: [Reminder.getDraftEmbed(draft)]
+			embeds: [
+				new EmbedResponse(Emoji.GOOD, `Draft detail added`).create(),
+				Reminder.getDraftEmbed(draft)
+			]
 		})
 	}
 } as iInteractionSubcommandFile

@@ -1,5 +1,6 @@
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -8,7 +9,10 @@ module.exports = {
 	execute: async helper => {
 		const draft = helper.cache.draft
 		if (!draft) {
-			return helper.respond("❌ No draft to discard")
+			return helper.respond(new EmbedResponse(
+				Emoji.BAD,
+				"No draft to discard"
+			))
 		}
 
 		delete helper.cache.draft
@@ -16,6 +20,9 @@ module.exports = {
 			.getDraftDoc()
 			.delete()
 
-		helper.respond("✅ Draft discarded")
+		helper.respond(new EmbedResponse(
+			Emoji.GOOD,
+			"Draft discarded"
+		))
 	}
 } as iInteractionSubcommandFile

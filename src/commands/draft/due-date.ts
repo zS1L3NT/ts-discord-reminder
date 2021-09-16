@@ -2,6 +2,7 @@ import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import DateHelper from "../../utilities/DateHelper"
 import Reminder from "../../models/Reminder"
+import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -46,7 +47,10 @@ module.exports = {
 	execute: async helper => {
 		const draft = helper.cache.draft
 		if (!draft) {
-			return helper.respond("❌ No draft to edit")
+			return helper.respond(new EmbedResponse(
+				Emoji.BAD,
+				"No draft to edit"
+			))
 		}
 
 		const day = helper.integer("day", true)!
@@ -59,7 +63,10 @@ module.exports = {
 		try {
 			due_date = DateHelper.verify(day, month, year, hour, minute).getTime()
 		} catch (err) {
-			return helper.respond(`❌ ${err}`)
+			return helper.respond(new EmbedResponse(
+				Emoji.BAD,
+				err
+			))
 		}
 
 		draft.value.due_date = due_date
@@ -70,8 +77,10 @@ module.exports = {
 			}, { merge: true })
 
 		helper.respond({
-			content: `✅ Draft due date updated`,
-			embeds: [Reminder.getDraftEmbed(draft)]
+			embeds: [
+				new EmbedResponse(Emoji.GOOD, `Draft due date updated`).create(),
+				Reminder.getDraftEmbed(draft)
+			]
 		})
 	}
 } as iInteractionSubcommandFile

@@ -1,6 +1,7 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { TextChannel } from "discord.js"
+import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -12,10 +13,16 @@ module.exports = {
 		const channel = helper.cache.guild.channels.cache.get(helper.cache.getRemindersChannelId())
 		if (channel instanceof TextChannel) {
 			await helper.cache.updateRemindersChannel()
-			helper.respond("✅ Reminders channel refreshed")
+			helper.respond(new EmbedResponse(
+				Emoji.GOOD,
+				"Reminders channel refreshed"
+			))
 		}
 		else {
-			helper.respond("❌ No reminders channel set")
+			helper.respond(new EmbedResponse(
+				Emoji.BAD,
+				"No reminders channel set"
+			))
 		}
 	}
 } as iInteractionSubcommandFile

@@ -1,5 +1,6 @@
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -21,7 +22,10 @@ module.exports = {
 		const reminder_id = helper.string("reminder-id", true)!
 		const reminder = helper.cache.reminders.find(reminder => reminder.value.id === reminder_id)
 		if (!reminder) {
-			return helper.respond("❌ Reminder doesn't exist")
+			return helper.respond(new EmbedResponse(
+				Emoji.BAD,
+				"Reminder doesn't exist"
+			))
 		}
 
 		const title = helper.string("title", true)!
@@ -31,6 +35,9 @@ module.exports = {
 				title
 			}, { merge: true })
 
-		helper.respond("✅ Reminder title updated")
+		helper.respond(new EmbedResponse(
+			Emoji.GOOD,
+			"Reminder title updated"
+		))
 	}
 } as iInteractionSubcommandFile
