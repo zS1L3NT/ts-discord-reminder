@@ -1,11 +1,11 @@
+import equal from "deep-equal"
 import { Client, Collection, Guild, Message, TextChannel } from "discord.js"
-import Document, { iDocument } from "./Document"
-import Reminder from "./Reminder"
+import admin from "firebase-admin"
 import ChannelCleaner from "../utilities/ChannelCleaner"
 import DateHelper from "../utilities/DateHelper"
 import FirestoreParser from "../utilities/FirestoreParser"
-import equal from "deep-equal"
-import admin from "firebase-admin"
+import Document, { iDocument } from "./Document"
+import Reminder from "./Reminder"
 
 export default class GuildCache {
 	public bot: Client
@@ -31,7 +31,7 @@ export default class GuildCache {
 			}
 		})
 		this.ref.collection("reminders").onSnapshot(snap => {
-			const converter = new FirestoreParser(this, snap.docs)
+			const converter = new FirestoreParser(snap.docs)
 			this.reminders = converter.getReminders()
 			this.draft = converter.getDraft()
 		})
@@ -65,9 +65,7 @@ export default class GuildCache {
 				this.setRemindersMessageIds(newRemindersMessageIds).then()
 			}
 		} catch (err) {
-			console.warn(
-				`Guild(${this.guild.name}) has no Channel(${remindersChannelId})`
-			)
+			console.warn(`Guild(${this.guild.name}) has no Channel(${remindersChannelId})`)
 			await this.setRemindersChannelId("")
 			return
 		}
@@ -77,10 +75,14 @@ export default class GuildCache {
 			if (reminder.value.due_date < Date.now()) {
 				this.reminders = this.reminders.filter(rem => rem.value.id !== reminder.value.id)
 				await this.getReminderDoc(reminder.value.id).delete()
-				await this.ref
-					.set({
-						reminders_message_ids: admin.firestore.FieldValue.arrayRemove(this.getRemindersMessageIds()[0])
-					}, { merge: true })
+				await this.ref.set(
+					{
+						reminders_message_ids: admin.firestore.FieldValue.arrayRemove(
+							this.getRemindersMessageIds()[0]
+						)
+					},
+					{ merge: true }
+				)
 			}
 		}
 
@@ -97,13 +99,11 @@ export default class GuildCache {
 				const message = messages.get(messageId)!
 				message.edit({ embeds: [embed] }).then()
 			}
-		}
-		else {
+		} else {
 			console.error("Embed count doesn't match up to reminder message id count!")
 			if (embeds.length > remindersMessageIds.length) {
 				console.log("Embeds > Message IDs")
-			}
-			else {
+			} else {
 				console.log("Message IDs > Embeds")
 			}
 		}
@@ -116,13 +116,9 @@ export default class GuildCache {
 		if (channel instanceof TextChannel) {
 			channel
 				.send({
-					content: `${
-						reminder.getPingString()
-					}\n${
+					content: `${reminder.getPingString()}\n${
 						reminder.value.title
-					} is due in ${new DateHelper(
-						reminder.value.due_date
-					).getTimeLeft()}!`,
+					} is due in ${new DateHelper(reminder.value.due_date).getTimeLeft()}!`,
 					embeds: [reminder.getEmbed()]
 				})
 				.then()

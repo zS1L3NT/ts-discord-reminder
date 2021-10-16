@@ -1311,6 +1311,11 @@ ms@^2.1.1:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
+no-try@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/no-try/-/no-try-3.1.0.tgz#e47d8f34392c0a3d307d4f5f6002bb01d82cd7b9"
+  integrity sha512-4QyjqXvAcbjqEiV5fj8a6ZW/8VWx7SVq0qI2WhbgQ+XgnQ3vMa6zRw99x0pIG6Rgwv1uavlBJq/dP5DNMSzuiw==
+
 node-fetch@^2.3.0, node-fetch@^2.6.1:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.1.tgz#045bd323631f76ed2e2b55573394416b639a0052"

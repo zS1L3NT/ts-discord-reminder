@@ -51,9 +51,7 @@ export default class Reminder {
 				break
 		}
 
-		const embed = new MessageEmbed()
-			.setColor(color)
-			.setTitle(reminder ? "Draft" : "No draft")
+		const embed = new MessageEmbed().setColor(color).setTitle(reminder ? "Draft" : "No draft")
 
 		if (reminder) {
 			let priority = "?"

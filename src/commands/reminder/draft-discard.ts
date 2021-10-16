@@ -1,10 +1,10 @@
-import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
-		.setName("discard")
+		.setName("draft-discard")
 		.setDescription("Discard the existing draft"),
 	execute: async helper => {
 		const draft = helper.cache.draft

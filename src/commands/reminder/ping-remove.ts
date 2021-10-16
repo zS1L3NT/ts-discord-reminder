@@ -1,79 +1,104 @@
-import admin from "firebase-admin"
-import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { GuildMember, Role } from "discord.js"
+import admin from "firebase-admin"
+import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
 		.setName("ping-remove")
 		.setDescription("Remove a member/role to ping when the time comes")
+		.addMentionableOption(option =>
+			option.setName("member-or-role").setDescription("Member/Role to ping").setRequired(true)
+		)
 		.addStringOption(option =>
 			option
 				.setName("reminder-id")
-				.setDescription("ID of the reminder to edit. Can be found in every reminder")
-				.setRequired(true)
-		)
-		.addMentionableOption(option =>
-			option
-				.setName("member-or-role")
-				.setDescription("Member/Role to ping")
-				.setRequired(true)
+				.setDescription(
+					"ID of the reminder to edit. If not provided, edits the draft instead"
+				)
+				.setRequired(false)
 		),
 	execute: async helper => {
-		const reminder_id = helper.string("reminder-id", true)!
-		const reminder = helper.cache.reminders.find(reminder => reminder.value.id === reminder_id)
-		if (!reminder) {
-			return helper.respond(new EmbedResponse(
-				Emoji.BAD,
-				"Reminder doesn't exist"
-			))
-		}
-
+		const reminder_id = helper.string("reminder-id")
 		const member_or_role = helper.mentionable("member-or-role") as Role | GuildMember
-		const id = member_or_role.id
-		if (member_or_role instanceof Role) {
-			if (!reminder.value.pings.roles.includes(id)) {
-				return helper.respond(new EmbedResponse(
-					Emoji.BAD,
-					"Role not being pinged!"
-				))
+
+		if (reminder_id) {
+			const reminder = helper.cache.reminders.find(
+				reminder => reminder.value.id === reminder_id
+			)
+			if (!reminder) {
+				return helper.respond(new EmbedResponse(Emoji.BAD, "Reminder doesn't exist"))
 			}
 
-			await helper.cache
-				.getReminderDoc(reminder_id)
-				.set({
-					pings: {
-						roles: admin.firestore.FieldValue.arrayRemove(id)
-					}
-				}, { merge: true })
+			const id = member_or_role.id
+			if (member_or_role instanceof Role) {
+				if (!reminder.value.pings.roles.includes(id)) {
+					return helper.respond(new EmbedResponse(Emoji.BAD, "Role not being pinged!"))
+				}
 
-			helper.respond(new EmbedResponse(
-				Emoji.GOOD,
-				"Role removed from ping list"
-			))
-		}
+				await helper.cache
+					.getReminderDoc(reminder_id)
+					.set(
+						{ pings: { roles: admin.firestore.FieldValue.arrayRemove(id) } },
+						{ merge: true }
+					)
 
-		if (member_or_role instanceof GuildMember) {
-			if (!reminder.value.pings.members.includes(id)) {
-				return helper.respond(new EmbedResponse(
-					Emoji.BAD,
-					"Member not being pinged!"
-				))
+				helper.respond(new EmbedResponse(Emoji.GOOD, "Role removed from ping list"))
 			}
 
-			await helper.cache
-				.getReminderDoc(reminder_id)
-				.set({
-					pings: {
-						members: admin.firestore.FieldValue.arrayRemove(id)
-					}
-				}, { merge: true })
+			if (member_or_role instanceof GuildMember) {
+				if (!reminder.value.pings.members.includes(id)) {
+					return helper.respond(new EmbedResponse(Emoji.BAD, "Member not being pinged!"))
+				}
 
-			helper.respond(new EmbedResponse(
-				Emoji.GOOD,
-				"Member removed from ping list"
-			))
+				await helper.cache
+					.getReminderDoc(reminder_id)
+					.set(
+						{ pings: { members: admin.firestore.FieldValue.arrayRemove(id) } },
+						{ merge: true }
+					)
+
+				helper.respond(new EmbedResponse(Emoji.GOOD, "Member removed from ping list"))
+			}
+		} else {
+			const draft = helper.cache.draft
+			if (!draft) {
+				return helper.respond(new EmbedResponse(Emoji.BAD, "No draft to edit"))
+			}
+
+			const id = member_or_role.id
+			if (member_or_role instanceof Role) {
+				if (!draft.value.pings.roles.includes(id)) {
+					return helper.respond(new EmbedResponse(Emoji.BAD, "Role not being pinged!"))
+				}
+
+				draft.value.pings.roles = draft.value.pings.roles.filter(r => r !== id)
+				await helper.cache
+					.getDraftDoc()
+					.set(
+						{ pings: { roles: admin.firestore.FieldValue.arrayRemove(id) } },
+						{ merge: true }
+					)
+
+				helper.respond(new EmbedResponse(Emoji.GOOD, "Role removed from ping list"))
+			}
+
+			if (member_or_role instanceof GuildMember) {
+				if (!draft.value.pings.members.includes(id)) {
+					return helper.respond(new EmbedResponse(Emoji.BAD, "Member not being pinged!"))
+				}
+
+				draft.value.pings.members = draft.value.pings.members.filter(m => m !== id)
+				await helper.cache
+					.getDraftDoc()
+					.set(
+						{ pings: { members: admin.firestore.FieldValue.arrayRemove(id) } },
+						{ merge: true }
+					)
+
+				helper.respond(new EmbedResponse(Emoji.GOOD, "Member removed from ping list"))
+			}
 		}
 	}
 } as iInteractionSubcommandFile

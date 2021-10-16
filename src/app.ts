@@ -42,7 +42,9 @@ bot.on("ready", async () => {
 		try {
 			await botSetupHelper.deploySlashCommands(guild)
 		} catch (err) {
-			console.error(`${tag} ❌ Couldn't get Slash Command permission for Guild(${guild.name})`)
+			console.error(
+				`${tag} ❌ Couldn't get Slash Command permission for Guild(${guild.name})`
+			)
 			guild.leave()
 			continue
 		}

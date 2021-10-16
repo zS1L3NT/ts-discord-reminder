@@ -6,8 +6,7 @@
 	"author": "zS1L3NT",
 	"scripts": {
 		"start": "node build/app.js",
-		"dev": "ts-node src/app.ts",
-		"build": "tsc && cd build && ncc build app.js && cd dist && pkg index.js -t host && move index.exe ../../package.exe && cd ../.. && rmdir /s/q build"
+		"dev": "ts-node src/app.ts"
 	},
 	"dependencies": {
 		"@discordjs/builders": "^0.5.0",
@@ -16,7 +15,8 @@
 		"deep-equal": "^2.0.5",
 		"discord-api-types": "^0.22.0",
 		"discord.js": "^13.1.0",
-		"firebase-admin": "^9.9.0"
+		"firebase-admin": "^9.9.0",
+		"no-try": "^3.1.0"
 	},
 	"engines": {
 		"node": ">=0.12"

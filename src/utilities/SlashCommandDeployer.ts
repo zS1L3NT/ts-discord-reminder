@@ -19,14 +19,8 @@ export default class SlashCommandDeployer {
 
 	public async deploy() {
 		const rest = new REST({ version: "9" }).setToken(config.discord.token)
-		await rest.put(
-			Routes.applicationGuildCommands(
-				config.discord.bot_id,
-				this.guildId
-			),
-			{
-				body: this.commands.map(command => command.toJSON())
-			}
-		)
+		await rest.put(Routes.applicationGuildCommands(config.discord.bot_id, this.guildId), {
+			body: this.commands.map(command => command.toJSON())
+		})
 	}
 }

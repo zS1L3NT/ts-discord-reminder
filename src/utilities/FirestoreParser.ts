@@ -1,15 +1,11 @@
-import GuildCache from "../models/GuildCache"
 import Reminder, { iReminder } from "../models/Reminder"
 
 export default class FirestoreParser {
-	private cache: GuildCache
 	private docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[]
 
 	public constructor(
-		cache: GuildCache,
 		docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[]
 	) {
-		this.cache = cache
 		this.docs = docs
 	}
 
@@ -25,5 +21,4 @@ export default class FirestoreParser {
 			return new Reminder(data.data() as iReminder)
 		}
 	}
-
 }

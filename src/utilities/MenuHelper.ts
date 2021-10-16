@@ -13,11 +13,12 @@ export default class MenuHelper {
 
 	public respond(options: MessagePayload | InteractionReplyOptions | EmbedResponse) {
 		if (options instanceof EmbedResponse) {
-			this.interaction.followUp({
-				embeds: [options.create()]
-			}).catch()
-		}
-		else {
+			this.interaction
+				.followUp({
+					embeds: [options.create()]
+				})
+				.catch()
+		} else {
 			this.interaction.followUp(options).catch()
 		}
 	}

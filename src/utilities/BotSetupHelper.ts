@@ -55,9 +55,7 @@ export default class BotSetupHelper {
 
 			if (interaction.isCommand()) {
 				await interaction.deferReply({ ephemeral: true })
-				const interactionFile = this.interactionFiles.get(
-					interaction.commandName
-				)
+				const interactionFile = this.interactionFiles.get(interaction.commandName)
 				if (!interactionFile) return
 
 				const helper = new InteractionHelper(cache, interaction)
@@ -69,8 +67,7 @@ export default class BotSetupHelper {
 
 					const folder = interactionFile as iInteractionFolder
 					if (folder.files) {
-						const subcommand =
-							interaction.options.getSubcommand(true)
+						const subcommand = interaction.options.getSubcommand(true)
 						const file = folder.files.get(subcommand)
 						if (!file) return
 
@@ -78,9 +75,7 @@ export default class BotSetupHelper {
 					}
 				} catch (error) {
 					console.error(error)
-					await interaction.followUp(
-						"There was an error while executing this command!"
-					)
+					await interaction.followUp("There was an error while executing this command!")
 				}
 			}
 
@@ -94,9 +89,7 @@ export default class BotSetupHelper {
 					await buttonFile.execute(helper)
 				} catch (error) {
 					console.error(error)
-					await interaction.followUp(
-						"There was an error while executing this button!"
-					)
+					await interaction.followUp("There was an error while executing this button!")
 				}
 			}
 
@@ -110,9 +103,7 @@ export default class BotSetupHelper {
 					await menuFile.execute(helper)
 				} catch (error) {
 					console.error(error)
-					await interaction.followUp(
-						"There was an error while executing this menu item!"
-					)
+					await interaction.followUp("There was an error while executing this menu item!")
 				}
 			}
 		})
@@ -135,14 +126,14 @@ export default class BotSetupHelper {
 
 	public async deploySlashCommands(guild: Guild) {
 		const deployer = new SlashCommandDeployer(guild.id)
-		this.interactionFiles.forEach(command =>
-			deployer.addCommand(command.data)
-		)
+		this.interactionFiles.forEach(command => deployer.addCommand(command.data))
 		try {
 			await deployer.deploy()
 		} catch (err) {
 			// @ts-ignore
-			console.error(`Failed to deploy slash commands for Guild(${guild.name}): ${err.message}`)
+			console.error(
+				`Failed to deploy slash commands for Guild(${guild.name}): ${err.message}`
+			)
 		}
 	}
 
@@ -173,8 +164,7 @@ export default class BotSetupHelper {
 		}
 
 		// Slash subcommands
-		for (const interactionFolderName of units
-			.filter(f => !BotSetupHelper.isFile(f))) {
+		for (const interactionFolderName of units.filter(f => !BotSetupHelper.isFile(f))) {
 			const interactionFileNames = fs.readdirSync(
 				path.join(__dirname, `../commands/${interactionFolderName}`)
 			)
@@ -182,11 +172,8 @@ export default class BotSetupHelper {
 				.setName(interactionFolderName)
 				.setDescription(`Commands for ${interactionFolderName}`)
 
-			const files: Collection<string, iInteractionSubcommandFile> =
-				new Collection()
-			for (const commandFile of interactionFileNames.filter(f =>
-				BotSetupHelper.isFile(f)
-			)) {
+			const files: Collection<string, iInteractionSubcommandFile> = new Collection()
+			for (const commandFile of interactionFileNames.filter(f => BotSetupHelper.isFile(f))) {
 				const file =
 					require(`../commands/${interactionFolderName}/${commandFile}`) as iInteractionSubcommandFile
 				files.set(file.data.name, file)
@@ -200,8 +187,7 @@ export default class BotSetupHelper {
 		}
 
 		// Slash commands
-		for (const interactionFileNames of units
-			.filter(f => BotSetupHelper.isFile(f))) {
+		for (const interactionFileNames of units.filter(f => BotSetupHelper.isFile(f))) {
 			const iInteractionFile =
 				require(`../commands/${interactionFileNames}`) as iInteractionFile
 			this.interactionFiles.set(iInteractionFile.data.name, iInteractionFile)

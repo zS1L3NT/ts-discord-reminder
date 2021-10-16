@@ -1,5 +1,7 @@
-import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { useTry } from "no-try"
+import Reminder from "../../models/Reminder"
+import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import DateHelper from "../../utilities/DateHelper"
 import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
@@ -10,14 +12,13 @@ module.exports = {
 		.addStringOption(option =>
 			option
 				.setName("reminder-id")
-				.setDescription("ID of the reminder to edit. Can be found in every reminder")
-				.setRequired(true)
+				.setDescription(
+					"ID of the reminder to edit. If not provided, edits the draft instead"
+				)
+				.setRequired(false)
 		)
 		.addIntegerOption(option =>
-			option
-				.setName("day")
-				.setDescription("Day of the month from 1 - 31")
-				.setRequired(false)
+			option.setName("day").setDescription("Day of the month from 1 - 31").setRequired(false)
 		)
 		.addIntegerOption(option =>
 			option
@@ -32,10 +33,7 @@ module.exports = {
 				)
 		)
 		.addIntegerOption(option =>
-			option
-				.setName("year")
-				.setDescription("Year")
-				.setRequired(false)
+			option.setName("year").setDescription("Year").setRequired(false)
 		)
 		.addIntegerOption(option =>
 			option
@@ -44,61 +42,84 @@ module.exports = {
 				.setRequired(false)
 		)
 		.addIntegerOption(option =>
-			option
-				.setName("minute")
-				.setDescription("Minute")
-				.setRequired(false)
+			option.setName("minute").setDescription("Minute").setRequired(false)
 		),
 	execute: async helper => {
-		const reminder_id = helper.string("reminder-id", true)!
-		const reminder = helper.cache.reminders.find(reminder => reminder.value.id === reminder_id)
-		if (!reminder) {
-			return helper.respond(new EmbedResponse(
-				Emoji.BAD,
-				"Reminder doesn't exist"
-			))
-		}
-
+		const reminder_id = helper.string("reminder-id")
 		const day = helper.integer("day")
 		const month = helper.integer("month")
 		const year = helper.integer("year")
 		const hour = helper.integer("hour")
 		const minute = helper.integer("minute")
 
-		let due_date: number
-		if (!day && !month && !year && !hour && !minute) {
-			return helper.respond(new EmbedResponse(
-				Emoji.BAD,
-				"Update at least one field in the date"
-			))
-		}
-		else {
-			const date = new Date(reminder.value.due_date)
-			try {
-				due_date = DateHelper.verify(
+		if (reminder_id) {
+			const reminder = helper.cache.reminders.find(
+				reminder => reminder.value.id === reminder_id
+			)
+			if (!reminder) {
+				return helper.respond(new EmbedResponse(Emoji.BAD, "Reminder doesn't exist"))
+			}
+
+			if (!day && !month && !year && !hour && !minute) {
+				return helper.respond(
+					new EmbedResponse(Emoji.BAD, "Update at least one field in the date")
+				)
+			}
+
+			const [err, due_date] = useTry(() => {
+				const date = new Date(reminder.value.due_date)
+				return DateHelper.verify(
 					day ?? date.getDate(),
 					month ?? date.getMonth(),
 					year ?? date.getFullYear(),
 					hour ?? date.getHours(),
 					minute ?? date.getMinutes()
 				).getTime()
-			} catch (err) {
-				return helper.respond(new EmbedResponse(
-					Emoji.BAD,
-					`${err.message}`
-				))
+			})
+
+			if (err) {
+				return helper.respond(new EmbedResponse(Emoji.BAD, `${err.message}`))
 			}
+
+			await helper.cache.getReminderDoc(reminder_id).set({ due_date }, { merge: true })
+
+			helper.respond(new EmbedResponse(Emoji.GOOD, "Reminder due date updated"))
+		} else {
+			const draft = helper.cache.draft
+			if (!draft) {
+				return helper.respond(new EmbedResponse(Emoji.BAD, "No draft to edit"))
+			}
+
+			if (!day && !month && !year && !hour && !minute) {
+				return helper.respond(
+					new EmbedResponse(Emoji.BAD, "Update at least one field in the date")
+				)
+			}
+
+			const [err, due_date] = useTry(() => {
+				const date = new Date(draft.value.due_date)
+				return DateHelper.verify(
+					day ?? date.getDate(),
+					month ?? date.getMonth(),
+					year ?? date.getFullYear(),
+					hour ?? date.getHours(),
+					minute ?? date.getMinutes()
+				).getTime()
+			})
+
+			if (err) {
+				return helper.respond(new EmbedResponse(Emoji.BAD, `${err.message}`))
+			}
+
+			draft.value.due_date = due_date
+			await helper.cache.getDraftDoc().set({ due_date }, { merge: true })
+
+			helper.respond({
+				embeds: [
+					new EmbedResponse(Emoji.GOOD, `Draft due date updated`).create(),
+					Reminder.getDraftEmbed(draft)
+				]
+			})
 		}
-
-		await helper.cache
-			.getReminderDoc(reminder_id)
-			.set({
-				due_date
-			}, { merge: true })
-
-		helper.respond(new EmbedResponse(
-			Emoji.GOOD,
-			"Reminder due date updated"
-		))
 	}
 } as iInteractionSubcommandFile

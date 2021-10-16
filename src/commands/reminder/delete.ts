@@ -14,30 +14,26 @@ module.exports = {
 				.setRequired(true)
 		),
 	execute: async helper => {
-		const reminder_id = helper.string("reminder-id", true)!
-		const reminder = helper.cache.reminders
-			.find(reminder => reminder.value.id === reminder_id)
+		const reminder_id = helper.string("reminder-id")!
+		const reminder = helper.cache.reminders.find(reminder => reminder.value.id === reminder_id)
 		if (!reminder) {
-			return helper.respond(new EmbedResponse(
-				Emoji.BAD,
-				`Reminder does not exist`
-			))
+			return helper.respond(new EmbedResponse(Emoji.BAD, `Reminder does not exist`))
 		}
 
-		helper.cache.reminders = helper.cache.reminders
-			.filter(reminder => reminder.value.id !== reminder_id)
-		await helper.cache.ref
-			.set({
-				reminders_message_ids: admin.firestore.FieldValue.arrayRemove(helper.cache.getRemindersMessageIds()[0])
-			}, { merge: true })
-		await helper.cache
-			.getReminderDoc(reminder_id)
-			.delete()
+		helper.cache.reminders = helper.cache.reminders.filter(
+			reminder => reminder.value.id !== reminder_id
+		)
+		await helper.cache.ref.set(
+			{
+				reminders_message_ids: admin.firestore.FieldValue.arrayRemove(
+					helper.cache.getRemindersMessageIds()[0]
+				)
+			},
+			{ merge: true }
+		)
+		await helper.cache.getReminderDoc(reminder_id).delete()
 		helper.cache.updateRemindersChannel().then()
 
-		helper.respond(new EmbedResponse(
-			Emoji.GOOD,
-			`Reminder deleted`
-		))
+		helper.respond(new EmbedResponse(Emoji.GOOD, `Reminder deleted`))
 	}
 } as iInteractionSubcommandFile

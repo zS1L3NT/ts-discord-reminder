@@ -38,8 +38,7 @@ export default class DateHelper {
 			if (day > 31) {
 				throw new Error(`This month cannot have ${day} days`)
 			}
-		}
-		else {
+		} else {
 			if (day > 30) {
 				throw new Error(`This month cannot have ${day} days`)
 			}
@@ -71,10 +70,7 @@ export default class DateHelper {
 
 		// Handle timezone change
 		if (new Date().getUTCHours() === new Date().getHours()) {
-			return new Date(
-				new Date(year, month, day, hour, minute).getTime() -
-				28800000
-			)
+			return new Date(new Date(year, month, day, hour, minute).getTime() - 28800000)
 		}
 		return new Date(year, month, day, hour, minute)
 	}
@@ -125,13 +121,11 @@ export default class DateHelper {
 		if (date.getUTCHours() === date.getHours()) {
 			// Wrong timezone, in UK
 			localDate = new Date(this.time + 28800000)
-		}
-		else {
+		} else {
 			localDate = date
 		}
 
-		const day_of_week =
-			DateHelper.days_of_week[localDate.toDateString().slice(0, 3)]
+		const day_of_week = DateHelper.days_of_week[localDate.toDateString().slice(0, 3)]
 		const date_in_month = localDate.getDate()
 		const name_of_month = DateHelper.name_of_months[localDate.getMonth()]
 		const year = localDate.getFullYear()
@@ -144,11 +138,9 @@ export default class DateHelper {
 				? hours === 12
 					? `12:${minutes.toString().padStart(2, "0")}pm`
 					: `${(hours - 12).toString().padStart(2, "0")}:${minutes
-						.toString()
-						.padStart(2, "0")}pm`
-				: `${hours.toString().padStart(2, "0")}:${minutes
-					.toString()
-					.padStart(2, "0")}am`
+							.toString()
+							.padStart(2, "0")}pm`
+				: `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}am`
 
 		return `${day_of_week}, ${date_in_month} ${name_of_month} ${year} at ${time}`
 	}
