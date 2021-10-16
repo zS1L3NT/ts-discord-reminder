@@ -67,13 +67,13 @@ module.exports = {
 			}
 
 			const [err, due_date] = useTry(() => {
-				const date = new Date(reminder.value.due_date)
+				const date = DateHelper.getSingaporeDate(reminder.value.due_date)
 				return DateHelper.verify(
-					day ?? date.getDate(),
-					month ?? date.getMonth(),
-					year ?? date.getFullYear(),
-					hour ?? date.getHours(),
-					minute ?? date.getMinutes()
+					day ?? date.day,
+					month ?? date.month,
+					year ?? date.year,
+					hour ?? date.hour,
+					minute ?? date.minute
 				).getTime()
 			})
 
@@ -97,13 +97,13 @@ module.exports = {
 			}
 
 			const [err, due_date] = useTry(() => {
-				const date = new Date(draft.value.due_date)
+				const date = DateHelper.getSingaporeDate(draft.value.due_date)
 				return DateHelper.verify(
-					day ?? date.getDate(),
-					month ?? date.getMonth(),
-					year ?? date.getFullYear(),
-					hour ?? date.getHours(),
-					minute ?? date.getMinutes()
+					day ?? date.day,
+					month ?? date.month,
+					year ?? date.year,
+					hour ?? date.hour,
+					minute ?? date.minute
 				).getTime()
 			})
 

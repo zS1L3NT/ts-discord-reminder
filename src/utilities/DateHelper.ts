@@ -32,7 +32,7 @@ export default class DateHelper {
 	}
 
 	public static verify(day: number, month: number, year: number, hour: number, minute: number) {
-		const now = new Date()
+		const date = DateHelper.getSingaporeDate()
 
 		if (this.longer_months.includes(month)) {
 			if (day > 31) {
@@ -53,10 +53,10 @@ export default class DateHelper {
 			}
 		}
 
-		if (year < now.getFullYear()) {
+		if (year < date.year) {
 			throw new Error("Year must not be in the past")
 		}
-		if (year - now.getFullYear() > 5) {
+		if (year - date.year > 5) {
 			throw new Error("Year must not be more than 5 years ahead")
 		}
 
@@ -68,11 +68,7 @@ export default class DateHelper {
 			throw new Error("Minute must not exceed 59")
 		}
 
-		// Handle timezone change
-		if (new Date().getUTCHours() === new Date().getHours()) {
-			return new Date(new Date(year, month, day, hour, minute).getTime() - 28800000)
-		}
-		return new Date(year, month, day, hour, minute)
+		return new Date(`${month + 1} ${day} ${year} ${hour}:${minute}+8`)
 	}
 
 	public approximately(actual: number) {
@@ -116,32 +112,50 @@ export default class DateHelper {
 	}
 
 	public getDate() {
-		const date = new Date(this.time)
-		let localDate: Date
-		if (date.getUTCHours() === date.getHours()) {
-			// Wrong timezone, in UK
-			localDate = new Date(this.time + 28800000)
-		} else {
-			localDate = date
-		}
+		const date = DateHelper.getSingaporeDate(this.time)
 
-		const day_of_week = DateHelper.days_of_week[localDate.toDateString().slice(0, 3)]
-		const date_in_month = localDate.getDate()
-		const name_of_month = DateHelper.name_of_months[localDate.getMonth()]
-		const year = localDate.getFullYear()
-
-		const hours = localDate.getHours()
-		const minutes = localDate.getMinutes()
+		const { day_name, month_name, day, year, hour, minute } = date
 
 		const time =
-			hours >= 12
-				? hours === 12
-					? `12:${minutes.toString().padStart(2, "0")}pm`
-					: `${(hours - 12).toString().padStart(2, "0")}:${minutes
+			hour >= 12
+				? hour === 12
+					? `12:${minute.toString().padStart(2, "0")}pm`
+					: `${(hour - 12).toString().padStart(2, "0")}:${minute
 							.toString()
 							.padStart(2, "0")}pm`
-				: `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}am`
+				: `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}am`
 
-		return `${day_of_week}, ${date_in_month} ${name_of_month} ${year} at ${time}`
+		return `${day_name}, ${day} ${month_name} ${year} at ${time}`
+	}
+
+	public static getSingaporeDate(time?: number) {
+		let date: Date
+
+		if (time) {
+			date = new Date(time)
+		} else {
+			date = new Date()
+		}
+
+		const date_string = date.toLocaleString("en-SG", {
+			timeZone: "Asia/Singapore",
+			dateStyle: "full",
+			timeStyle: "medium",
+			hour12: false
+		})
+
+		const match = date_string.match(/(\w*), (\d*) (\w*) (\d*), (\d*):(\d*):(\d*)/)!
+		const [, day_name, day, month_name, year, hour, minute, second] = match
+
+		return {
+			day: +day,
+			day_name,
+			month: DateHelper.name_of_months.indexOf(month_name),
+			month_name,
+			year: +year,
+			hour: +hour,
+			minute: +minute,
+			second: +second
+		}
 	}
 }
