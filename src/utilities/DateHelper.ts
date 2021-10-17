@@ -84,7 +84,7 @@ export default class DateHelper {
 			day,
 			hour,
 			minute
-		}).setZone("Asia/Singapore")
+		}, { zone: "Asia/Singapore" })
 	}
 
 	public approximately(actual: number) {
