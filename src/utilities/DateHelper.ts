@@ -1,3 +1,5 @@
+import { DateTime } from "luxon"
+
 export default class DateHelper {
 	private readonly time: number
 	public static days_of_week: {
@@ -31,8 +33,14 @@ export default class DateHelper {
 		this.time = time
 	}
 
-	public static verify(day: number, month: number, year: number, hour: number, minute: number) {
-		const date = DateHelper.getSingaporeDate()
+	public static verify(
+		day: number,
+		month: number,
+		year: number,
+		hour: number,
+		minute: number
+	) {
+		const now = DateTime.now()
 
 		if (this.longer_months.includes(month)) {
 			if (day > 31) {
@@ -46,17 +54,19 @@ export default class DateHelper {
 
 		if (month === 1) {
 			if (year % 4 !== 0 && day === 29) {
-				throw new Error(`February cannot have 29 days in a non-leap year`)
+				throw new Error(
+					`February cannot have 29 days in a non-leap year`
+				)
 			}
 			if (day > 29) {
 				throw new Error(`February cannot have ${day} days`)
 			}
 		}
 
-		if (year < date.year) {
+		if (year < now.year) {
 			throw new Error("Year must not be in the past")
 		}
-		if (year - date.year > 5) {
+		if (year - now.year > 5) {
 			throw new Error("Year must not be more than 5 years ahead")
 		}
 
@@ -68,7 +78,13 @@ export default class DateHelper {
 			throw new Error("Minute must not exceed 59")
 		}
 
-		return new Date(`${month + 1} ${day} ${year} ${hour}:${minute}+8`)
+		return DateTime.fromObject({
+			year,
+			month: month + 1,
+			day,
+			hour,
+			minute
+		}).setZone("Asia/Singapore")
 	}
 
 	public approximately(actual: number) {
@@ -112,50 +128,7 @@ export default class DateHelper {
 	}
 
 	public getDate() {
-		const date = DateHelper.getSingaporeDate(this.time)
-
-		const { day_name, month_name, day, year, hour, minute } = date
-
-		const time =
-			hour >= 12
-				? hour === 12
-					? `12:${minute.toString().padStart(2, "0")}pm`
-					: `${(hour - 12).toString().padStart(2, "0")}:${minute
-							.toString()
-							.padStart(2, "0")}pm`
-				: `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}am`
-
-		return `${day_name}, ${day} ${month_name} ${year} at ${time}`
-	}
-
-	public static getSingaporeDate(time?: number) {
-		let date: Date
-
-		if (time) {
-			date = new Date(time)
-		} else {
-			date = new Date()
-		}
-
-		const date_string = date.toLocaleString("en-SG", {
-			timeZone: "Asia/Singapore",
-			dateStyle: "full",
-			timeStyle: "medium",
-			hour12: false
-		})
-
-		const match = date_string.match(/(\w*), (\d*) (\w*) (\d*), (\d*):(\d*):(\d*)/)!
-		const [, day_name, day, month_name, year, hour, minute, second] = match
-
-		return {
-			day: +day,
-			day_name,
-			month: DateHelper.name_of_months.indexOf(month_name),
-			month_name,
-			year: +year,
-			hour: +hour,
-			minute: +minute,
-			second: +second
-		}
+		const date = DateTime.fromMillis(this.time).setZone("Asia/Singapore")
+		return date.toFormat("cccc, dd LLLL yyyy 'at' t")
 	}
 }

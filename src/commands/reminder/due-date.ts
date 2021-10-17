@@ -1,4 +1,5 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { DateTime } from "luxon"
 import { useTry } from "no-try"
 import Reminder from "../../models/Reminder"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
@@ -67,14 +68,14 @@ module.exports = {
 			}
 
 			const [err, due_date] = useTry(() => {
-				const date = DateHelper.getSingaporeDate(reminder.value.due_date)
+				const date = DateTime.fromMillis(reminder.value.due_date).setZone("Asia/Singapore")
 				return DateHelper.verify(
 					day ?? date.day,
-					month ?? date.month,
+					month ?? date.month - 1,
 					year ?? date.year,
 					hour ?? date.hour,
 					minute ?? date.minute
-				).getTime()
+				).toMillis()
 			})
 
 			if (err) {
@@ -97,14 +98,14 @@ module.exports = {
 			}
 
 			const [err, due_date] = useTry(() => {
-				const date = DateHelper.getSingaporeDate(draft.value.due_date)
+				const date = DateTime.fromMillis(draft.value.due_date).setZone("Asia/Singapore")
 				return DateHelper.verify(
 					day ?? date.day,
-					month ?? date.month,
+					month ?? date.month - 1,
 					year ?? date.year,
 					hour ?? date.hour,
 					minute ?? date.minute
-				).getTime()
+				).toMillis()
 			})
 
 			if (err) {
