@@ -1,8 +1,8 @@
-import { Client, Intents } from "discord.js"
 import AfterEvery from "after-every"
-import BotSetupHelper from "./utilities/BotSetupHelper"
+import { Client, Intents } from "discord.js"
 import GuildCache from "./models/GuildCache"
 import Reminder from "./models/Reminder"
+import BotSetupHelper from "./utilities/BotSetupHelper"
 import DateHelper from "./utilities/DateHelper"
 
 const config = require("../config.json")

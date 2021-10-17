@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { GuildMember, TextChannel } from "discord.js"
+import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 const config = require("../../../config.json")

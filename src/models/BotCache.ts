@@ -1,7 +1,7 @@
-import admin from "firebase-admin"
 import { Client, Collection, Guild } from "discord.js"
-import GuildCache from "./GuildCache"
+import admin from "firebase-admin"
 import Document from "./Document"
+import GuildCache from "./GuildCache"
 
 const config = require("../../config.json")
 

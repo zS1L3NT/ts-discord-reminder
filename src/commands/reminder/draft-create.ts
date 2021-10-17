@@ -1,6 +1,6 @@
-import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import Reminder from "../../models/Reminder"
+import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {

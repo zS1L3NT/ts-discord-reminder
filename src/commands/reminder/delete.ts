@@ -1,5 +1,5 @@
-import admin from "firebase-admin"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import admin from "firebase-admin"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
