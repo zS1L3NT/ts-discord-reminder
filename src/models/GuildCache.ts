@@ -65,9 +65,12 @@ export default class GuildCache {
 				this.setRemindersMessageIds(newRemindersMessageIds).then()
 			}
 		} catch (err) {
-			console.warn(`Guild(${this.guild.name}) has no Channel(${remindersChannelId})`)
-			await this.setRemindersChannelId("")
-			return
+			if ((err as Error).message === "no-channel") {
+				console.warn(`Guild(${this.guild.name}) has no Channel(${remindersChannelId})`)
+				await this.setRemindersChannelId("")
+				return
+			}
+			throw err
 		}
 
 		// Remove expired reminders
