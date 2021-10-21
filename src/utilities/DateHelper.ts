@@ -33,7 +33,13 @@ export default class DateHelper {
 		this.time = time
 	}
 
-	public static verify(day: number, month: number, year: number, hour: number, minute: number) {
+	public static verify(
+		day: number,
+		month: number,
+		year: number,
+		hour: number,
+		minute: number
+	) {
 		const now = DateTime.now()
 
 		if (this.longer_months.includes(month)) {
@@ -48,7 +54,9 @@ export default class DateHelper {
 
 		if (month === 1) {
 			if (year % 4 !== 0 && day === 29) {
-				throw new Error(`February cannot have 29 days in a non-leap year`)
+				throw new Error(
+					`February cannot have 29 days in a non-leap year`
+				)
 			}
 			if (day > 29) {
 				throw new Error(`February cannot have ${day} days`)

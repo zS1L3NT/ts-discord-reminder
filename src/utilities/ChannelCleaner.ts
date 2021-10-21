@@ -11,7 +11,11 @@ export default class ChannelCleaner {
 	private channel?: TextChannel
 	private messages: Collection<string, Message>
 
-	public constructor(cache: GuildCache, channelId: string, messageIds: string[]) {
+	public constructor(
+		cache: GuildCache,
+		channelId: string,
+		messageIds: string[]
+	) {
 		this.excluded = () => false
 		this.cache = cache
 		this.channelId = channelId
@@ -37,8 +41,13 @@ export default class ChannelCleaner {
 			const messages = await channel.messages.fetch({ limit: 100 })
 			// Clear all unrelated messages first
 			for (const message of messages.values()) {
-				if (!this.excluded(message) && !this.messageIds.includes(message.id)) {
-					console.warn(`Message(${message.id}) shouldn't be in Channel(${channel.id})`)
+				if (
+					!this.excluded(message) &&
+					!this.messageIds.includes(message.id)
+				) {
+					console.warn(
+						`Message(${message.id}) shouldn't be in Channel(${channel.id})`
+					)
 					message.delete().catch(() => {})
 				} else {
 					this.messages.set(message.id, message)
@@ -49,8 +58,12 @@ export default class ChannelCleaner {
 			let removeCount = 0
 			for (const messageId of this.messageIds) {
 				if (!channel.messages.cache.get(messageId)) {
-					console.warn(`Channel(${channel.id}) has no Message(${messageId})`)
-					this.messageIds = this.messageIds.filter(m => m !== messageId)
+					console.warn(
+						`Channel(${channel.id}) has no Message(${messageId})`
+					)
+					this.messageIds = this.messageIds.filter(
+						m => m !== messageId
+					)
 					removeCount++
 				}
 			}
