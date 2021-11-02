@@ -27,7 +27,7 @@ export default class Reminder {
 		return new Reminder({
 			id: "",
 			title: "",
-			due_date: 0,
+			due_date: Date.now(),
 			details: [],
 			priority: 1,
 			pings: {
