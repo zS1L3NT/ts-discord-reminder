@@ -1,4 +1,7 @@
-import { SlashCommandBuilder, SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import {
+	SlashCommandBuilder,
+	SlashCommandSubcommandBuilder
+} from "@discordjs/builders"
 import { Client, Collection, Guild } from "discord.js"
 import fs from "fs"
 import path from "path"
@@ -11,7 +14,10 @@ import SlashCommandDeployer from "./SlashCommandDeployer"
 
 export default class BotSetupHelper {
 	public cache: BotCache
-	public interactionFiles: Collection<string, iInteractionFile | iInteractionFolder>
+	public interactionFiles: Collection<
+		string,
+		iInteractionFile | iInteractionFolder
+	>
 	public buttonFiles: Collection<string, iButtonFile>
 	public menuFiles: Collection<string, iMenuFile>
 	private readonly bot: Client
@@ -21,7 +27,10 @@ export default class BotSetupHelper {
 		this.bot = bot
 		this.cache = new BotCache(this.bot)
 		this.messageFiles = []
-		this.interactionFiles = new Collection<string, iInteractionFile | iInteractionFolder>()
+		this.interactionFiles = new Collection<
+			string,
+			iInteractionFile | iInteractionFolder
+		>()
 		this.buttonFiles = new Collection<string, iButtonFile>()
 		this.menuFiles = new Collection<string, iMenuFile>()
 
@@ -39,7 +48,7 @@ export default class BotSetupHelper {
 			try {
 				for (const messageFile of this.messageFiles) {
 					if (messageFile.condition(helper)) {
-						message.react("⌛").then()
+						message.react("⌛").catch(() => {})
 						await messageFile.execute(helper)
 						break
 					}
@@ -54,8 +63,12 @@ export default class BotSetupHelper {
 			const cache = await this.cache.getGuildCache(interaction.guild!)
 
 			if (interaction.isCommand()) {
-				await interaction.deferReply({ ephemeral: true })
-				const interactionFile = this.interactionFiles.get(interaction.commandName)
+				await interaction
+					.deferReply({ ephemeral: true })
+					.catch(() => console.log("Failed to defer interaction"))
+				const interactionFile = this.interactionFiles.get(
+					interaction.commandName
+				)
 				if (!interactionFile) return
 
 				const helper = new InteractionHelper(cache, interaction)
@@ -67,7 +80,8 @@ export default class BotSetupHelper {
 
 					const folder = interactionFile as iInteractionFolder
 					if (folder.files) {
-						const subcommand = interaction.options.getSubcommand(true)
+						const subcommand =
+							interaction.options.getSubcommand(true)
 						const file = folder.files.get(subcommand)
 						if (!file) return
 
@@ -75,12 +89,16 @@ export default class BotSetupHelper {
 					}
 				} catch (error) {
 					console.error(error)
-					await interaction.followUp("There was an error while executing this command!")
+					await interaction.followUp(
+						"There was an error while executing this command!"
+					)
 				}
 			}
 
 			if (interaction.isButton()) {
-				await interaction.deferReply({ ephemeral: true })
+				await interaction
+					.deferReply({ ephemeral: true })
+					.catch(() => console.log("Failed to defer interaction"))
 				const buttonFile = this.buttonFiles.get(interaction.customId)
 				if (!buttonFile) return
 
@@ -89,12 +107,16 @@ export default class BotSetupHelper {
 					await buttonFile.execute(helper)
 				} catch (error) {
 					console.error(error)
-					await interaction.followUp("There was an error while executing this button!")
+					await interaction.followUp(
+						"There was an error while executing this button!"
+					)
 				}
 			}
 
 			if (interaction.isSelectMenu()) {
-				await interaction.deferReply({ ephemeral: true })
+				await interaction
+					.deferReply({ ephemeral: true })
+					.catch(() => console.log("Failed to defer interaction"))
 				const menuFile = this.menuFiles.get(interaction.customId)
 				if (!menuFile) return
 
@@ -103,7 +125,9 @@ export default class BotSetupHelper {
 					await menuFile.execute(helper)
 				} catch (error) {
 					console.error(error)
-					await interaction.followUp("There was an error while executing this menu item!")
+					await interaction.followUp(
+						"There was an error while executing this menu item!"
+					)
 				}
 			}
 		})
@@ -111,7 +135,7 @@ export default class BotSetupHelper {
 		this.bot.on("guildCreate", async guild => {
 			console.log(`Added to Guild(${guild.name})`)
 			await this.cache.createGuildCache(guild)
-			await this.deploySlashCommands(guild)
+			await new SlashCommandDeployer(guild.id, this.interactionFiles)
 		})
 
 		this.bot.on("guildDelete", async guild => {
@@ -122,19 +146,6 @@ export default class BotSetupHelper {
 
 	private static isFile(file: string): boolean {
 		return file.endsWith(".ts") || file.endsWith(".js")
-	}
-
-	public async deploySlashCommands(guild: Guild) {
-		const deployer = new SlashCommandDeployer(guild.id)
-		this.interactionFiles.forEach(command => deployer.addCommand(command.data))
-		try {
-			await deployer.deploy()
-		} catch (err) {
-			console.error(
-				// @ts-ignore
-				`Failed to deploy slash commands for Guild(${guild.name}): ${err.message}`
-			)
-		}
 	}
 
 	private setupMessageCommands() {
@@ -149,7 +160,8 @@ export default class BotSetupHelper {
 		}
 
 		for (const messageFileName of fileNames) {
-			const file = require(`../messages/${messageFileName}`) as iMessageFile
+			const file =
+				require(`../messages/${messageFileName}`) as iMessageFile
 			this.messageFiles.push(file)
 		}
 	}
@@ -164,7 +176,9 @@ export default class BotSetupHelper {
 		}
 
 		// Slash subcommands
-		for (const interactionFolderName of units.filter(f => !BotSetupHelper.isFile(f))) {
+		for (const interactionFolderName of units.filter(
+			f => !BotSetupHelper.isFile(f)
+		)) {
 			const interactionFileNames = fs.readdirSync(
 				path.join(__dirname, `../commands/${interactionFolderName}`)
 			)
@@ -172,8 +186,11 @@ export default class BotSetupHelper {
 				.setName(interactionFolderName)
 				.setDescription(`Commands for ${interactionFolderName}`)
 
-			const files: Collection<string, iInteractionSubcommandFile> = new Collection()
-			for (const commandFile of interactionFileNames.filter(f => BotSetupHelper.isFile(f))) {
+			const files: Collection<string, iInteractionSubcommandFile> =
+				new Collection()
+			for (const commandFile of interactionFileNames.filter(f =>
+				BotSetupHelper.isFile(f)
+			)) {
 				const file =
 					require(`../commands/${interactionFolderName}/${commandFile}`) as iInteractionSubcommandFile
 				files.set(file.data.name, file)
@@ -187,10 +204,15 @@ export default class BotSetupHelper {
 		}
 
 		// Slash commands
-		for (const interactionFileNames of units.filter(f => BotSetupHelper.isFile(f))) {
+		for (const interactionFileNames of units.filter(f =>
+			BotSetupHelper.isFile(f)
+		)) {
 			const iInteractionFile =
 				require(`../commands/${interactionFileNames}`) as iInteractionFile
-			this.interactionFiles.set(iInteractionFile.data.name, iInteractionFile)
+			this.interactionFiles.set(
+				iInteractionFile.data.name,
+				iInteractionFile
+			)
 		}
 	}
 
@@ -206,7 +228,8 @@ export default class BotSetupHelper {
 		}
 
 		for (const buttonFileName of fileNames) {
-			const buttonFile = require(`../buttons/${buttonFileName}`) as iButtonFile
+			const buttonFile =
+				require(`../buttons/${buttonFileName}`) as iButtonFile
 			this.buttonFiles.set(buttonFile.id, buttonFile)
 		}
 	}

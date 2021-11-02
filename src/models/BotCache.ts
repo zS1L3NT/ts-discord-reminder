@@ -26,7 +26,12 @@ export default class BotCache {
 			if (!cache) {
 				this.guilds.set(
 					guild.id,
-					new GuildCache(this.bot, guild, this.ref.doc(guild.id), resolve)
+					new GuildCache(
+						this.bot,
+						guild,
+						this.ref.doc(guild.id),
+						resolve
+					)
 				)
 
 				this.ref

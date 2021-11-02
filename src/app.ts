@@ -3,6 +3,7 @@ import { Client, Intents } from "discord.js"
 import GuildCache from "./models/GuildCache"
 import Reminder from "./models/Reminder"
 import BotSetupHelper from "./utilities/BotSetupHelper"
+import SlashCommandDeployer from "./utilities/SlashCommandDeployer"
 import DateHelper from "./utilities/DateHelper"
 
 const config = require("../config.json")
@@ -29,18 +30,22 @@ bot.on("ready", async () => {
 	let i = 0
 	let count = bot.guilds.cache.size
 	for (const guild of bot.guilds.cache.toJSON()) {
-		const tag = `${(++i).toString().padStart(count.toString().length, "0")}/${count}`
+		const tag = `${(++i)
+			.toString()
+			.padStart(count.toString().length, "0")}/${count}`
 		let cache: GuildCache
 		try {
 			cache = await botCache.getGuildCache(guild)
 		} catch (err) {
-			console.error(`${tag} ❌ Couldn't find a Firebase Document for Guild(${guild.name})`)
+			console.error(
+				`${tag} ❌ Couldn't find a Firebase Document for Guild(${guild.name})`
+			)
 			guild.leave()
 			continue
 		}
 
 		try {
-			await botSetupHelper.deploySlashCommands(guild)
+			await new SlashCommandDeployer(guild.id, botSetupHelper.interactionFiles).deploy()
 		} catch (err) {
 			console.error(
 				`${tag} ❌ Couldn't get Slash Command permission for Guild(${guild.name})`
@@ -79,6 +84,7 @@ bot.on("ready", async () => {
 			}
 			// endregion
 		})
+
 
 		console.log(`${tag} ✅ Restored cache for Guild(${guild.name})`)
 	}
