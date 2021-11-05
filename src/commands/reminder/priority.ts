@@ -10,7 +10,7 @@ module.exports = {
 		.addIntegerOption(option =>
 			option
 				.setName("priority")
-				.setDescription("Can either be HIGH, MEDIUM or LOW priority")
+				.setDescription("Can either be HIGH(7d, 24h, 12h, 2h, 1h, 30m), MEDIUM(24h, 2h) or LOW priority")
 				.setRequired(true)
 				.addChoice("LOW", 0)
 				.addChoice("MEDIUM", 1)
