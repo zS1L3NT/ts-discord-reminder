@@ -26,6 +26,17 @@ export default class MessageHelper {
 		return !!this.match(`^${command}(?:(?= *)(?!\\w+))`)
 	}
 
+	public input() {
+		return this.match(`^\\S* *(.*)`)?.[0]
+			?.replaceAll("  ", " ")
+			?.split(" ")
+			?.filter(i => i !== "")
+	}
+
+	public getNumber<T, U>(string: string | undefined, not_defined: T, nan: U) {
+		return string === undefined ? not_defined : isNaN(+string) ? nan : +string
+	}
+
 	public clearAfter(ms: number) {
 		setTimeout(() => {
 			this.message.delete().catch(() => {})
@@ -42,7 +53,7 @@ export default class MessageHelper {
 
 	public respond(
 		options: MessagePayload | InteractionReplyOptions | EmbedResponse,
-		ms: number
+		ms?: number
 	) {
 		let message: Promise<Message>
 
@@ -51,15 +62,15 @@ export default class MessageHelper {
 				embeds: [options.create()]
 			})
 		} else {
-			message = this.message.channel.send(
-				options as MessagePayload | InteractionReplyOptions
-			)
+			message = this.message.channel.send(options as MessagePayload | InteractionReplyOptions)
 		}
 
 		message
 			.then(async temporary => {
-				await time(ms)
-				await temporary.delete().catch(() => {})
+				if (ms) {
+					await time(ms)
+					await temporary.delete().catch(() => {})
+				}
 			})
 			.catch(() => {})
 	}

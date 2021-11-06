@@ -1,31 +1,39 @@
-import {
-	CommandInteraction,
-	InteractionReplyOptions,
-	MessagePayload
-} from "discord.js"
+import { CommandInteraction, InteractionReplyOptions, MessagePayload } from "discord.js"
 import GuildCache from "../models/GuildCache"
 import EmbedResponse from "./EmbedResponse"
 
 export default class InteractionHelper {
 	public cache: GuildCache
 	public interaction: CommandInteraction
+	private responded = false
 
 	public constructor(cache: GuildCache, interaction: CommandInteraction) {
 		this.cache = cache
 		this.interaction = interaction
 	}
 
-	public respond(
-		options: MessagePayload | InteractionReplyOptions | EmbedResponse
-	) {
-		if (options instanceof EmbedResponse) {
-			this.interaction
-				.followUp({
-					embeds: [options.create()]
-				})
-				.catch(() => {})
+	public respond(options: MessagePayload | InteractionReplyOptions | EmbedResponse) {
+		if (this.responded) {
+			if (options instanceof EmbedResponse) {
+				this.interaction
+					.editReply({
+						embeds: [options.create()]
+					})
+					.catch(() => {})
+			} else {
+				this.interaction.editReply(options).catch(() => {})
+			}
 		} else {
-			this.interaction.followUp(options).catch(() => {})
+			if (options instanceof EmbedResponse) {
+				this.interaction
+					.followUp({
+						embeds: [options.create()]
+					})
+					.catch(() => {})
+			} else {
+				this.interaction.followUp(options).catch(() => {})
+			}
+			this.responded = true
 		}
 	}
 
