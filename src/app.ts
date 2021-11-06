@@ -30,16 +30,12 @@ bot.on("ready", async () => {
 	let i = 0
 	let count = bot.guilds.cache.size
 	for (const guild of bot.guilds.cache.toJSON()) {
-		const tag = `${(++i)
-			.toString()
-			.padStart(count.toString().length, "0")}/${count}`
+		const tag = `${(++i).toString().padStart(count.toString().length, "0")}/${count}`
 		let cache: GuildCache
 		try {
 			cache = await botCache.getGuildCache(guild)
 		} catch (err) {
-			console.error(
-				`${tag} ❌ Couldn't find a Firebase Document for Guild(${guild.name})`
-			)
+			console.error(`${tag} ❌ Couldn't find a Firebase Document for Guild(${guild.name})`)
 			guild.leave()
 			continue
 		}
@@ -60,10 +56,17 @@ bot.on("ready", async () => {
 			for (const reminder of cache.reminders) {
 				const timeDiff = reminder.value.due_date - Date.now()
 
+				if (reminder.value.priority === Reminder.PRIORITY_LOW) {
+					if (new DateHelper(timeDiff).approximately(0)) {
+						cache.updatePingChannel(reminder)
+					}
+				}
+
 				if (reminder.value.priority === Reminder.PRIORITY_MEDIUM) {
 					if (
 						new DateHelper(timeDiff).approximately(ONE_DAY) ||
-						new DateHelper(timeDiff).approximately(2 * ONE_HOUR)
+						new DateHelper(timeDiff).approximately(2 * ONE_HOUR) ||
+						new DateHelper(timeDiff).approximately(0)
 					) {
 						cache.updatePingChannel(reminder)
 					}
@@ -76,7 +79,8 @@ bot.on("ready", async () => {
 						new DateHelper(timeDiff).approximately(12 * ONE_HOUR) ||
 						new DateHelper(timeDiff).approximately(2 * ONE_HOUR) ||
 						new DateHelper(timeDiff).approximately(ONE_HOUR) ||
-						new DateHelper(timeDiff).approximately(30 * ONE_MINUTE)
+						new DateHelper(timeDiff).approximately(30 * ONE_MINUTE) ||
+						new DateHelper(timeDiff).approximately(0)
 					) {
 						cache.updatePingChannel(reminder)
 					}
@@ -84,7 +88,6 @@ bot.on("ready", async () => {
 			}
 			// endregion
 		})
-
 
 		console.log(`${tag} ✅ Restored cache for Guild(${guild.name})`)
 	}
