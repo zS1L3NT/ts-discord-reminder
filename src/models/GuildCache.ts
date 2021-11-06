@@ -1,6 +1,7 @@
 import equal from "deep-equal"
-import { Client, Collection, Guild, Message, TextChannel } from "discord.js"
+import { Client, Guild, TextChannel } from "discord.js"
 import admin from "firebase-admin"
+import { useTryAsync } from "no-try"
 import ChannelCleaner from "../utilities/ChannelCleaner"
 import DateHelper from "../utilities/DateHelper"
 import FirestoreParser from "../utilities/FirestoreParser"
@@ -19,7 +20,7 @@ export default class GuildCache {
 		bot: Client,
 		guild: Guild,
 		ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
-		resolve: (localCache: GuildCache) => void
+		resolve: (cache: GuildCache) => void
 	) {
 		this.bot = bot
 		this.guild = guild
@@ -52,20 +53,22 @@ export default class GuildCache {
 		const remindersChannelId = this.getRemindersChannelId()
 		if (remindersChannelId === "") return
 
-		let messages: Collection<string, Message>
-
-		try {
+		const [err, messages] = await useTryAsync(async () => {
 			const remindersMessageIds = this.getRemindersMessageIds()
 			const cleaner = new ChannelCleaner(this, remindersChannelId, remindersMessageIds)
 			await cleaner.clean()
-			messages = cleaner.getMessages()
+			const messages = cleaner.getMessages()
 
 			const newRemindersMessageIds = cleaner.getMessageIds()
 			if (!equal(newRemindersMessageIds, remindersMessageIds)) {
 				this.setRemindersMessageIds(newRemindersMessageIds).then()
 			}
-		} catch (err) {
-			if ((err as Error).message === "no-channel") {
+
+			return messages
+		})
+
+		if (err) {
+			if (err.message === "no-channel") {
 				console.warn(`Guild(${this.guild.name}) has no Channel(${remindersChannelId})`)
 				await this.setRemindersChannelId("")
 				return
