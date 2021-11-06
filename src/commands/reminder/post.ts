@@ -5,14 +5,14 @@ import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
-		.setName("draft-save")
-		.setDescription("Save the existing draft to a reminder"),
+		.setName("post")
+		.setDescription("Upload the existing draft to a reminder"),
 	execute: async helper => {
 		const draft = helper.cache.draft
 		if (!draft) {
 			return helper.respond(new EmbedResponse(
 				Emoji.BAD,
-				"No draft to save"
+				"No draft to post"
 			))
 		}
 
@@ -44,7 +44,7 @@ module.exports = {
 
 		helper.respond(new EmbedResponse(
 			Emoji.GOOD,
-			"Saved draft to reminder"
+			"Posted draft to reminder"
 		))
 	}
 } as iInteractionSubcommandFile

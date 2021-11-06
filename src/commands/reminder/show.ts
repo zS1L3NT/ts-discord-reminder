@@ -4,7 +4,7 @@ import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
-		.setName("draft-show")
+		.setName("show")
 		.setDescription("Show the current draft"),
 	execute: async helper => {
 		helper.respond({
