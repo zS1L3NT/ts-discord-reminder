@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js"
+import { Guild, MessageEmbed } from "discord.js"
 import DateHelper from "../utilities/DateHelper"
 
 export interface iReminder {
@@ -37,7 +37,7 @@ export default class Reminder {
 		})
 	}
 
-	public static getDraftEmbed(reminder: Reminder | undefined) {
+	public static getDraftEmbed(reminder: Reminder | undefined, guild: Guild) {
 		let color: "#5865F2" | "#00FF00" | "#FFFF00" | "#FF0000" = "#5865F2"
 		switch (reminder?.value?.priority ?? -1) {
 			case Reminder.PRIORITY_LOW:
@@ -69,7 +69,7 @@ export default class Reminder {
 
 			embed.addField("Title", reminder.value.title || "\u200B")
 			embed.addField("Priority", priority)
-			embed.addField("Pinging", reminder.getPingString())
+			embed.addField("Pinging", reminder.getPingString(guild))
 			embed.addField("Date", new DateHelper(reminder.value.due_date).getDate())
 			embed.addField("Details", reminder.value.details.join("\n") || "\u200B")
 		}
@@ -81,7 +81,7 @@ export default class Reminder {
 	 * Formats reminder into a string
 	 * @returns {string} Formatted reminder
 	 */
-	public getEmbed() {
+	public getEmbed(guild: Guild) {
 		let color: "#FFFFFF" | "#00FF00" | "#FFFF00" | "#FF0000" = "#FFFFFF"
 		switch (this.value.priority) {
 			case Reminder.PRIORITY_LOW:
@@ -100,15 +100,19 @@ export default class Reminder {
 			.setTitle(this.value.title)
 			.setDescription(this.value.details.join("\n"))
 			.addField("ID", this.value.id)
-			.addField("Pinging", this.getPingString())
+			.addField("Pinging", this.getPingString(guild))
 			.addField("Due date", new DateHelper(this.value.due_date).getDate())
 			.addField("Due in", new DateHelper(this.value.due_date).getTimeLeft())
 	}
 
-	public getPingString() {
+	public getPingString(guild: Guild) {
 		let string = ""
 		this.value.pings.roles.forEach(role => {
-			string += `<@&${role}>`
+			if (role === guild.roles.everyone.id) {
+				string += `@everyone`
+			} else {
+				string += `<@&${role}>`
+			}
 		})
 		this.value.pings.members.forEach(member => {
 			string += `<@!${member}>`

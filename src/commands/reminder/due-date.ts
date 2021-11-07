@@ -118,7 +118,7 @@ module.exports = {
 			helper.respond({
 				embeds: [
 					new EmbedResponse(Emoji.GOOD, `Draft due date updated`).create(),
-					Reminder.getDraftEmbed(draft)
+					Reminder.getDraftEmbed(draft, helper.cache.guild)
 				]
 			})
 		}

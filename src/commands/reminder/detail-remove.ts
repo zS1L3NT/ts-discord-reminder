@@ -67,7 +67,7 @@ module.exports = {
 				helper.respond({
 					embeds: [
 						new EmbedResponse(Emoji.GOOD, `Draft detail removed`).create(),
-						Reminder.getDraftEmbed(draft)
+						Reminder.getDraftEmbed(draft, helper.cache.guild)
 					]
 				})
 			} else {

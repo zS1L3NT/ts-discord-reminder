@@ -24,7 +24,7 @@ module.exports = {
 		helper.respond({
 			embeds: [
 				new EmbedResponse(Emoji.GOOD, `Created draft`).create(),
-				Reminder.getDraftEmbed(helper.cache.draft)
+				Reminder.getDraftEmbed(helper.cache.draft, helper.cache.guild)
 			]
 		})
 	}

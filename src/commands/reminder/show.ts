@@ -8,7 +8,7 @@ module.exports = {
 		.setDescription("Show the current draft"),
 	execute: async helper => {
 		helper.respond({
-			embeds: [Reminder.getDraftEmbed(helper.cache.draft)]
+			embeds: [Reminder.getDraftEmbed(helper.cache.draft, helper.cache.guild)]
 		})
 	}
 } as iInteractionSubcommandFile

@@ -94,7 +94,7 @@ export default class GuildCache {
 
 		const embeds = this.reminders
 			.sort((a, b) => b.value.due_date - a.value.due_date)
-			.map(reminder => reminder.getEmbed())
+			.map(reminder => reminder.getEmbed(this.guild))
 
 		const remindersMessageIds = this.getRemindersMessageIds()
 
@@ -122,10 +122,10 @@ export default class GuildCache {
 		if (channel instanceof TextChannel) {
 			channel
 				.send({
-					content: `${reminder.getPingString()}\n${
+					content: `${reminder.getPingString(this.guild)}\n${
 						reminder.value.title
 					} is due in ${new DateHelper(reminder.value.due_date).getTimeLeft()}!`,
-					embeds: [reminder.getEmbed()]
+					embeds: [reminder.getEmbed(this.guild)]
 				})
 				.then()
 		}
