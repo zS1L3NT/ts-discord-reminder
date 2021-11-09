@@ -105,7 +105,7 @@ export default class DateHelper {
 
 		const s = Math.floor(ms / 1000)
 		if (s < 60) {
-			return "Less than 1m"
+			return s + "s"
 		}
 
 		const m = Math.floor(s / 60)
