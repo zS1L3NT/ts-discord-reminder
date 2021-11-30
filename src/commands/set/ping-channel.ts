@@ -1,12 +1,30 @@
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import Document, { iValue } from "../../models/Document"
+import GuildCache from "../../models/GuildCache"
+import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
 import { GuildMember, TextChannel } from "discord.js"
-import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
-import ResponseBuilder, { Emoji } from "../../utilities/ResponseBuilder"
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
 const config = require("../../../config.json")
 
-module.exports = {
-	data: new SlashCommandSubcommandBuilder()
+const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+	defer: true,
+	ephemeral: true,
+	help: {
+		description: [
+			"Sets the channel where the bot will ping users about reminders",
+			"Use this if you want the bot to ping users about reminders"
+		].join("\n"),
+		params: [
+			{
+				name: "channel",
+				description: "Leave this empty if you want to unset the channel",
+				requirements: "Valid Text Channel",
+				required: false,
+				default: "Unsets the channel"
+			}
+		]
+	},
+	builder: new SlashCommandSubcommandBuilder()
 		.setName("ping-channel")
 		.setDescription("Set the channel where the bot pings all users about reminders")
 		.addChannelOption(option =>
@@ -53,4 +71,6 @@ module.exports = {
 			helper.respond(new ResponseBuilder(Emoji.BAD, `Please select a text channel`))
 		}
 	}
-} as iInteractionSubcommandFile
+}
+
+export default file

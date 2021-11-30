@@ -1,10 +1,31 @@
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import Document, { iValue } from "../../models/Document"
+import GuildCache from "../../models/GuildCache"
 import Reminder from "../../models/Reminder"
-import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
-import ResponseBuilder, { Emoji } from "../../utilities/ResponseBuilder"
+import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-module.exports = {
-	data: new SlashCommandSubcommandBuilder()
+const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+	defer: true,
+	ephemeral: true,
+	help: {
+		description: "Change the title of a reminder",
+		params: [
+			{
+				name: "title",
+				description: "The title of a reminder",
+				requirements: "Text",
+				required: true
+			},
+			{
+				name: "reminder-id",
+				description: "If this parameter is not given, edits the Draft instead",
+				requirements: "Valid Reminder ID",
+				required: false,
+				default: "Draft ID"
+			}
+		]
+	},
+	builder: new SlashCommandSubcommandBuilder()
 		.setName("title")
 		.setDescription("Change the title of a reminder")
 		.addStringOption(option =>
@@ -19,18 +40,18 @@ module.exports = {
 				.setRequired(false)
 		),
 	execute: async helper => {
-		const reminder_id = helper.string("reminder-id")
+		const reminderId = helper.string("reminder-id")
 		const title = helper.string("title")!
 
-		if (reminder_id) {
+		if (reminderId) {
 			const reminder = helper.cache.reminders.find(
-				reminder => reminder.value.id === reminder_id
+				reminder => reminder.value.id === reminderId
 			)
 			if (!reminder) {
 				return helper.respond(new ResponseBuilder(Emoji.BAD, "Reminder doesn't exist"))
 			}
 
-			await helper.cache.getReminderDoc(reminder_id).set({ title }, { merge: true })
+			await helper.cache.getReminderDoc(reminderId).set({ title }, { merge: true })
 
 			helper.respond(new ResponseBuilder(Emoji.GOOD, "Reminder title updated"))
 		} else {
@@ -44,10 +65,12 @@ module.exports = {
 
 			helper.respond({
 				embeds: [
-					new ResponseBuilder(Emoji.GOOD, "Draft title updated").create(),
+					new ResponseBuilder(Emoji.GOOD, "Draft title updated").build(),
 					Reminder.getDraftEmbed(draft, helper.cache.guild)
 				]
 			})
 		}
 	}
-} as iInteractionSubcommandFile
+}
+
+export default file

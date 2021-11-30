@@ -1,8 +1,10 @@
 import AfterEvery from "after-every"
-import { Client, Intents } from "discord.js"
+import BotCache from "./models/BotCache"
+import Document from "./models/Document"
 import GuildCache from "./models/GuildCache"
-import Reminder from "./models/Reminder"
 import NovaBot, { DateHelper } from "discordjs-nova"
+import Reminder from "./models/Reminder"
+import { Client, Intents } from "discord.js"
 
 const config = require("../config.json")
 
@@ -10,6 +12,17 @@ const ONE_SECOND = 1000
 const ONE_MINUTE = 60 * ONE_SECOND
 const ONE_HOUR = 60 * ONE_MINUTE
 const ONE_DAY = 24 * ONE_HOUR
+
+new NovaBot({
+	intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS],
+	name: "Reminder#2744",
+	cwd: __dirname,
+	config,
+
+	Document: Document,
+	GuildCache: GuildCache,
+	BotCache: BotCache
+})
 
 // region Initialize bot
 const bot = new Client({

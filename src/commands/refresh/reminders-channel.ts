@@ -1,10 +1,16 @@
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { TextChannel } from "discord.js"
-import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
 import Document, { iValue } from "../../models/Document"
 import GuildCache from "../../models/GuildCache"
+import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { TextChannel } from "discord.js"
 
-module.exports = {
+const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+	defer: true,
+	ephemeral: true,
+	help: {
+		description: "Manually refresh the reminders channel if it has been set",
+		params: []
+	},
 	builder: new SlashCommandSubcommandBuilder()
 		.setName("reminders-channel")
 		.setDescription("Refresh reminders in the reminders channel"),
@@ -19,4 +25,6 @@ module.exports = {
 			helper.respond(new ResponseBuilder(Emoji.BAD, "No reminders channel set"))
 		}
 	}
-} as iInteractionSubcommandFile<iValue, Document, GuildCache>
+}
+
+export default file

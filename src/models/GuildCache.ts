@@ -12,7 +12,7 @@ export default class GuildCache extends BaseGuildCache<iValue, Document> {
 	public reminders: Reminder[] = []
 	public draft: Reminder | undefined
 
-	public resolve(resolve: (cache: BaseGuildCache<iValue, Document>) => void): void {
+	public resolve(resolve: (cache: GuildCache) => void): void {
 		this.ref.onSnapshot(snap => {
 			if (snap.exists) {
 				this.document = new Document(snap.data() as iValue)
@@ -124,9 +124,9 @@ export default class GuildCache extends BaseGuildCache<iValue, Document> {
 		return this.getReminderDoc("draft")
 	}
 
-	public getReminderDoc(reminder_id?: string) {
-		return reminder_id
-			? this.ref.collection("reminders").doc(reminder_id)
+	public getReminderDoc(reminderId?: string) {
+		return reminderId
+			? this.ref.collection("reminders").doc(reminderId)
 			: this.ref.collection("reminders").doc()
 	}
 
