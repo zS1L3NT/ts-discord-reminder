@@ -59,7 +59,7 @@ const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
 					helper.respond(
 						new ResponseBuilder(
 							Emoji.GOOD,
-							`Pinging channel reassigned to ${channel.toString()}`
+							`Pinging channel reassigned to ${channel.name}`
 						)
 					)
 					break

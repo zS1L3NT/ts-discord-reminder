@@ -62,7 +62,7 @@ const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
 					helper.respond(
 						new ResponseBuilder(
 							Emoji.GOOD,
-							`Reminders channel reassigned to ${channel.toString()}`
+							`Reminders channel reassigned to ${channel.name}`
 						)
 					)
 					break
