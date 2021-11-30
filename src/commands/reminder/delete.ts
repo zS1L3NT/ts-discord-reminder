@@ -1,10 +1,24 @@
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import admin from "firebase-admin"
-import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
-import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
+import Document, { iValue } from "../../models/Document"
+import GuildCache from "../../models/GuildCache"
+import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-module.exports = {
-	data: new SlashCommandSubcommandBuilder()
+const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+	defer: true,
+	ephemeral: true,
+	help: {
+		description: "Deletes a reminder by it's ID which can be copied from every reminder",
+		params: [
+			{
+				name: "reminder-id",
+				description: "The ID of the reminder",
+				requirements: "Valid Reminder ID",
+				required: true
+			}
+		]
+	},
+	builder: new SlashCommandSubcommandBuilder()
 		.setName("delete")
 		.setDescription("Delete a reminder")
 		.addStringOption(option =>
@@ -14,26 +28,29 @@ module.exports = {
 				.setRequired(true)
 		),
 	execute: async helper => {
-		const reminder_id = helper.string("reminder-id")!
-		const reminder = helper.cache.reminders.find(reminder => reminder.value.id === reminder_id)
+		const reminderId = helper.string("reminder-id")!
+		const reminder = helper.cache.reminders.find(reminder => reminder.value.id === reminderId)
 		if (!reminder) {
-			return helper.respond(new EmbedResponse(Emoji.BAD, `Reminder does not exist`))
+			return helper.respond(new ResponseBuilder(Emoji.BAD, `Reminder does not exist`))
 		}
 
 		helper.cache.reminders = helper.cache.reminders.filter(
-			reminder => reminder.value.id !== reminder_id
+			reminder => reminder.value.id !== reminderId
 		)
 		await helper.cache.ref.set(
 			{
+				// @ts-ignore
 				reminders_message_ids: admin.firestore.FieldValue.arrayRemove(
 					helper.cache.getRemindersMessageIds()[0]
 				)
 			},
 			{ merge: true }
 		)
-		await helper.cache.getReminderDoc(reminder_id).delete()
+		await helper.cache.getReminderDoc(reminderId).delete()
 		helper.cache.updateRemindersChannel().then()
 
-		helper.respond(new EmbedResponse(Emoji.GOOD, `Reminder deleted`))
+		helper.respond(new ResponseBuilder(Emoji.GOOD, `Reminder deleted`))
 	}
-} as iInteractionSubcommandFile
+}
+
+export default file

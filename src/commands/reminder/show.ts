@@ -1,9 +1,17 @@
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import Document, { iValue } from "../../models/Document"
+import GuildCache from "../../models/GuildCache"
 import Reminder from "../../models/Reminder"
-import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
+import { iInteractionSubcommandFile } from "discordjs-nova"
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-module.exports = {
-	data: new SlashCommandSubcommandBuilder()
+const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+	defer: true,
+	ephemeral: true,
+	help: {
+		description: "Shows the current draft",
+		params: []
+	},
+	builder: new SlashCommandSubcommandBuilder()
 		.setName("show")
 		.setDescription("Show the current draft"),
 	execute: async helper => {
@@ -11,4 +19,6 @@ module.exports = {
 			embeds: [Reminder.getDraftEmbed(helper.cache.draft, helper.cache.guild)]
 		})
 	}
-} as iInteractionSubcommandFile
+}
+
+export default file

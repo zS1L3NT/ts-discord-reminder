@@ -1,33 +1,21 @@
-import equal from "deep-equal"
-import { Client, Guild, TextChannel } from "discord.js"
 import admin from "firebase-admin"
-import { useTryAsync } from "no-try"
-import ChannelCleaner from "../utilities/ChannelCleaner"
-import DateHelper from "../utilities/DateHelper"
+import BaseGuildCache from "discordjs-nova/build/bases/BaseGuildCache"
+import Document, { iValue } from "./Document"
+import equal from "deep-equal"
 import FirestoreParser from "../utilities/FirestoreParser"
-import Document, { iDocument } from "./Document"
 import Reminder from "./Reminder"
+import { ChannelCleaner, DateHelper } from "discordjs-nova"
+import { TextChannel } from "discord.js"
+import { useTryAsync } from "no-try"
 
-export default class GuildCache {
-	public bot: Client
-	public guild: Guild
-	public ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
+export default class GuildCache extends BaseGuildCache<iValue, Document, GuildCache> {
 	public reminders: Reminder[] = []
 	public draft: Reminder | undefined
-	private document: Document = Document.getEmpty()
 
-	public constructor(
-		bot: Client,
-		guild: Guild,
-		ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
-		resolve: (cache: GuildCache) => void
-	) {
-		this.bot = bot
-		this.guild = guild
-		this.ref = ref
+	public resolve(resolve: (cache: GuildCache) => void): void {
 		this.ref.onSnapshot(snap => {
 			if (snap.exists) {
-				this.document = new Document(snap.data() as iDocument)
+				this.document = new Document(snap.data() as iValue)
 				resolve(this)
 			}
 		})
@@ -55,7 +43,11 @@ export default class GuildCache {
 
 		const [err, messages] = await useTryAsync(async () => {
 			const remindersMessageIds = this.getRemindersMessageIds()
-			const cleaner = new ChannelCleaner(this, remindersChannelId, remindersMessageIds)
+			const cleaner = new ChannelCleaner<iValue, Document, GuildCache>(
+				this,
+				remindersChannelId,
+				remindersMessageIds
+			)
 			await cleaner.clean()
 			const messages = cleaner.getMessages()
 
@@ -83,6 +75,7 @@ export default class GuildCache {
 				await this.getReminderDoc(reminder.value.id).delete()
 				await this.ref.set(
 					{
+						// @ts-ignore
 						reminders_message_ids: admin.firestore.FieldValue.arrayRemove(
 							this.getRemindersMessageIds()[0]
 						)
@@ -135,9 +128,9 @@ export default class GuildCache {
 		return this.getReminderDoc("draft")
 	}
 
-	public getReminderDoc(reminder_id?: string) {
-		return reminder_id
-			? this.ref.collection("reminders").doc(reminder_id)
+	public getReminderDoc(reminderId?: string) {
+		return reminderId
+			? this.ref.collection("reminders").doc(reminderId)
 			: this.ref.collection("reminders").doc()
 	}
 
