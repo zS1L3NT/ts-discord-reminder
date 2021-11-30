@@ -700,10 +700,10 @@ discord.js@^13.1.0:
     node-fetch "^2.6.1"
     ws "^7.5.1"
 
-discordjs-nova@^1.0.16:
-  version "1.0.16"
-  resolved "https://registry.yarnpkg.com/discordjs-nova/-/discordjs-nova-1.0.16.tgz#1ac2abf2d33e5a0123da6eeca46bae205cb6d62a"
-  integrity sha512-sE3EQw/Do2jDPfVlN/4J8n2zQkonpCUMKfX2gBNP4yqZG/MnZXgqPfKvj9Q4CkL4Iv6ZRbsF7g+DIPUO4b7ILg==
+discordjs-nova@^1.0.20:
+  version "1.0.20"
+  resolved "https://registry.yarnpkg.com/discordjs-nova/-/discordjs-nova-1.0.20.tgz#a4ab4a6539bb0545ff95375829ff890423aa32c5"
+  integrity sha512-3bhwxZBbveGLpeEgIvp+lEgB/itDJo1HaGg77PnDBi86DgCmLk64O+yvurh9XUmhjipC9QOhvKPafLO4nWGPMg==
   dependencies:
     "@discordjs/builders" "^0.5.0"
     "@discordjs/rest" "^0.1.0-canary.0"

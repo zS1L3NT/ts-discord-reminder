@@ -1,6 +1,6 @@
-import { BaseBotCache } from "discordjs-nova"
 import Document, { iValue } from "./Document"
 import GuildCache from "./GuildCache"
+import { BaseBotCache } from "discordjs-nova"
 
 export default class BotCache extends BaseBotCache<iValue, Document, GuildCache> {
 	public async registerGuildCache(guildId: string): Promise<void> {

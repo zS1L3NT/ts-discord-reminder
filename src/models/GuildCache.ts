@@ -1,14 +1,14 @@
-import equal from "deep-equal"
-import { TextChannel } from "discord.js"
-import { ChannelCleaner, DateHelper } from "discordjs-nova"
-import BaseGuildCache from "discordjs-nova/build/bases/BaseGuildCache"
 import admin from "firebase-admin"
-import { useTryAsync } from "no-try"
-import FirestoreParser from "../utilities/FirestoreParser"
+import BaseGuildCache from "discordjs-nova/build/bases/BaseGuildCache"
 import Document, { iValue } from "./Document"
+import equal from "deep-equal"
+import FirestoreParser from "../utilities/FirestoreParser"
 import Reminder from "./Reminder"
+import { ChannelCleaner, DateHelper } from "discordjs-nova"
+import { TextChannel } from "discord.js"
+import { useTryAsync } from "no-try"
 
-export default class GuildCache extends BaseGuildCache<iValue, Document> {
+export default class GuildCache extends BaseGuildCache<iValue, Document, GuildCache> {
 	public reminders: Reminder[] = []
 	public draft: Reminder | undefined
 
@@ -43,7 +43,11 @@ export default class GuildCache extends BaseGuildCache<iValue, Document> {
 
 		const [err, messages] = await useTryAsync(async () => {
 			const remindersMessageIds = this.getRemindersMessageIds()
-			const cleaner = new ChannelCleaner(this, remindersChannelId, remindersMessageIds)
+			const cleaner = new ChannelCleaner<iValue, Document, GuildCache>(
+				this,
+				remindersChannelId,
+				remindersMessageIds
+			)
 			await cleaner.clean()
 			const messages = cleaner.getMessages()
 
