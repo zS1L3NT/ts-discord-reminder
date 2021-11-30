@@ -2,9 +2,7 @@ import AfterEvery from "after-every"
 import { Client, Intents } from "discord.js"
 import GuildCache from "./models/GuildCache"
 import Reminder from "./models/Reminder"
-import BotSetupHelper from "./utilities/BotSetupHelper"
-import SlashCommandDeployer from "./utilities/SlashCommandDeployer"
-import DateHelper from "./utilities/DateHelper"
+import NovaBot, { DateHelper } from "discordjs-nova"
 
 const config = require("../config.json")
 
@@ -102,3 +100,5 @@ bot.on("ready", async () => {
 		}
 	})
 })
+
+const nova = new NovaBot({})

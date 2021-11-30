@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { GuildMember, TextChannel } from "discord.js"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
-import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
+import ResponseBuilder, { Emoji } from "../../utilities/ResponseBuilder"
 
 const config = require("../../../config.json")
 
@@ -16,7 +16,7 @@ module.exports = {
 		const member = helper.interaction.member as GuildMember
 		if (!member.permissions.has("ADMINISTRATOR") && member.id !== config.discord.dev_id) {
 			return helper.respond(
-				new EmbedResponse(Emoji.BAD, "Only administrators can set bot channels")
+				new ResponseBuilder(Emoji.BAD, "Only administrators can set bot channels")
 			)
 		}
 
@@ -25,7 +25,7 @@ module.exports = {
 			switch (channel.id) {
 				case helper.cache.getRemindersChannelId():
 					helper.respond(
-						new EmbedResponse(
+						new ResponseBuilder(
 							Emoji.BAD,
 							"This channel is already the reminders channel!"
 						)
@@ -33,13 +33,13 @@ module.exports = {
 					break
 				case helper.cache.getPingChannelId():
 					helper.respond(
-						new EmbedResponse(Emoji.BAD, "This channel is already the ping channel!")
+						new ResponseBuilder(Emoji.BAD, "This channel is already the ping channel!")
 					)
 					break
 				default:
 					await helper.cache.setPingChannelId(channel.id)
 					helper.respond(
-						new EmbedResponse(
+						new ResponseBuilder(
 							Emoji.GOOD,
 							`Pinging channel reassigned to ${channel.toString()}`
 						)
@@ -48,9 +48,9 @@ module.exports = {
 			}
 		} else if (channel === null) {
 			await helper.cache.setPingChannelId("")
-			helper.respond(new EmbedResponse(Emoji.GOOD, `Pinging channel unassigned`))
+			helper.respond(new ResponseBuilder(Emoji.GOOD, `Pinging channel unassigned`))
 		} else {
-			helper.respond(new EmbedResponse(Emoji.BAD, `Please select a text channel`))
+			helper.respond(new ResponseBuilder(Emoji.BAD, `Please select a text channel`))
 		}
 	}
 } as iInteractionSubcommandFile

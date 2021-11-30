@@ -4,7 +4,7 @@ import { useTry } from "no-try"
 import Reminder from "../../models/Reminder"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
 import DateHelper from "../../utilities/DateHelper"
-import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
+import ResponseBuilder, { Emoji } from "../../utilities/ResponseBuilder"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -58,12 +58,12 @@ module.exports = {
 				reminder => reminder.value.id === reminder_id
 			)
 			if (!reminder) {
-				return helper.respond(new EmbedResponse(Emoji.BAD, "Reminder doesn't exist"))
+				return helper.respond(new ResponseBuilder(Emoji.BAD, "Reminder doesn't exist"))
 			}
 
 			if (!day && !month && !year && !hour && !minute) {
 				return helper.respond(
-					new EmbedResponse(Emoji.BAD, "Update at least one field in the date")
+					new ResponseBuilder(Emoji.BAD, "Update at least one field in the date")
 				)
 			}
 
@@ -79,21 +79,21 @@ module.exports = {
 			})
 
 			if (err) {
-				return helper.respond(new EmbedResponse(Emoji.BAD, `${err.message}`))
+				return helper.respond(new ResponseBuilder(Emoji.BAD, `${err.message}`))
 			}
 
 			await helper.cache.getReminderDoc(reminder_id).set({ due_date }, { merge: true })
 
-			helper.respond(new EmbedResponse(Emoji.GOOD, "Reminder due date updated"))
+			helper.respond(new ResponseBuilder(Emoji.GOOD, "Reminder due date updated"))
 		} else {
 			const draft = helper.cache.draft
 			if (!draft) {
-				return helper.respond(new EmbedResponse(Emoji.BAD, "No draft to edit"))
+				return helper.respond(new ResponseBuilder(Emoji.BAD, "No draft to edit"))
 			}
 
 			if (!day && !month && !year && !hour && !minute) {
 				return helper.respond(
-					new EmbedResponse(Emoji.BAD, "Update at least one field in the date")
+					new ResponseBuilder(Emoji.BAD, "Update at least one field in the date")
 				)
 			}
 
@@ -109,7 +109,7 @@ module.exports = {
 			})
 
 			if (err) {
-				return helper.respond(new EmbedResponse(Emoji.BAD, `${err.message}`))
+				return helper.respond(new ResponseBuilder(Emoji.BAD, `${err.message}`))
 			}
 
 			draft.value.due_date = due_date
@@ -117,7 +117,7 @@ module.exports = {
 
 			helper.respond({
 				embeds: [
-					new EmbedResponse(Emoji.GOOD, `Draft due date updated`).create(),
+					new ResponseBuilder(Emoji.GOOD, `Draft due date updated`).create(),
 					Reminder.getDraftEmbed(draft, helper.cache.guild)
 				]
 			})

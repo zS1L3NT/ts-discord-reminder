@@ -15,6 +15,7 @@
 		"deep-equal": "^2.0.5",
 		"discord-api-types": "^0.22.0",
 		"discord.js": "^13.1.0",
+		"discordjs-nova": "^1.0.13",
 		"firebase-admin": "^9.9.0",
 		"luxon": "^2.0.2",
 		"no-try": "^3.1.0",

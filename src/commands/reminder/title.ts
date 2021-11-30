@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import Reminder from "../../models/Reminder"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
-import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
+import ResponseBuilder, { Emoji } from "../../utilities/ResponseBuilder"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -27,16 +27,16 @@ module.exports = {
 				reminder => reminder.value.id === reminder_id
 			)
 			if (!reminder) {
-				return helper.respond(new EmbedResponse(Emoji.BAD, "Reminder doesn't exist"))
+				return helper.respond(new ResponseBuilder(Emoji.BAD, "Reminder doesn't exist"))
 			}
 
 			await helper.cache.getReminderDoc(reminder_id).set({ title }, { merge: true })
 
-			helper.respond(new EmbedResponse(Emoji.GOOD, "Reminder title updated"))
+			helper.respond(new ResponseBuilder(Emoji.GOOD, "Reminder title updated"))
 		} else {
 			const draft = helper.cache.draft
 			if (!draft) {
-				return helper.respond(new EmbedResponse(Emoji.BAD, "No draft to edit"))
+				return helper.respond(new ResponseBuilder(Emoji.BAD, "No draft to edit"))
 			}
 
 			draft.value.title = title
@@ -44,7 +44,7 @@ module.exports = {
 
 			helper.respond({
 				embeds: [
-					new EmbedResponse(Emoji.GOOD, "Draft title updated").create(),
+					new ResponseBuilder(Emoji.GOOD, "Draft title updated").create(),
 					Reminder.getDraftEmbed(draft, helper.cache.guild)
 				]
 			})

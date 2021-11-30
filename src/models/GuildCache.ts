@@ -1,33 +1,21 @@
 import equal from "deep-equal"
-import { Client, Guild, TextChannel } from "discord.js"
+import { TextChannel } from "discord.js"
+import { ChannelCleaner, DateHelper } from "discordjs-nova"
+import BaseGuildCache from "discordjs-nova/build/bases/BaseGuildCache"
 import admin from "firebase-admin"
 import { useTryAsync } from "no-try"
-import ChannelCleaner from "../utilities/ChannelCleaner"
-import DateHelper from "../utilities/DateHelper"
 import FirestoreParser from "../utilities/FirestoreParser"
-import Document, { iDocument } from "./Document"
+import Document, { iValue } from "./Document"
 import Reminder from "./Reminder"
 
-export default class GuildCache {
-	public bot: Client
-	public guild: Guild
-	public ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
+export default class GuildCache extends BaseGuildCache<iValue, Document> {
 	public reminders: Reminder[] = []
 	public draft: Reminder | undefined
-	private document: Document = Document.getEmpty()
 
-	public constructor(
-		bot: Client,
-		guild: Guild,
-		ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
-		resolve: (cache: GuildCache) => void
-	) {
-		this.bot = bot
-		this.guild = guild
-		this.ref = ref
+	public resolve(resolve: (cache: BaseGuildCache<iValue, Document>) => void): void {
 		this.ref.onSnapshot(snap => {
 			if (snap.exists) {
-				this.document = new Document(snap.data() as iDocument)
+				this.document = new Document(snap.data() as iValue)
 				resolve(this)
 			}
 		})
@@ -83,6 +71,7 @@ export default class GuildCache {
 				await this.getReminderDoc(reminder.value.id).delete()
 				await this.ref.set(
 					{
+						// @ts-ignore
 						reminders_message_ids: admin.firestore.FieldValue.arrayRemove(
 							this.getRemindersMessageIds()[0]
 						)

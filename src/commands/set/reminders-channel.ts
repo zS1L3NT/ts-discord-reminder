@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { GuildMember, TextChannel } from "discord.js"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
-import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
+import ResponseBuilder, { Emoji } from "../../utilities/ResponseBuilder"
 
 const config = require("../../../config.json")
 
@@ -19,7 +19,7 @@ module.exports = {
 	execute: async helper => {
 		const member = helper.interaction.member as GuildMember
 		if (!member.permissions.has("ADMINISTRATOR") && member.id !== config.discord.dev_id) {
-			return helper.respond(new EmbedResponse(
+			return helper.respond(new ResponseBuilder(
 				Emoji.BAD,
 				"Only administrators can set bot channels"
 			))
@@ -30,7 +30,7 @@ module.exports = {
 			switch (channel.id) {
 				case helper.cache.getRemindersChannelId():
 					helper.respond(
-						new EmbedResponse(
+						new ResponseBuilder(
 							Emoji.BAD,
 							"This channel is already the reminders channel!"
 						)
@@ -38,7 +38,7 @@ module.exports = {
 					break
 				case helper.cache.getPingChannelId():
 					helper.respond(
-						new EmbedResponse(
+						new ResponseBuilder(
 							Emoji.BAD,
 							"This channel is already the ping channel!"
 						)
@@ -48,7 +48,7 @@ module.exports = {
 					await helper.cache.setRemindersChannelId(channel.id)
 					helper.cache.updateRemindersChannel().then()
 					helper.respond(
-						new EmbedResponse(
+						new ResponseBuilder(
 							Emoji.GOOD,
 							`Reminders channel reassigned to ${channel.toString()}`
 						)
@@ -58,13 +58,13 @@ module.exports = {
 		}
 		else if (channel === null) {
 			await helper.cache.setRemindersChannelId("")
-			helper.respond(new EmbedResponse(
+			helper.respond(new ResponseBuilder(
 				Emoji.GOOD,
 				`Reminders channel unassigned`
 			))
 		}
 		else {
-			helper.respond(new EmbedResponse(
+			helper.respond(new ResponseBuilder(
 				Emoji.BAD,
 				`Please select a text channel`
 			))

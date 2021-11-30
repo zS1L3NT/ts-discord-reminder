@@ -2,7 +2,7 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import admin from "firebase-admin"
 import Reminder from "../../models/Reminder"
 import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
-import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
+import ResponseBuilder, { Emoji } from "../../utilities/ResponseBuilder"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
@@ -31,18 +31,18 @@ module.exports = {
 				reminder => reminder.value.id === reminder_id
 			)
 			if (!reminder) {
-				return helper.respond(new EmbedResponse(Emoji.BAD, "Reminder doesn't exist"))
+				return helper.respond(new ResponseBuilder(Emoji.BAD, "Reminder doesn't exist"))
 			}
 
 			await helper.cache
 				.getReminderDoc(reminder_id)
 				.set({ details: admin.firestore.FieldValue.arrayUnion(detail) }, { merge: true })
 
-			helper.respond(new EmbedResponse(Emoji.GOOD, `Reminder detail added`))
+			helper.respond(new ResponseBuilder(Emoji.GOOD, `Reminder detail added`))
 		} else {
 			const draft = helper.cache.draft
 			if (!draft) {
-				return helper.respond(new EmbedResponse(Emoji.BAD, "No draft to edit"))
+				return helper.respond(new ResponseBuilder(Emoji.BAD, "No draft to edit"))
 			}
 
 			draft.value.details.push(detail)
@@ -52,7 +52,7 @@ module.exports = {
 
 			helper.respond({
 				embeds: [
-					new EmbedResponse(Emoji.GOOD, `Draft detail added`).create(),
+					new ResponseBuilder(Emoji.GOOD, `Draft detail added`).create(),
 					Reminder.getDraftEmbed(draft, helper.cache.guild)
 				]
 			})
