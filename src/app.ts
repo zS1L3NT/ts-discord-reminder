@@ -20,9 +20,24 @@ new NovaBot({
 	config,
 	updatesMinutely: true,
 
-	Document: Document,
-	GuildCache: GuildCache,
-	BotCache: BotCache,
+	help: {
+        message: cache => [
+            "Welcome to Reminder!",
+            "Reminder is like a Calendar but for Discord servers",
+            "Message commands are currently not supported by Reminder",
+            "",
+            "**Make sure to set the reminder channel with the **`set reminders-channel`** command to see reminders in a specific channel**",
+            "Use `reminder create` to create a reminder",
+            "Use `reminder post` to send your reminder draft to the reminders channel",
+            "Reminders are all editable, just make sure to copy the ID",
+            "Have fun exploring Reminder!"
+        ].join("\n"),
+        icon: "https://cdn.discordapp.com/avatars/848441372666888232/a856fd9303a063ddfca4d50fe780ec1c.webp?size=128"
+    },
+
+	Document,
+	GuildCache,
+	BotCache,
 
 	onSetup: async botCache => {
 		const approximately = (diff: number, actual: number) => {

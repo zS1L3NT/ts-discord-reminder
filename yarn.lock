@@ -676,15 +676,15 @@ diff@^4.0.1:
   resolved "https://registry.yarnpkg.com/diff/-/diff-4.0.2.tgz#60f3aecb89d5fae520c11aa19efc2bb982aade7d"
   integrity sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
 
+discord-api-types@0.24.0, discord-api-types@^0.24.0:
+  version "0.24.0"
+  resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.24.0.tgz#9e429b8a1ddb4147134dfb3109093422de7ec549"
+  integrity sha512-X0uA2a92cRjowUEXpLZIHWl4jiX1NsUpDhcEOpa1/hpO1vkaokgZ8kkPtPih9hHth5UVQ3mHBu/PpB4qjyfJ4A==
+
 discord-api-types@^0.18.1:
   version "0.18.1"
   resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.18.1.tgz#5d08ed1263236be9c21a22065d0e6b51f790f492"
   integrity sha512-hNC38R9ZF4uaujaZQtQfm5CdQO58uhdkoHQAVvMfIL0LgOSZeW575W8H6upngQOuoxWd8tiRII3LLJm9zuQKYg==
-
-discord-api-types@^0.24.0:
-  version "0.24.0"
-  resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.24.0.tgz#9e429b8a1ddb4147134dfb3109093422de7ec549"
-  integrity sha512-X0uA2a92cRjowUEXpLZIHWl4jiX1NsUpDhcEOpa1/hpO1vkaokgZ8kkPtPih9hHth5UVQ3mHBu/PpB4qjyfJ4A==
 
 discord-api-types@^0.25.1:
   version "0.25.1"
@@ -705,6 +705,21 @@ discord.js@^13.3.1:
     discord-api-types "^0.24.0"
     node-fetch "^2.6.1"
     ws "^8.2.3"
+
+discordjs-nova@../ts-npm-discordjs-nova/discordjs-nova-1.0.1.tgz:
+  version "1.0.1"
+  resolved "../ts-npm-discordjs-nova/discordjs-nova-1.0.1.tgz#fbad389ee85b4b97a85f891b3c975e12dcc2e54e"
+  dependencies:
+    "@discordjs/builders" "^0.8.2"
+    "@discordjs/rest" "0.1.0-canary.0"
+    "@discordjs/voice" "^0.7.5"
+    after-every "^1.0.4"
+    discord-api-types "0.24.0"
+    discord.js "^13.3.1"
+    firebase-admin "^10.0.0"
+    luxon "^2.1.1"
+    no-try "^3.1.0"
+    node-fetch "^3.1.0"
 
 discordjs-nova@^1.0.24:
   version "1.0.24"

@@ -12,6 +12,8 @@ export default class GuildCache extends BaseGuildCache<iValue, Document, GuildCa
 	public reminders: Reminder[] = []
 	public draft: Reminder | undefined
 
+	public onConstruct(): void {}
+
 	public resolve(resolve: (cache: GuildCache) => void): void {
 		this.ref.onSnapshot(snap => {
 			if (snap.exists) {

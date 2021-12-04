@@ -1,4 +1,3 @@
-import admin from "firebase-admin"
 import Document, { iValue } from "../../models/Document"
 import GuildCache from "../../models/GuildCache"
 import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
