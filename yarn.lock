@@ -58,18 +58,6 @@
     node-fetch "^2.6.1"
     tslib "^2.3.0"
 
-"@discordjs/voice@^0.7.5":
-  version "0.7.5"
-  resolved "https://registry.yarnpkg.com/@discordjs/voice/-/voice-0.7.5.tgz#c95bd4ecf73905f51990827df5209eb26472dbd5"
-  integrity sha512-lUk+CmIXNKslT6DkC9IF9rpsqhzlTiedauUCPBzepjd4XWxwBZiyVIzR6QpbAirxkAwCoAbbje+3Ho71PGLEAw==
-  dependencies:
-    "@types/ws" "^8.2.0"
-    discord-api-types "^0.24.0"
-    prism-media "^1.3.2"
-    tiny-typed-emitter "^2.1.0"
-    tslib "^2.3.1"
-    ws "^8.2.3"
-
 "@firebase/app-types@0.6.2":
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/@firebase/app-types/-/app-types-0.6.2.tgz#8578cb1061a83ced4570188be9e225d54e0f27fb"
@@ -686,11 +674,6 @@ discord-api-types@^0.18.1:
   resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.18.1.tgz#5d08ed1263236be9c21a22065d0e6b51f790f492"
   integrity sha512-hNC38R9ZF4uaujaZQtQfm5CdQO58uhdkoHQAVvMfIL0LgOSZeW575W8H6upngQOuoxWd8tiRII3LLJm9zuQKYg==
 
-discord-api-types@^0.25.1:
-  version "0.25.1"
-  resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.25.1.tgz#89dcc082204ef5cdf8cdf4b4f9ea1463f6973662"
-  integrity sha512-8667foCE/tEP6+2ezQpWs6PL37jgPeun0rv75EMpJZaMaMYpm+OAld1gIqTH4swYc4wLIr99ELhsleVZ+NtYrQ==
-
 discord.js@^13.3.1:
   version "13.3.1"
   resolved "https://registry.yarnpkg.com/discord.js/-/discord.js-13.3.1.tgz#94fe05bc3ec0a3e4761e4f312a2a418c29721ab6"
@@ -705,21 +688,6 @@ discord.js@^13.3.1:
     discord-api-types "^0.24.0"
     node-fetch "^2.6.1"
     ws "^8.2.3"
-
-discordjs-nova@../ts-npm-discordjs-nova/discordjs-nova-1.0.1.tgz:
-  version "1.0.1"
-  resolved "../ts-npm-discordjs-nova/discordjs-nova-1.0.1.tgz#fbad389ee85b4b97a85f891b3c975e12dcc2e54e"
-  dependencies:
-    "@discordjs/builders" "^0.8.2"
-    "@discordjs/rest" "0.1.0-canary.0"
-    "@discordjs/voice" "^0.7.5"
-    after-every "^1.0.4"
-    discord-api-types "0.24.0"
-    discord.js "^13.3.1"
-    firebase-admin "^10.0.0"
-    luxon "^2.1.1"
-    no-try "^3.1.0"
-    node-fetch "^3.1.0"
 
 discordjs-nova@../ts-npm-discordjs-nova/discordjs-nova-1.0.2.tgz:
   version "1.0.2"
@@ -1535,11 +1503,6 @@ p-limit@^3.0.1:
   dependencies:
     yocto-queue "^0.1.0"
 
-prism-media@^1.3.2:
-  version "1.3.2"
-  resolved "https://registry.yarnpkg.com/prism-media/-/prism-media-1.3.2.tgz#a1f04423ec15d22f3d62b1987b6a25dc49aad13b"
-  integrity sha512-L6UsGHcT6i4wrQhFF1aPK+MNYgjRqR2tUoIqEY+CG1NqVkMjPRKzS37j9f8GiYPlD6wG9ruBj+q5Ax+bH8Ik1g==
-
 protobufjs@^6.10.0, protobufjs@^6.10.2, protobufjs@^6.8.6:
   version "6.11.2"
   resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-6.11.2.tgz#de39fabd4ed32beaa08e9bb1e30d08544c1edf8b"
@@ -1720,11 +1683,6 @@ teeny-request@^7.0.0:
     node-fetch "^2.6.1"
     stream-events "^1.0.5"
     uuid "^8.0.0"
-
-tiny-typed-emitter@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/tiny-typed-emitter/-/tiny-typed-emitter-2.1.0.tgz#b3b027fdd389ff81a152c8e847ee2f5be9fad7b5"
-  integrity sha512-qVtvMxeXbVej0cQWKqVSSAHmKZEHAvxdF8HEUBFWts8h+xEo5m/lEiPakuyZ3BnCBjOD8i24kzNOiOLLgsSxhA==
 
 ts-mixer@^6.0.0:
   version "6.0.0"
