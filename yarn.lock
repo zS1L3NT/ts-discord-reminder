@@ -721,16 +721,14 @@ discordjs-nova@../ts-npm-discordjs-nova/discordjs-nova-1.0.1.tgz:
     no-try "^3.1.0"
     node-fetch "^3.1.0"
 
-discordjs-nova@^1.0.24:
-  version "1.0.24"
-  resolved "https://registry.yarnpkg.com/discordjs-nova/-/discordjs-nova-1.0.24.tgz#236b8130c62dc7f9b72f113b0a073e703a6310f6"
-  integrity sha512-dVdAsoKWDPo+0w1dRbSAuTZdKjfMs4Tmhff+oVP+tGzWrhtBpUJlKGK39FmbCTUTJXMnL/ItW4We4vUSYUhFFQ==
+discordjs-nova@../ts-npm-discordjs-nova/discordjs-nova-1.0.2.tgz:
+  version "1.0.2"
+  resolved "../ts-npm-discordjs-nova/discordjs-nova-1.0.2.tgz#d72d62b22d580789253855e2c98a31319614879f"
   dependencies:
     "@discordjs/builders" "^0.8.2"
     "@discordjs/rest" "0.1.0-canary.0"
-    "@discordjs/voice" "^0.7.5"
     after-every "^1.0.4"
-    discord-api-types "^0.25.1"
+    discord-api-types "0.24.0"
     discord.js "^13.3.1"
     firebase-admin "^10.0.0"
     luxon "^2.1.1"
