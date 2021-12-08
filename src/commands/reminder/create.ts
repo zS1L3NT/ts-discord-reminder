@@ -1,19 +1,18 @@
-import Document, { iValue } from "../../models/Document"
+import Entry from "../../models/Entry"
 import GuildCache from "../../models/GuildCache"
 import Reminder from "../../models/Reminder"
 import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 	defer: true,
 	ephemeral: true,
-	help: {
-		description: "Creates a draft for a reminder that you should make changes to",
-		params: []
+	data: {
+		name: "create",
+		description: {
+			slash: "Create a draft of a Reminder to make changes to",
+			help: "Creates a draft for a Reminder that you should make changes to"
+		}
 	},
-	builder: new SlashCommandSubcommandBuilder()
-		.setName("create")
-		.setDescription("Create a draft of a reminder to make changes to"),
 	execute: async helper => {
 		const draft = helper.cache.draft
 		if (draft) {

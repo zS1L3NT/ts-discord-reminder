@@ -1,6 +1,5 @@
 import AfterEvery from "after-every"
 import BotCache from "./models/BotCache"
-import Document from "./models/Document"
 import GuildCache from "./models/GuildCache"
 import NovaBot from "discordjs-nova"
 import Reminder from "./models/Reminder"
@@ -14,28 +13,28 @@ const ONE_HOUR = 60 * ONE_MINUTE
 const ONE_DAY = 24 * ONE_HOUR
 
 new NovaBot({
-	intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS],
 	name: "Reminder#2744",
+	intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS],
 	cwd: __dirname,
 	config,
 	updatesMinutely: true,
 
 	help: {
-		message: [
-			"Welcome to Reminder!",
-			"Reminder is like a Calendar but for Discord servers",
-			"Message commands are currently not supported by Reminder",
-			"",
-			"**Make sure to set the reminder channel with the **`set reminders-channel`** command to see reminders in a specific channel**",
-			"Use `reminder create` to create a reminder",
-			"Use `reminder post` to send your reminder draft to the reminders channel",
-			"Reminders are all editable, just make sure to copy the ID",
-			"Have fun exploring Reminder!"
-		].join("\n"),
+		message: cache =>
+			[
+				"Welcome to Reminder!",
+				"Reminder is like a Calendar but for Discord servers",
+				"Message commands are currently not supported by Reminder",
+				"",
+				"**Make sure to set the Reminder channel with the **`set reminders-channel`** command to see Reminders in a specific channel**",
+				"Use `reminder create` to create a Reminder",
+				"Use `reminder post` to send your Reminder draft to the Reminders channel",
+				"Reminders are all editable, just make sure to copy the ID",
+				"Have fun exploring Reminder!"
+			].join("\n"),
 		icon: "https://cdn.discordapp.com/avatars/848441372666888232/a856fd9303a063ddfca4d50fe780ec1c.webp?size=128"
 	},
 
-	Document,
 	GuildCache,
 	BotCache,
 

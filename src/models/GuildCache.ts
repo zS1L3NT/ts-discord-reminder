@@ -1,6 +1,6 @@
 import admin from "firebase-admin"
 import BaseGuildCache from "discordjs-nova/build/bases/BaseGuildCache"
-import Document, { iValue } from "./Document"
+import Entry from "./Entry"
 import equal from "deep-equal"
 import FirestoreParser from "../utilities/FirestoreParser"
 import Reminder from "./Reminder"
@@ -8,14 +8,16 @@ import { ChannelCleaner, DateHelper } from "discordjs-nova"
 import { TextChannel } from "discord.js"
 import { useTryAsync } from "no-try"
 
-export default class GuildCache extends BaseGuildCache<iValue, Document, GuildCache> {
+export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 	public reminders: Reminder[] = []
 	public draft: Reminder | undefined
+
+	public onConstruct(): void {}
 
 	public resolve(resolve: (cache: GuildCache) => void): void {
 		this.ref.onSnapshot(snap => {
 			if (snap.exists) {
-				this.document = new Document(snap.data() as iValue)
+				this.entry = snap.data() as Entry
 				resolve(this)
 			}
 		})
@@ -43,7 +45,7 @@ export default class GuildCache extends BaseGuildCache<iValue, Document, GuildCa
 
 		const [err, messages] = await useTryAsync(async () => {
 			const remindersMessageIds = this.getRemindersMessageIds()
-			const cleaner = new ChannelCleaner<iValue, Document, GuildCache>(
+			const cleaner = new ChannelCleaner<Entry, GuildCache>(
 				this,
 				remindersChannelId,
 				remindersMessageIds
@@ -99,7 +101,7 @@ export default class GuildCache extends BaseGuildCache<iValue, Document, GuildCa
 				message.edit({ embeds: [embed] }).then()
 			}
 		} else {
-			console.error("Embed count doesn't match up to reminder message id count!")
+			console.error("Embed count doesn't match up to Reminder message id count!")
 			if (embeds.length > remindersMessageIds.length) {
 				console.log("Embeds > Message IDs")
 			} else {
@@ -135,29 +137,29 @@ export default class GuildCache extends BaseGuildCache<iValue, Document, GuildCa
 	}
 
 	public getRemindersChannelId() {
-		return this.document.value.reminders_channel_id
+		return this.entry.reminders_channel_id
 	}
 
 	public async setRemindersChannelId(reminders_channel_id: string) {
-		this.document.value.reminders_channel_id = reminders_channel_id
+		this.entry.reminders_channel_id = reminders_channel_id
 		await this.ref.update({ reminders_channel_id })
 	}
 
 	public getRemindersMessageIds() {
-		return this.document.value.reminders_message_ids
+		return this.entry.reminders_message_ids
 	}
 
 	public async setRemindersMessageIds(reminders_message_ids: string[]) {
-		this.document.value.reminders_message_ids = reminders_message_ids
+		this.entry.reminders_message_ids = reminders_message_ids
 		await this.ref.update({ reminders_message_ids })
 	}
 
 	public getPingChannelId() {
-		return this.document.value.ping_channel_id
+		return this.entry.ping_channel_id
 	}
 
 	public async setPingChannelId(ping_channel_id: string) {
-		this.document.value.ping_channel_id = ping_channel_id
+		this.entry.ping_channel_id = ping_channel_id
 		await this.ref.update({ ping_channel_id })
 	}
 }

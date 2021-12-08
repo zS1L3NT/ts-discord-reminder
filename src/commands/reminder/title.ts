@@ -1,44 +1,44 @@
-import Document, { iValue } from "../../models/Document"
+import Entry from "../../models/Entry"
 import GuildCache from "../../models/GuildCache"
 import Reminder from "../../models/Reminder"
 import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 	defer: true,
 	ephemeral: true,
-	help: {
-		description: "Change the title of a reminder",
-		params: [
+	data: {
+		name: "title",
+		description: {
+			slash: "Change the title of a Reminder",
+			help: "Change the title of a Reminder"
+		},
+		options: [
 			{
 				name: "title",
-				description: "The title of a reminder",
+				description: {
+					slash: "Title of a Reminder",
+					help: "The title of a Reminder"
+				},
+				type: "string",
 				requirements: "Text",
 				required: true
 			},
 			{
 				name: "reminder-id",
-				description: "If this parameter is not given, edits the Draft instead",
+				description: {
+					slash: "ID of the Reminder",
+					help: [
+						"This is the ID of the Reminder to edit",
+						"Each Reminder ID can be found in the Reminder itself in the Reminders channel"
+					].join("\n")
+				},
+				type: "string",
 				requirements: "Valid Reminder ID",
 				required: false,
 				default: "Draft ID"
 			}
 		]
 	},
-	builder: new SlashCommandSubcommandBuilder()
-		.setName("title")
-		.setDescription("Change the title of a reminder")
-		.addStringOption(option =>
-			option.setName("title").setDescription("Title of the reminder").setRequired(true)
-		)
-		.addStringOption(option =>
-			option
-				.setName("reminder-id")
-				.setDescription(
-					"ID of the reminder to edit. If not provided, edits the draft instead"
-				)
-				.setRequired(false)
-		),
 	execute: async helper => {
 		const reminderId = helper.string("reminder-id")
 		const title = helper.string("title")!

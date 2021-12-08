@@ -1,19 +1,18 @@
-import Document, { iValue } from "../../models/Document"
+import Entry from "../../models/Entry"
 import GuildCache from "../../models/GuildCache"
 import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { TextChannel } from "discord.js"
 
-const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 	defer: true,
 	ephemeral: true,
-	help: {
-		description: "Manually refresh the reminders channel if it has been set",
-		params: []
+	data: {
+		name: "reminders-channel",
+		description: {
+			slash: "Refresh Reminders in the Reminders channel",
+			help: "Manually refresh the Reminders channel if it has been set"
+		}
 	},
-	builder: new SlashCommandSubcommandBuilder()
-		.setName("reminders-channel")
-		.setDescription("Refresh reminders in the reminders channel"),
 	execute: async helper => {
 		const channel = await helper.cache.guild.channels.fetch(
 			helper.cache.getRemindersChannelId()
@@ -22,7 +21,7 @@ const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
 			await helper.cache.updateRemindersChannel()
 			helper.respond(new ResponseBuilder(Emoji.GOOD, "Reminders channel refreshed"))
 		} else {
-			helper.respond(new ResponseBuilder(Emoji.BAD, "No reminders channel set"))
+			helper.respond(new ResponseBuilder(Emoji.BAD, "No Reminders channel set"))
 		}
 	}
 }

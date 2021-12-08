@@ -1,19 +1,18 @@
 import admin from "firebase-admin"
-import Document, { iValue } from "../../models/Document"
+import Entry from "../../models/Entry"
 import GuildCache from "../../models/GuildCache"
 import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 	defer: true,
 	ephemeral: true,
-	help: {
-		description: "Convert a draft into an actual reminder, then clears the draft",
-		params: []
+	data: {
+		name: "post",
+		description: {
+			slash: "Upload the existing draft to a Reminder",
+			help: "Convert a draft into an actual Reminder, then clears the draft"
+		}
 	},
-	builder: new SlashCommandSubcommandBuilder()
-		.setName("post")
-		.setDescription("Upload the existing draft to a reminder"),
 	execute: async helper => {
 		const draft = helper.cache.draft
 		if (!draft) {
@@ -46,7 +45,7 @@ const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
 		delete helper.cache.draft
 		await helper.cache.getDraftDoc().delete()
 
-		helper.respond(new ResponseBuilder(Emoji.GOOD, "Posted draft to reminder"))
+		helper.respond(new ResponseBuilder(Emoji.GOOD, "Posted draft to Reminder"))
 	}
 }
 

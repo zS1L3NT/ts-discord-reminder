@@ -1,45 +1,45 @@
 import admin from "firebase-admin"
-import Document, { iValue } from "../../models/Document"
+import Entry from "../../models/Entry"
 import GuildCache from "../../models/GuildCache"
 import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
 import { GuildMember, Role } from "discord.js"
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 	defer: true,
 	ephemeral: true,
-	help: {
-		description: "Add a member to the list of members/roles to be pinged",
-		params: [
+	data: {
+		name: "ping-add",
+		description: {
+			slash: "Add a member/role to ping when the time comes",
+			help: "Add a member to the list of members/roles to be pinged"
+		},
+		options: [
 			{
 				name: "member-or-role",
-				description: "The member or role to add",
+				description: {
+					slash: "Member/Role to ping",
+					help: "The member or role to add to the list of pinged members/roles"
+				},
+				type: "mentionable",
 				requirements: "Valid Member or Role",
 				required: true
 			},
 			{
 				name: "reminder-id",
-				description: "If this parameter is not given, edits the Draft instead",
+				description: {
+					slash: "ID of the Reminder",
+					help: [
+						"This is the ID of the Reminder to edit",
+						"Each Reminder ID can be found in the Reminder itself in the Reminders channel"
+					].join("\n")
+				},
+				type: "string",
 				requirements: "Valid Reminder ID",
 				required: false,
 				default: "Draft ID"
 			}
 		]
 	},
-	builder: new SlashCommandSubcommandBuilder()
-		.setName("ping-add")
-		.setDescription("Add a member/role to ping when the time comes")
-		.addMentionableOption(option =>
-			option.setName("member-or-role").setDescription("Member/Role to ping").setRequired(true)
-		)
-		.addStringOption(option =>
-			option
-				.setName("reminder-id")
-				.setDescription(
-					"ID of the reminder to edit. If not provided, edits the draft instead"
-				)
-				.setRequired(false)
-		),
 	execute: async helper => {
 		const reminderId = helper.string("reminder-id")
 		const memberOrRole = helper.mentionable("member-or-role") as Role | GuildMember
