@@ -13,8 +13,8 @@ const ONE_HOUR = 60 * ONE_MINUTE
 const ONE_DAY = 24 * ONE_HOUR
 
 new NovaBot({
-	intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS],
 	name: "Reminder#2744",
+	intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS],
 	cwd: __dirname,
 	config,
 	updatesMinutely: true,
@@ -44,6 +44,15 @@ new NovaBot({
 			const low = actual - 30000
 			return diff >= low && diff <= high
 		}
+
+		botCache.bot.user!.setPresence({
+			activities: [
+				{
+					name: "/help",
+					type: "LISTENING"
+				}
+			]
+		})
 
 		for (const guild of botCache.bot.guilds.cache.toJSON()) {
 			const cache = await botCache.getGuildCache(guild)
