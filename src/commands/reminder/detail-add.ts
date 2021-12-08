@@ -1,48 +1,45 @@
 import admin from "firebase-admin"
-import Document, { iValue } from "../../models/Document"
+import Entry from "../../models/Entry"
 import GuildCache from "../../models/GuildCache"
 import Reminder from "../../models/Reminder"
 import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 	defer: true,
 	ephemeral: true,
-	help: {
-		description: "Adds a detail to a reminder",
-		params: [
+	data: {
+		name: "detail-add",
+		description: {
+			slash: "Add a string of information to a Reminder",
+			help: "Adds a detail to a Reminder"
+		},
+		options: [
 			{
 				name: "detail",
-				description: "Line of text to add to the description of a reminder",
+				description: {
+					slash: "The string of information to add",
+					help: "Line of text to add to the description of a Reminder"
+				},
+				type: "string",
 				requirements: "Text",
 				required: true
 			},
 			{
 				name: "reminder-id",
-				description: "If this parameter is not given, edits the Draft instead",
+				description: {
+					slash: "ID of the Reminder",
+					help: [
+						"This is the ID of the Reminder to edit",
+						"Each Reminder ID can be found in the Reminder itself in the Reminders channel"
+					].join("\n")
+				},
+				type: "string",
 				requirements: "Valid Reminder ID",
 				required: false,
 				default: "Draft ID"
 			}
 		]
 	},
-	builder: new SlashCommandSubcommandBuilder()
-		.setName("detail-add")
-		.setDescription("Add a string of information to a reminder/draft")
-		.addStringOption(option =>
-			option
-				.setName("detail")
-				.setDescription("The string of information to add")
-				.setRequired(true)
-		)
-		.addStringOption(option =>
-			option
-				.setName("reminder-id")
-				.setDescription(
-					"ID of the reminder to edit. If not provided, edits the draft instead"
-				)
-				.setRequired(false)
-		),
 	execute: async helper => {
 		const reminderId = helper.string("reminder-id")
 		const detail = helper.string("detail")!

@@ -1,57 +1,63 @@
-import Document, { iValue } from "../../models/Document"
+import Entry from "../../models/Entry"
 import GuildCache from "../../models/GuildCache"
 import Reminder from "../../models/Reminder"
 import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 	defer: true,
 	ephemeral: true,
-	help: {
-		description: "Change how much the bot will ping users about a reminder before the due date",
-		params: [
+	data: {
+		name: "priority",
+		description: {
+			slash: "Change the priority of a Reminder",
+			help: "Change how much the bot will ping users about a Reminder before the due date"
+		},
+		options: [
 			{
 				name: "priority",
-				description: [
-					"Can either be",
-					"HIGH  : 7d, 1d, 12h, 2h, 1h, 30m",
-					"MEDIUM: 1d, 2h",
-					"LOW   : No ping"
-				].join("\n"),
+				description: {
+					slash: "Can either be HIGH(7d, 1d, 12h, 2h, 1h, 30m), MEDIUM(1d, 2h) or LOW priority",
+					help: [
+						"Can either be",
+						"HIGH  : 7d, 1d, 12h, 2h, 1h, 30m",
+						"MEDIUM: 1d, 2h",
+						"LOW   : No ping"
+					].join("\n")
+				},
+				type: "number",
 				requirements: "Valid Priority",
-				required: true
+				required: true,
+				choices: [
+					{
+						name: "LOW",
+						value: 0
+					},
+					{
+						name: "MEDIUM",
+						value: 1
+					},
+					{
+						name: "HIGH",
+						value: 2
+					}
+				]
 			},
 			{
 				name: "reminder-id",
-				description: "If this parameter is not given, edits the Draft instead",
+				description: {
+					slash: "ID of the Reminder",
+					help: [
+						"This is the ID of the Reminder to edit",
+						"Each Reminder ID can be found in the Reminder itself in the Reminders channel"
+					].join("\n")
+				},
+				type: "string",
 				requirements: "Valid Reminder ID",
 				required: false,
 				default: "Draft ID"
 			}
 		]
 	},
-	builder: new SlashCommandSubcommandBuilder()
-		.setName("priority")
-		.setDescription("Change the priority of a reminder")
-		.addIntegerOption(option =>
-			option
-				.setName("priority")
-				.setDescription(
-					"Can either be HIGH(7d, 1d, 12h, 2h, 1h, 30m), MEDIUM(1d, 2h) or LOW priority"
-				)
-				.setRequired(true)
-				.addChoice("LOW", 0)
-				.addChoice("MEDIUM", 1)
-				.addChoice("HIGH", 2)
-		)
-		.addStringOption(option =>
-			option
-				.setName("reminder-id")
-				.setDescription(
-					"ID of the reminder to edit. If not provided, edits the draft instead"
-				)
-				.setRequired(false)
-		),
 	execute: async helper => {
 		const reminderId = helper.string("reminder-id")
 		const priority = helper.integer("priority") as 0 | 1 | 2

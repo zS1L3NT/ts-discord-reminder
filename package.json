@@ -9,11 +9,10 @@
 		"dev": "ts-node src/app.ts"
 	},
 	"dependencies": {
-		"@discordjs/builders": "^0.8.2",
 		"after-every": "^1.0.4",
 		"deep-equal": "^2.0.5",
 		"discord.js": "^13.3.1",
-		"discordjs-nova": "../ts-npm-discordjs-nova/discordjs-nova-1.0.2.tgz",
+		"discordjs-nova": "../ts-npm-discordjs-nova/discordjs-nova-1.0.8.tgz",
 		"firebase-admin": "^10.0.0",
 		"luxon": "^2.1.1",
 		"no-try": "^3.1.0"

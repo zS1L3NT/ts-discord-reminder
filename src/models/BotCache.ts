@@ -1,17 +1,15 @@
-import Document, { iValue } from "./Document"
+import Entry from "./Entry"
 import GuildCache from "./GuildCache"
 import { BaseBotCache } from "discordjs-nova"
 
-export default class BotCache extends BaseBotCache<iValue, Document, GuildCache> {
-	
+export default class BotCache extends BaseBotCache<Entry, GuildCache> {
 	public onConstruct(): void {}
-
 	public onSetGuildCache(cache: GuildCache): void {}
 
 	public async registerGuildCache(guildId: string): Promise<void> {
 		const doc = await this.ref.doc(guildId).get()
 		if (!doc.exists) {
-			await this.ref.doc(guildId).set(new Document().getEmpty().value)
+			await this.ref.doc(guildId).set(this.getEmptyEntry())
 		}
 	}
 
@@ -28,6 +26,13 @@ export default class BotCache extends BaseBotCache<iValue, Document, GuildCache>
 
 			await Promise.allSettled(promises)
 		}
-		this.guilds.delete(guildId)
+	}
+
+	public getEmptyEntry(): Entry {
+		return {
+			reminders_channel_id: "",
+			reminders_message_ids: [],
+			ping_channel_id: ""
+		}
 	}
 }

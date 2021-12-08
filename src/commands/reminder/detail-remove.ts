@@ -1,48 +1,45 @@
 import admin from "firebase-admin"
-import Document, { iValue } from "../../models/Document"
+import Entry from "../../models/Entry"
 import GuildCache from "../../models/GuildCache"
 import Reminder from "../../models/Reminder"
 import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 	defer: true,
 	ephemeral: true,
-	help: {
-		description: "Removes a line of detail from a reminder",
-		params: [
+	data: {
+		name: "detail-remove",
+		description: {
+			slash: "Remove a string of information from a Reminder",
+			help: "Removes a line of detail from a Reminder"
+		},
+		options: [
 			{
 				name: "position",
-				description: "The line number of the detail to remove",
+				description: {
+					slash: "The position of the string of information to remove",
+					help: "The line number of the detail to remove"
+				},
+				type: "number",
 				requirements: "Number that references a line number of a detail",
 				required: true
 			},
 			{
 				name: "reminder-id",
-				description: "If this parameter is not given, edits the Draft instead",
+				description: {
+					slash: "ID of the Reminder",
+					help: [
+						"This is the ID of the Reminder to edit",
+						"Each Reminder ID can be found in the Reminder itself in the Reminders channel"
+					].join("\n")
+				},
+				type: "string",
 				requirements: "Valid Reminder ID",
 				required: false,
 				default: "Draft ID"
 			}
 		]
 	},
-	builder: new SlashCommandSubcommandBuilder()
-		.setName("detail-remove")
-		.setDescription("Remove a string of information from a reminder/draft")
-		.addIntegerOption(option =>
-			option
-				.setName("position")
-				.setDescription("The position of the string of information to remove")
-				.setRequired(true)
-		)
-		.addStringOption(option =>
-			option
-				.setName("reminder-id")
-				.setDescription(
-					"ID of the reminder to edit. If not provided, edits the draft instead"
-				)
-				.setRequired(false)
-		),
 	execute: async helper => {
 		const reminderId = helper.string("reminder-id")
 		const position = helper.integer("position")! - 1

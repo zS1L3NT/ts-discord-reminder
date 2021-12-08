@@ -1,36 +1,37 @@
-import Document, { iValue } from "../../models/Document"
+import Entry from "../../models/Entry"
 import GuildCache from "../../models/GuildCache"
 import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
 import { GuildMember, TextChannel } from "discord.js"
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
 const config = require("../../../config.json")
 
-const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 	defer: true,
 	ephemeral: true,
-	help: {
-		description: [
-			"Sets the channel which the bot will attatch to and show all the reminders",
-			"This channel will be owned by the bot and unrelated messages will be cleared every minute",
-			"Use this to see all the reminders in a channel"
-		].join("\n"),
-		params: [
+	data: {
+		name: "reminders-channel",
+		description: {
+			slash: "Set the channel that all the Reminder embeds show up in",
+			help: [
+				"Sets the channel which the bot will attatch to and show all the Reminders",
+				"This channel will be owned by the bot and unrelated messages will be cleared every minute",
+				"Use this to see all the Reminders in a channel"
+			].join("\n")
+		},
+		options: [
 			{
 				name: "channel",
-				description: "Leave this empty if you want to unset the channel",
+				description: {
+					slash: "Leave this empty if you want to unset the channel",
+					help: "Leave this empty if you want to unset the channel"
+				},
+				type: "channel",
 				requirements: "Valid Text Channel",
 				required: false,
 				default: "Unsets the channel"
 			}
 		]
 	},
-	builder: new SlashCommandSubcommandBuilder()
-		.setName("reminders-channel")
-		.setDescription("Set the channel that all the reminder embeds show up in")
-		.addChannelOption(option =>
-			option.setName("channel").setDescription("Leave empty to unset the reminders channel")
-		),
 	execute: async helper => {
 		const member = helper.interaction.member as GuildMember
 		if (!member.permissions.has("ADMINISTRATOR") && member.id !== config.discord.dev_id) {
@@ -46,7 +47,7 @@ const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
 					helper.respond(
 						new ResponseBuilder(
 							Emoji.BAD,
-							"This channel is already the reminders channel!"
+							"This channel is already the Reminders channel!"
 						)
 					)
 					break

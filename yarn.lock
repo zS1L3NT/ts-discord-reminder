@@ -689,9 +689,9 @@ discord.js@^13.3.1:
     node-fetch "^2.6.1"
     ws "^8.2.3"
 
-discordjs-nova@../ts-npm-discordjs-nova/discordjs-nova-1.0.2.tgz:
-  version "1.0.2"
-  resolved "../ts-npm-discordjs-nova/discordjs-nova-1.0.2.tgz#d72d62b22d580789253855e2c98a31319614879f"
+discordjs-nova@../ts-npm-discordjs-nova/discordjs-nova-1.0.8.tgz:
+  version "1.0.8"
+  resolved "../ts-npm-discordjs-nova/discordjs-nova-1.0.8.tgz#e1728afb82bbd1990acd0c7a93272b230fd9800a"
   dependencies:
     "@discordjs/builders" "^0.8.2"
     "@discordjs/rest" "0.1.0-canary.0"
