@@ -1,7 +1,7 @@
 import admin from "firebase-admin"
 import Entry from "../../models/Entry"
 import GuildCache from "../../models/GuildCache"
-import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
+import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "nova-bot"
 import { GuildMember, Role } from "discord.js"
 
 const file: iInteractionSubcommandFile<Entry, GuildCache> = {

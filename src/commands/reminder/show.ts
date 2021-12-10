@@ -1,7 +1,7 @@
 import Entry from "../../models/Entry"
 import GuildCache from "../../models/GuildCache"
 import Reminder from "../../models/Reminder"
-import { iInteractionSubcommandFile } from "discordjs-nova"
+import { iInteractionSubcommandFile } from "nova-bot"
 
 const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 	defer: true,

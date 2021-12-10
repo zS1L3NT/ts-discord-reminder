@@ -280,12 +280,7 @@
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha1-p3c2C1s5oaLlEG+OhY8v0tBgxXA=
 
-"@sapphire/async-queue@^1.1.4":
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/@sapphire/async-queue/-/async-queue-1.1.4.tgz#ae431310917a8880961cebe8e59df6ffa40f2957"
-  integrity sha512-fFrlF/uWpGOX5djw5Mu2Hnnrunao75WGey0sP0J3jnhmrJ5TAPzHYOmytD5iN/+pMxS+f+u/gezqHa9tPhRHEA==
-
-"@sapphire/async-queue@^1.1.8":
+"@sapphire/async-queue@^1.1.4", "@sapphire/async-queue@^1.1.8":
   version "1.1.9"
   resolved "https://registry.yarnpkg.com/@sapphire/async-queue/-/async-queue-1.1.9.tgz#ce69611c8753c4affd905a7ef43061c7eb95c01b"
   integrity sha512-CbXaGwwlEMq+l1TRu01FJCvySJ1CEFKFclHT48nIfNeZXaAAmmwwy7scUKmYHPUa3GhoMp6Qr1B3eAJux6XgOQ==
@@ -688,20 +683,6 @@ discord.js@^13.3.1:
     discord-api-types "^0.24.0"
     node-fetch "^2.6.1"
     ws "^8.2.3"
-
-discordjs-nova@../ts-npm-discordjs-nova/discordjs-nova-1.0.9.tgz:
-  version "1.0.9"
-  resolved "../ts-npm-discordjs-nova/discordjs-nova-1.0.9.tgz#39cf8e849fe4d089e19e1313c01280b45dfb45ad"
-  dependencies:
-    "@discordjs/builders" "^0.8.2"
-    "@discordjs/rest" "0.1.0-canary.0"
-    after-every "^1.0.4"
-    discord-api-types "0.24.0"
-    discord.js "^13.3.1"
-    firebase-admin "^10.0.0"
-    luxon "^2.1.1"
-    no-try "^3.1.0"
-    node-fetch "^3.1.0"
 
 dot-prop@^5.2.0:
   version "5.3.0"
@@ -1436,6 +1417,21 @@ node-forge@^0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-0.10.0.tgz#32dea2afb3e9926f02ee5ce8794902691a676bf3"
   integrity sha512-PPmu8eEeG9saEUvI97fm4OYxXVB6bFvyNTyiUOBichBpFG8A1Ljw3bY62+5oOjDEMHRnd0Y7HQ+x7uzxOzC6JA==
+
+nova-bot@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/nova-bot/-/nova-bot-1.0.0.tgz#461e2ccf852cf7a9f9e4992caff3e3645c0933e3"
+  integrity sha512-jOgrpxNaLitumAxLZCnL77hAR/bsNnTYsfGtVZyt4FczBiXHYOfhe2gPjTPJ1y7Tbcq3j0+O7XrwikugOQ2S3A==
+  dependencies:
+    "@discordjs/builders" "^0.8.2"
+    "@discordjs/rest" "0.1.0-canary.0"
+    after-every "^1.0.4"
+    discord-api-types "0.24.0"
+    discord.js "^13.3.1"
+    firebase-admin "^10.0.0"
+    luxon "^2.1.1"
+    no-try "^3.1.0"
+    node-fetch "^3.1.0"
 
 object-hash@^2.1.1:
   version "2.2.0"

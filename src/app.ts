@@ -1,7 +1,7 @@
 import AfterEvery from "after-every"
 import BotCache from "./models/BotCache"
 import GuildCache from "./models/GuildCache"
-import NovaBot from "discordjs-nova"
+import NovaBot from "nova-bot"
 import Reminder from "./models/Reminder"
 import { Intents } from "discord.js"
 

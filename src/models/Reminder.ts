@@ -1,4 +1,4 @@
-import { DateHelper } from "discordjs-nova"
+import { DateHelper } from "nova-bot"
 import { Guild, MessageEmbed } from "discord.js"
 
 export interface iReminder {

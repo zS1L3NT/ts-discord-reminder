@@ -1,7 +1,7 @@
 import Entry from "../../models/Entry"
 import GuildCache from "../../models/GuildCache"
 import Reminder from "../../models/Reminder"
-import { DateHelper, Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
+import { DateHelper, Emoji, iInteractionSubcommandFile, ResponseBuilder } from "nova-bot"
 import { DateTime } from "luxon"
 import { useTry } from "no-try"
 

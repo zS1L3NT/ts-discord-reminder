@@ -1,6 +1,6 @@
 import Entry from "../../models/Entry"
 import GuildCache from "../../models/GuildCache"
-import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "discordjs-nova"
+import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "nova-bot"
 import { GuildMember, TextChannel } from "discord.js"
 
 const config = require("../../../config.json")

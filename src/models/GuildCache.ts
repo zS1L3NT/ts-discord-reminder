@@ -1,10 +1,10 @@
 import admin from "firebase-admin"
-import BaseGuildCache from "discordjs-nova/build/bases/BaseGuildCache"
+import BaseGuildCache from "nova-bot/build/bases/BaseGuildCache"
 import Entry from "./Entry"
 import equal from "deep-equal"
 import FirestoreParser from "../utilities/FirestoreParser"
 import Reminder from "./Reminder"
-import { ChannelCleaner, DateHelper } from "discordjs-nova"
+import { ChannelCleaner, DateHelper } from "nova-bot"
 import { TextChannel } from "discord.js"
 import { useTryAsync } from "no-try"
 
