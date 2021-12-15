@@ -15,7 +15,7 @@
 		"firebase-admin": "^10.0.0",
 		"luxon": "^2.1.1",
 		"no-try": "^3.1.0",
-		"nova-bot": "^1.0.0"
+		"nova-bot": "^1.0.2"
 	},
 	"engines": {
 		"node": ">=0.12"
