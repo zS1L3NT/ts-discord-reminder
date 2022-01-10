@@ -14,7 +14,7 @@
 		"firebase-admin": "^10.0.1",
 		"luxon": "^2.3.0",
 		"no-try": "^3.1.0",
-		"nova-bot": "^1.0.5"
+		"nova-bot": "^1.0.6"
 	},
 	"devDependencies": {
 		"@types/deep-equal": "^1.0.1",

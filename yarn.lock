@@ -1398,10 +1398,10 @@ node-forge@^0.10.0:
   resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-0.10.0.tgz#32dea2afb3e9926f02ee5ce8794902691a676bf3"
   integrity sha512-PPmu8eEeG9saEUvI97fm4OYxXVB6bFvyNTyiUOBichBpFG8A1Ljw3bY62+5oOjDEMHRnd0Y7HQ+x7uzxOzC6JA==
 
-nova-bot@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/nova-bot/-/nova-bot-1.0.5.tgz#f68cc7d3220d215aa931ce0ef301b98bb8fccc65"
-  integrity sha512-uvxiBmINxr8oIWAQ1rlQiTvzm+jlDiHU6rTYt0HCV3hCkU4xJQuKJ5G6d+Kf79drl29RgUCXViyi0022JrL52w==
+nova-bot@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/nova-bot/-/nova-bot-1.0.6.tgz#6654f68441eebf6044cc8f7d3f86fd3a061a10f9"
+  integrity sha512-Lk3KgkfScNJuTFZs2l/Xh0bNPLZN2MKpuJPCagN3AsyWNVumqptMH7Cj8AGJLfC49VFd6DWAy7uAcTNdFODzPA==
   dependencies:
     "@discordjs/builders" "^0.11.0"
     "@discordjs/rest" "0.2.0-canary.0"
