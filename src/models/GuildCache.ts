@@ -1,10 +1,9 @@
 import admin from "firebase-admin"
-import BaseGuildCache from "nova-bot/build/bases/BaseGuildCache"
 import Entry from "./Entry"
 import equal from "deep-equal"
 import FirestoreParser from "../utilities/FirestoreParser"
 import Reminder from "./Reminder"
-import { ChannelCleaner, DateHelper } from "nova-bot"
+import { BaseGuildCache, ChannelCleaner, DateHelper } from "nova-bot"
 import { TextChannel } from "discord.js"
 import { useTryAsync } from "no-try"
 
@@ -55,7 +54,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 
 			const newRemindersMessageIds = cleaner.getMessageIds()
 			if (!equal(newRemindersMessageIds, remindersMessageIds)) {
-				this.setRemindersMessageIds(newRemindersMessageIds).then()
+				this.setRemindersMessageIds(newRemindersMessageIds)
 			}
 
 			return messages
@@ -98,7 +97,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 				const messageId = remindersMessageIds[i]
 				const embed = embeds[i]
 				const message = messages.get(messageId)!
-				message.edit({ embeds: [embed] }).then()
+				message.edit({ embeds: [embed] })
 			}
 		} else {
 			console.error("Embed count doesn't match up to Reminder message id count!")
@@ -115,14 +114,12 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 
 		const channel = this.guild.channels.cache.get(pingChannelId)
 		if (channel instanceof TextChannel) {
-			channel
-				.send({
-					content: `${reminder.getPingString(this.guild)}\n${
-						reminder.value.title
-					} is due in ${new DateHelper(reminder.value.due_date).getTimeLeft()}!`,
-					embeds: [reminder.getEmbed(this.guild)]
-				})
-				.then()
+			channel.send({
+				content: `${reminder.getPingString(this.guild)}\n${
+					reminder.value.title
+				} is due in ${new DateHelper(reminder.value.due_date).getTimeLeft()}!`,
+				embeds: [reminder.getEmbed(this.guild)]
+			})
 		}
 	}
 

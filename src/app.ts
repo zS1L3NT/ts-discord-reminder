@@ -1,11 +1,10 @@
 import AfterEvery from "after-every"
 import BotCache from "./models/BotCache"
+import config from "./config.json"
 import GuildCache from "./models/GuildCache"
 import NovaBot from "nova-bot"
 import Reminder from "./models/Reminder"
 import { Intents } from "discord.js"
-
-const config = require("../config.json")
 
 const ONE_SECOND = 1000
 const ONE_MINUTE = 60 * ONE_SECOND

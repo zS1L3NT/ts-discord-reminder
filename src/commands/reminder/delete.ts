@@ -48,7 +48,7 @@ const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 			{ merge: true }
 		)
 		await helper.cache.getReminderDoc(reminderId).delete()
-		helper.cache.updateRemindersChannel().then()
+		helper.cache.updateRemindersChannel()
 
 		helper.respond(new ResponseBuilder(Emoji.GOOD, `Reminder deleted`))
 	}
