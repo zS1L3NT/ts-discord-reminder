@@ -1,23 +1,41 @@
 {
 	"compilerOptions": {
+		/** Transpiler */
 		"target": "esnext",
-		"allowSyntheticDefaultImports": true,
-		"forceConsistentCasingInFileNames": true,
-		"module": "commonjs",
+		"lib": ["esnext"], // "dom", "dom.iterable", "esnext"
+		"module": "commonjs", // esnext
 		"moduleResolution": "node",
 		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+
+		/** Project */
+		"rootDir": "src",
+		"outDir": "dist",
+		"typeRoots": ["./node_modules/@types", "./src/@types"],
+
+		/** Type Checking */
 		"strict": true,
-		"alwaysStrict": true,
-		"noImplicitAny": true,
-		"noUnusedLocals": false,
-		"noUnusedParameters": false,
-		"resolveJsonModule": true,
 		"strictNullChecks": true,
 		"strictFunctionTypes": true,
-		"outDir": "build",
-		"rootDir": "src"
+		"strictBindCallApply": true,
+		"strictPropertyInitialization": true,
+		"noImplicitThis": true,
+		"useUnknownInCatchVariables": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
+		"allowUnusedLabels": true,
+		"resolveJsonModule": true,
+		"forceConsistentCasingInFileNames": true,
+
+		/** Other */
+		// "noEmit": true,
+		// "allowJs": true,
+		// "jsx": "react-jsx",
+		// "skipLibCheck": true,
+		// "isolatedModules": true,
+		// "incremental": true
 	},
-	"exclude": [
-		"**/*.test.*"
-	]
+	"include": ["src"]
 }

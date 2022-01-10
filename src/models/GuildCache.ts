@@ -94,8 +94,8 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 
 		if (embeds.length === remindersMessageIds.length) {
 			for (let i = 0, il = embeds.length; i < il; i++) {
-				const messageId = remindersMessageIds[i]
-				const embed = embeds[i]
+				const messageId = remindersMessageIds[i]!
+				const embed = embeds[i]!
 				const message = messages.get(messageId)!
 				message.edit({ embeds: [embed] })
 			}

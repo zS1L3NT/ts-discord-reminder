@@ -20,5 +20,6 @@ export default class FirestoreParser {
 		if (data) {
 			return new Reminder(data.data() as iReminder)
 		}
+		return undefined
 	}
 }
