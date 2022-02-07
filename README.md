@@ -11,24 +11,27 @@ This is an example of a reminder that Reminder bot stores<br>
 
 ## Features
 
--   Add reminders by creating a Reminder draft first, which is a Reminder but with in need of modification.
+-   Reminders and Drafts
+	-   Add reminders by creating a Reminder draft first, which is a Reminder but with in need of modification.
     -   Edit the draft with commands until you're satisfied and use `/reminder post` to convert the draft to a full Reminder
--   Reminder bot needs a dedicated text channel to post reminders in. Reminder bot will automatically remove any messages that are irrelevant.
--   Reminder bot will ping users in the ping channel, which can be set with `/set ping-channel`. Depending on the priority of the reminder, Reminer bot will ping users at different times. These are the times reminder bot will ping about a reminder:
-	-   HIGH Priority
-		-   7 days before the reminer is due
-		-   1 day before the reminer is due
-		-   12 hours before the reminer is due
-		-   2 hours before the reminer is due
-		-   1 hour before the reminer is due
-		-   30 minutes before the reminer is due
-		-   The moment the reminer is due
-	-   MEDIUM Priority
-		-   1 day before the reminer is due
-		-   2 hours before the reminer is due
-		-   The moment the reminer is due
-	-   LOW Priority
-		-   The moment the reminer is due
+-   Reminders Channel
+	-   Reminder bot needs a dedicated text channel to post reminders in. Reminder bot will automatically remove any messages that are irrelevant.
+-   Ping Channel
+	-   Reminder bot will ping users in the ping channel, which can be set with `/set ping-channel`. Depending on the priority of the reminder, Reminer bot will ping users at different times. These are the times reminder bot will ping about a reminder:
+		-   HIGH Priority
+			-   7 days before the reminer is due
+			-   1 day before the reminer is due
+			-   12 hours before the reminer is due
+			-   2 hours before the reminer is due
+			-   1 hour before the reminer is due
+			-   30 minutes before the reminer is due
+			-   The moment the reminer is due
+		-   MEDIUM Priority
+			-   1 day before the reminer is due
+			-   2 hours before the reminer is due
+			-   The moment the reminer is due
+		-   LOW Priority
+			-   The moment the reminer is due
 -   Discord Commands (Interactivity)
     -   Reminders
         -   `/reminder create` - Create a draft
