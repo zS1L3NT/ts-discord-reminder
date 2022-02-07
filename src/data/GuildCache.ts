@@ -1,7 +1,7 @@
 import admin from "firebase-admin"
 import Entry from "./Entry"
 import equal from "deep-equal"
-import FirestoreParser from "../utilities/FirestoreParser"
+import FirestoreParser from "../utils/FirestoreParser"
 import Reminder from "./Reminder"
 import { BaseGuildCache, ChannelCleaner, DateHelper } from "nova-bot"
 import { TextChannel } from "discord.js"
