@@ -82,8 +82,8 @@ new NovaBot({
 
 	onSetup: async botCache => {
 		const approximately = (diff: number, actual: number) => {
-			const high = actual + 30000
-			const low = actual - 30000
+			const high = actual + 45_000
+			const low = actual - 45_000
 			return diff >= low && diff <= high
 		}
 
