@@ -1,20 +1,19 @@
-import config from "../../config.json"
-import Entry from "../../models/Entry"
-import GuildCache from "../../models/GuildCache"
-import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "nova-bot"
+import config from "../../../config.json"
+import Entry from "../../../data/Entry"
+import GuildCache from "../../../data/GuildCache"
+import { Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
 import { GuildMember, TextChannel } from "discord.js"
 
-const file: iInteractionSubcommandFile<Entry, GuildCache> = {
+const file: iSlashSubFile<Entry, GuildCache> = {
 	defer: true,
 	ephemeral: true,
 	data: {
-		name: "reminders-channel",
+		name: "ping-channel",
 		description: {
-			slash: "Set the channel that all the Reminder embeds show up in",
+			slash: "Set the channel where the bot pings all users about Reminders",
 			help: [
-				"Sets the channel which the bot will attatch to and show all the Reminders",
-				"This channel will be owned by the bot and unrelated messages will be cleared every minute",
-				"Use this to see all the Reminders in a channel"
+				"Sets the channel where the bot will ping users about Reminders",
+				"Use this if you want the bot to ping users about Reminders"
 			].join("\n")
 		},
 		options: [
@@ -56,19 +55,18 @@ const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 					)
 					break
 				default:
-					await helper.cache.setRemindersChannelId(channel.id)
-					helper.cache.updateRemindersChannel()
+					await helper.cache.setPingChannelId(channel.id)
 					helper.respond(
 						new ResponseBuilder(
 							Emoji.GOOD,
-							`Reminders channel reassigned to \`#${channel.name}\``
+							`Pinging channel reassigned to \`#${channel.name}\``
 						)
 					)
 					break
 			}
 		} else if (channel === null) {
-			await helper.cache.setRemindersChannelId("")
-			helper.respond(new ResponseBuilder(Emoji.GOOD, `Reminders channel unassigned`))
+			await helper.cache.setPingChannelId("")
+			helper.respond(new ResponseBuilder(Emoji.GOOD, `Pinging channel unassigned`))
 		} else {
 			helper.respond(new ResponseBuilder(Emoji.BAD, `Please select a text channel`))
 		}

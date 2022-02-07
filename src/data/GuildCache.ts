@@ -31,11 +31,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 	 * Method run every minute
 	 */
 	public async updateMinutely(debug: number) {
-		console.time(`Updated Channels for Guild(${this.guild.name}) [${debug}]`)
-
 		await this.updateRemindersChannel()
-
-		console.timeEnd(`Updated Channels for Guild(${this.guild.name}) [${debug}]`)
 	}
 
 	public async updateRemindersChannel() {
@@ -62,7 +58,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 
 		if (err) {
 			if (err.message === "no-channel") {
-				console.warn(`Guild(${this.guild.name}) has no Channel(${remindersChannelId})`)
+				logger.warn(`Guild(${this.guild.name}) has no Channel(${remindersChannelId})`)
 				await this.setRemindersChannelId("")
 				return
 			}
@@ -100,12 +96,12 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 				message.edit({ embeds: [embed] })
 			}
 		} else {
-			console.error("Embed count doesn't match up to Reminder message id count!")
-			if (embeds.length > remindersMessageIds.length) {
-				console.log("Embeds > Message IDs")
-			} else {
-				console.log("Message IDs > Embeds")
-			}
+			logger.error(
+				"Embed count doesn't match up to Reminder message id count!",
+				embeds.length > remindersMessageIds.length
+					? "Embeds > Message IDs"
+					: "Message IDs > Embeds"
+			)
 		}
 	}
 

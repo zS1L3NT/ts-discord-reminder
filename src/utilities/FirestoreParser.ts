@@ -1,4 +1,4 @@
-import Reminder, { iReminder } from "../models/Reminder"
+import Reminder, { iReminder } from "../data/Reminder"
 
 export default class FirestoreParser {
 	private docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[]
