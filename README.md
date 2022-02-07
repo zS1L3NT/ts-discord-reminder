@@ -6,7 +6,7 @@ Reminder Bot is a Discord bot that can store reminders you want to keep, in the 
 
 You can add it to your own server using [this](https://reminder-bot.zectan.com) link, just make sure to give it admin permissions. Reminder Bot is built on top of the [Nova Bot](https://github.com/zS1L3NT/ts-npm-nova-bot) Discord bot framework.
 
-This is an example of a reminder that Reminder bot stores
+This is an example of a reminder that Reminder bot stores<br>
 ![Example](https://i.ibb.co/rtB0DMx/reminer.png)
 
 ## Features
