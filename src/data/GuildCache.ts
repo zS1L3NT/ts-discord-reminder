@@ -1,8 +1,7 @@
 import admin from "firebase-admin"
 import Entry from "./Entry"
 import equal from "deep-equal"
-import FirestoreParser from "../utils/FirestoreParser"
-import Reminder from "./Reminder"
+import Reminder, { iReminder } from "./Reminder"
 import { BaseGuildCache, ChannelCleaner, DateHelper } from "nova-bot"
 import { TextChannel } from "discord.js"
 import { useTryAsync } from "no-try"
@@ -21,9 +20,11 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 			}
 		})
 		this.ref.collection("reminders").onSnapshot(snap => {
-			const converter = new FirestoreParser(snap.docs)
-			this.reminders = converter.getReminders()
-			this.draft = converter.getDraft()
+			this.reminders = snap.docs
+				.filter(doc => doc.id !== "draft")
+				.map(doc => new Reminder(doc.data() as iReminder))
+			const draft = snap.docs.find(doc => doc.id !== "draft")
+			this.draft = draft ? new Reminder(draft.data() as iReminder) : undefined
 		})
 	}
 
