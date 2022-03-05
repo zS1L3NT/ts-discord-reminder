@@ -1,13 +1,15 @@
 import AfterEvery from "after-every"
 import BotCache from "./data/BotCache"
 import colors from "colors"
-import config from "./config.json"
+import dotenv from "dotenv"
 import GuildCache from "./data/GuildCache"
 import NovaBot from "nova-bot"
 import path from "path"
 import Reminder from "./data/Reminder"
 import Tracer from "tracer"
 import { Intents } from "discord.js"
+
+dotenv.config()
 
 const ONE_SECOND = 1000
 const ONE_MINUTE = 60 * ONE_SECOND
@@ -56,7 +58,22 @@ new NovaBot({
 	name: "Reminder#2744",
 	intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS],
 	directory: path.join(__dirname, "interactivity"),
-	config,
+	config: {
+		firebase: {
+			service_account: {
+				projectId: process.env.FIREBASE__SERVICE_ACCOUNT__PROJECT_ID,
+				privateKey: process.env.FIREBASE__SERVICE_ACCOUNT__PRIVATE_KEY,
+				clientEmail: process.env.FIREBASE__SERVICE_ACCOUNT__CLIENT_EMAIL
+			},
+			collection: process.env.FIREBASE__COLLECTION,
+			database_url: process.env.FIREBASE__DATABASE_URL,
+		},
+		discord: {
+			token: process.env.DISCORD__TOKEN,
+			bot_id: process.env.DISCORD__BOT_ID,
+			dev_id: process.env.DISCORD__DEV_ID
+		}
+	},
 	updatesMinutely: true,
 	//@ts-ignore
 	logger: global.logger,

@@ -312,6 +312,13 @@
   resolved "https://registry.yarnpkg.com/@types/deep-equal/-/deep-equal-1.0.1.tgz#71cfabb247c22bcc16d536111f50c0ed12476b03"
   integrity sha512-mMUu4nWHLBlHtxXY17Fg6+ucS/MnndyOWyOe7MmwkoMYxvfQU2ajtRaEvqSUv+aVkMqH/C0NCI8UoVfRNQ10yg==
 
+"@types/dotenv@^8.2.0":
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/@types/dotenv/-/dotenv-8.2.0.tgz#5cd64710c3c98e82d9d15844375a33bf1b45d053"
+  integrity sha512-ylSC9GhfRH7m1EUXBXofhgx4lUWmFeQDINW5oLuS+gxWdfUeW4zJdeVTYVkexEW+e2VUvlZR2kGnGGipAWR7kw==
+  dependencies:
+    dotenv "*"
+
 "@types/express-jwt@0.0.42":
   version "0.0.42"
   resolved "https://registry.yarnpkg.com/@types/express-jwt/-/express-jwt-0.0.42.tgz#4f04e1fadf9d18725950dc041808a4a4adf7f5ae"
@@ -632,6 +639,11 @@ dot-prop@^5.2.0:
   integrity sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==
   dependencies:
     is-obj "^2.0.0"
+
+dotenv@*, dotenv@^16.0.0:
+  version "16.0.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.0.0.tgz#c619001253be89ebb638d027b609c75c26e47411"
+  integrity sha512-qD9WU0MPM4SWLPJy/r2Be+2WgQj8plChsyrCNQzW/0WjvcJQiKQJ9mH3ZgB3fxbUUxgc/11ZJ0Fi5KiimWGz2Q==
 
 duplexify@^4.0.0, duplexify@^4.1.1:
   version "4.1.1"
@@ -1361,10 +1373,10 @@ node-forge@^1.0.0:
   resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-1.2.1.tgz#82794919071ef2eb5c509293325cec8afd0fd53c"
   integrity sha512-Fcvtbb+zBcZXbTTVwqGA5W+MKBj56UjVRevvchv5XrcyXbmNdesfZL37nlcWOfpgHhgmxApw3tQbTr4CqNmX4w==
 
-nova-bot@^1.0.13:
-  version "1.0.13"
-  resolved "https://registry.yarnpkg.com/nova-bot/-/nova-bot-1.0.13.tgz#5111f805d6e6d647fd46c540d41fabd64b380416"
-  integrity sha512-UfRP9Ljj/iYJ5xh7dgWrxZJN8lIcNXbunUukLp4iwo7v9cA0HkTLFHj9UNybi2AFANCv3R59Y2r9fML9drbdig==
+nova-bot@^1.0.14:
+  version "1.0.14"
+  resolved "https://registry.yarnpkg.com/nova-bot/-/nova-bot-1.0.14.tgz#58b025b03aabc4fe04b28668c3f5b9d7815c1be9"
+  integrity sha512-Fd5/kxbB2RKMwKZLtAS93sQMTB22WEYYMoBj4qSOOh+KdW6kkgt8vmfPC5HDP9LTzu96LZI+nV3siMJ6rVGjRA==
   dependencies:
     "@discordjs/builders" "^0.12.0"
     "@discordjs/rest" "0.3.0"
