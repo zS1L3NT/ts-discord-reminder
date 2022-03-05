@@ -1,4 +1,3 @@
-import config from "../../../config.json"
 import Entry from "../../../data/Entry"
 import GuildCache from "../../../data/GuildCache"
 import { Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
@@ -33,7 +32,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 	},
 	execute: async helper => {
 		const member = helper.interaction.member as GuildMember
-		if (!member.permissions.has("ADMINISTRATOR") && member.id !== config.discord.dev_id) {
+		if (!member.permissions.has("ADMINISTRATOR") && member.id !== process.env.DISCORD__DEV_ID) {
 			return helper.respond(
 				new ResponseBuilder(Emoji.BAD, "Only administrators can set bot channels")
 			)
