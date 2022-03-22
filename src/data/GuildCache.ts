@@ -10,7 +10,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 	public reminders: Reminder[] = []
 	public draft: Reminder | undefined
 
-	public onConstruct(): void { }
+	public onConstruct(): void {}
 
 	public resolve(resolve: (cache: GuildCache) => void): void {
 		this.ref.onSnapshot(snap => {
@@ -63,6 +63,10 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 				await this.setRemindersChannelId("")
 				return
 			}
+			if (err.name === "HTTPError") {
+				logger.warn(`Failed to clean channel:`, err)
+				return
+			}
 			throw err
 		}
 
@@ -112,8 +116,9 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 		const channel = this.guild.channels.cache.get(pingChannelId)
 		if (channel instanceof TextChannel) {
 			channel.send({
-				content: `${reminder.getPingString(this.guild)}\n${reminder.value.title
-					} is due in ${new DateHelper(reminder.value.due_date).getTimeLeft()}!`,
+				content: `${reminder.getPingString(this.guild)}\n${
+					reminder.value.title
+				} is due in ${new DateHelper(reminder.value.due_date).getTimeLeft()}!`,
 				embeds: [reminder.getEmbed(this.guild)]
 			})
 		}

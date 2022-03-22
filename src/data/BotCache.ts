@@ -32,7 +32,8 @@ export default class BotCache extends BaseBotCache<Entry, GuildCache> {
 		return {
 			reminders_channel_id: "",
 			reminders_message_ids: [],
-			ping_channel_id: ""
+			ping_channel_id: "",
+			aliases: {}
 		}
 	}
 }
