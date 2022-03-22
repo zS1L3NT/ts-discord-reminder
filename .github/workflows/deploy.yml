@@ -10,10 +10,11 @@ jobs:
             - name: Performing Repository Checkout
               uses: actions/checkout@v2
 
-            - name: Performing Yarn Install on Workspace
-              uses: borales/actions-yarn@v2.3.0
+            - name: Performing Pnpm Install on Workspace
+              uses: pnpm/action-setup@v2.1.0
               with:
-                  cmd: install
+                version: 6.0.2
+                run_install: true
 
             - name: Transpiling TypeScript
               run: npx tsc --skipLibCheck
@@ -33,15 +34,15 @@ jobs:
                   username: ${{ secrets.SSH_USERNAME }}
                   password: ${{ secrets.SSH_PASSWORD }}
                   target: "/home/ubuntu/projects/ts-discord-reminder"
-                  source: "dist/*,package.json,yarn.lock"
+                  source: "dist/*,package.json,pnpm-lock.yaml"
 
-            - name: Performing Yarn Install on Server
+            - name: Performing Pnpm Install on Server
               uses: appleboy/ssh-action@master
               with:
                   host: ${{ secrets.SSH_HOST }}
                   username: ${{ secrets.SSH_USERNAME }}
                   password: ${{ secrets.SSH_PASSWORD }}
-                  script: "cd /home/ubuntu/projects/ts-discord-reminder && yarn"
+                  script: "cd /home/ubuntu/projects/ts-discord-reminder && pnpm i"
 
             - name: Writing to .env file
               uses: appleboy/ssh-action@master

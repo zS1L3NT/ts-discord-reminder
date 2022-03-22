@@ -54,10 +54,16 @@ global.logger = Tracer.colorConsole({
 	}
 })
 
+process.on("uncaughtException", err => {
+	if (err.message !== "The user aborted a request.") {
+		logger.error("Uncaught Exception:", { err })
+	}
+})
+
 new NovaBot({
 	name: "Reminder#2744",
 	intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS],
-	directory: path.join(__dirname, "interactivity"),
+	directory: path.join(__dirname, "interactions"),
 	config: {
 		firebase: {
 			service_account: {
@@ -65,8 +71,7 @@ new NovaBot({
 				privateKey: process.env.FIREBASE__SERVICE_ACCOUNT__PRIVATE_KEY,
 				clientEmail: process.env.FIREBASE__SERVICE_ACCOUNT__CLIENT_EMAIL
 			},
-			collection: process.env.FIREBASE__COLLECTION,
-			database_url: process.env.FIREBASE__DATABASE_URL,
+			collection: process.env.FIREBASE__COLLECTION
 		},
 		discord: {
 			token: process.env.DISCORD__TOKEN,
