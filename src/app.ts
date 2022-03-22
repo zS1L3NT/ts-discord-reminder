@@ -54,6 +54,12 @@ global.logger = Tracer.colorConsole({
 	}
 })
 
+process.on("uncaughtException", err => {
+	if (err.message !== "The user aborted a request.") {
+		logger.error("Uncaught Exception:", { err })
+	}
+})
+
 new NovaBot({
 	name: "Reminder#2744",
 	intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS],
