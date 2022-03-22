@@ -63,7 +63,7 @@ process.on("uncaughtException", err => {
 new NovaBot({
 	name: "Reminder#2744",
 	intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS],
-	directory: path.join(__dirname, "interactivity"),
+	directory: path.join(__dirname, "interactions"),
 	config: {
 		firebase: {
 			service_account: {
