@@ -40,7 +40,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 		if (remindersChannelId === "") return
 
 		const [err, messages] = await useTryAsync(async () => {
-			const remindersMessageIds = [...this.getRemindersMessageIds()]
+			const remindersMessageIds = this.getRemindersMessageIds()
 			const cleaner = new ChannelCleaner<Entry, GuildCache>(
 				this,
 				remindersChannelId,
@@ -73,15 +73,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 			if (reminder.value.due_date < Date.now()) {
 				this.reminders = this.reminders.filter(rem => rem.value.id !== reminder.value.id)
 				await this.getReminderDoc(reminder.value.id).delete()
-				await this.ref.set(
-					{
-						// @ts-ignore
-						reminders_message_ids: admin.firestore.FieldValue.arrayRemove(
-							this.getRemindersMessageIds()[0]
-						)
-					},
-					{ merge: true }
-				)
+				await this.setRemindersMessageIds(this.getRemindersMessageIds().slice(1))
 			}
 		}
 
@@ -89,10 +81,18 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 			.sort((a, b) => b.value.due_date - a.value.due_date)
 			.map(reminder => reminder.getEmbed(this.guild))
 
-		const remindersMessageIds = this.getRemindersMessageIds()
+		let remindersMessageIds = this.getRemindersMessageIds()
+
+		// Happened many times, needs a fix
+		// If reminderMessageIds > embeds, the bot will break
+		if (remindersMessageIds.length > embeds.length) {
+			const diff = remindersMessageIds.length - embeds.length
+			await this.setRemindersMessageIds(remindersMessageIds.slice(diff))
+			remindersMessageIds = this.getRemindersMessageIds()
+		}
 
 		if (embeds.length === remindersMessageIds.length) {
-			for (let i = 0, il = embeds.length; i < il; i++) {
+			for (let i = 0; i < embeds.length; i++) {
 				const messageId = remindersMessageIds[i]!
 				const embed = embeds[i]!
 				const message = messages.get(messageId)!
@@ -142,7 +142,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 	}
 
 	public getRemindersMessageIds() {
-		return this.entry.reminders_message_ids
+		return [...this.entry.reminders_message_ids]
 	}
 
 	public async setRemindersMessageIds(reminders_message_ids: string[]) {
