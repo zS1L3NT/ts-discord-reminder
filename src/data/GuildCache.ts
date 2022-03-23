@@ -40,21 +40,19 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 		if (remindersChannelId === "") return
 
 		const [err, messages] = await useTryAsync(async () => {
-			const remindersMessageIds = this.getRemindersMessageIds()
+			const remindersMessageIds = [...this.getRemindersMessageIds()]
 			const cleaner = new ChannelCleaner<Entry, GuildCache>(
 				this,
 				remindersChannelId,
 				remindersMessageIds
 			)
 			await cleaner.clean()
-			const messages = cleaner.getMessages()
 
-			const newRemindersMessageIds = cleaner.getMessageIds()
-			if (!equal(newRemindersMessageIds, remindersMessageIds)) {
-				this.setRemindersMessageIds(newRemindersMessageIds)
+			if (!equal(remindersMessageIds, this.getRemindersMessageIds())) {
+				this.setRemindersMessageIds(remindersMessageIds)
 			}
 
-			return messages
+			return cleaner.getMessages()
 		})
 
 		if (err) {
