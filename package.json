@@ -6,7 +6,8 @@
 	"license": "GPL-3.0",
 	"scripts": {
 		"start": "node dist/app.js",
-		"dev": "ts-node --files src/app.ts"
+		"dev": "ts-node --files src/app.ts",
+		"build": "tsc"
 	},
 	"dependencies": {
 		"after-every": "^1.0.4",
