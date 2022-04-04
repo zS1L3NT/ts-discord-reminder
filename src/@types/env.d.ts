@@ -4,7 +4,6 @@ declare module NodeJS {
 		readonly FIREBASE__SERVICE_ACCOUNT__PRIVATE_KEY: string
 		readonly FIREBASE__SERVICE_ACCOUNT__CLIENT_EMAIL: string
 		readonly FIREBASE__COLLECTION: string
-		readonly FIREBASE__DATABASE_URL: string
 
 		readonly DISCORD__TOKEN: string
 		readonly DISCORD__BOT_ID: string
