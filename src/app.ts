@@ -3,6 +3,7 @@ import BotCache from "./data/BotCache"
 import colors from "colors"
 import dotenv from "dotenv"
 import GuildCache from "./data/GuildCache"
+import http from "http"
 import NovaBot from "nova-bot"
 import path from "path"
 import Reminder from "./data/Reminder"
@@ -159,3 +160,10 @@ new NovaBot({
 		}
 	}
 })
+
+const PORT = process.env.PORT || 8080
+http.createServer((_, res) => {
+	res.writeHead(200, { "Content-Type": "text/plain" })
+	res.write("Reminder running!")
+	res.end()
+}).listen(PORT, () => console.log(`Server running on PORT ${PORT}`))
