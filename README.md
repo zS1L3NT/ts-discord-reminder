@@ -60,15 +60,6 @@ Furthermore, only one person needs to add and edit reminders so everyone can see
 
 Copy the `.env.example` file to `.env` then fill in the file with the correct project credentials.
 
-With `yarn`
-
-```
-$ yarn
-$ yarn dev
-```
-
-With `npm`
-
 ```
 $ npm i
 $ npm run dev
