@@ -1,9 +1,10 @@
+import { DateTime } from "luxon"
+import { useTry } from "no-try"
+import { DateHelper, Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
+
 import Entry from "../../data/Entry"
 import GuildCache from "../../data/GuildCache"
 import Reminder from "../../data/Reminder"
-import { DateHelper, Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
-import { DateTime } from "luxon"
-import { useTry } from "no-try"
 
 const file: iSlashSubFile<Entry, GuildCache> = {
 	defer: true,
@@ -102,9 +103,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 		const minute = helper.integer("minute")
 
 		if (reminderId) {
-			const reminder = helper.cache.reminders.find(
-				reminder => reminder.value.id === reminderId
-			)
+			const reminder = helper.cache.reminders.find(reminder => reminder.id === reminderId)
 			if (!reminder) {
 				return helper.respond(new ResponseBuilder(Emoji.BAD, "Reminder doesn't exist"))
 			}
@@ -116,7 +115,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 			}
 
 			const [err, dueDate] = useTry(() => {
-				const date = DateTime.fromMillis(reminder.value.due_date).setZone("Asia/Singapore")
+				const date = DateTime.fromMillis(reminder.due_date).setZone("Asia/Singapore")
 				return DateHelper.verify(
 					day ?? date.day,
 					month ?? date.month - 1,
@@ -148,7 +147,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 			}
 
 			const [err, dueDate] = useTry(() => {
-				const date = DateTime.fromMillis(draft.value.due_date).setZone("Asia/Singapore")
+				const date = DateTime.fromMillis(draft.due_date).setZone("Asia/Singapore")
 				return DateHelper.verify(
 					day ?? date.day,
 					month ?? date.month - 1,
@@ -162,13 +161,13 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 				return helper.respond(new ResponseBuilder(Emoji.BAD, `${err.message}`))
 			}
 
-			draft.value.due_date = dueDate
+			draft.due_date = dueDate
 			await helper.cache.getDraftDoc().set({ due_date: dueDate }, { merge: true })
 
 			helper.respond({
 				embeds: [
 					new ResponseBuilder(Emoji.GOOD, `Draft due date updated`).build(),
-					Reminder.getDraftEmbed(draft, helper.cache.guild)
+					Reminder.toDraftMessageEmbed(draft, helper.cache.guild)
 				]
 			})
 		}

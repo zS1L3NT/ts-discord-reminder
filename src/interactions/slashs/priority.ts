@@ -1,7 +1,8 @@
+import { Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
+
 import Entry from "../../data/Entry"
 import GuildCache from "../../data/GuildCache"
 import Reminder from "../../data/Reminder"
-import { Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
 
 const file: iSlashSubFile<Entry, GuildCache> = {
 	defer: true,
@@ -63,9 +64,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 		const priority = helper.integer("priority") as 0 | 1 | 2
 
 		if (reminderId) {
-			const reminder = helper.cache.reminders.find(
-				reminder => reminder.value.id === reminderId
-			)
+			const reminder = helper.cache.reminders.find(reminder => reminder.id === reminderId)
 			if (!reminder) {
 				return helper.respond(new ResponseBuilder(Emoji.BAD, "Reminder doesn't exist"))
 			}
@@ -79,13 +78,13 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 				return helper.respond(new ResponseBuilder(Emoji.BAD, "No draft to edit"))
 			}
 
-			draft.value.priority = priority
+			draft.priority = priority
 			await helper.cache.getDraftDoc().set({ priority }, { merge: true })
 
 			helper.respond({
 				embeds: [
 					new ResponseBuilder(Emoji.GOOD, `Draft priority updated`).build(),
-					Reminder.getDraftEmbed(draft, helper.cache.guild)
+					Reminder.toDraftMessageEmbed(draft, helper.cache.guild)
 				]
 			})
 		}

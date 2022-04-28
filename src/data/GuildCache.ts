@@ -4,7 +4,7 @@ import { useTryAsync } from "no-try"
 import { BaseGuildCache, ChannelCleaner, DateHelper } from "nova-bot"
 
 import Entry from "./Entry"
-import Reminder, { iReminder } from "./Reminder"
+import Reminder, { ReminderConverter } from "./Reminder"
 
 export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 	public reminders: Reminder[] = []
@@ -19,13 +19,14 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 				resolve(this)
 			}
 		})
-		this.ref.collection("reminders").onSnapshot(snap => {
-			this.reminders = snap.docs
-				.filter(doc => doc.id !== "draft")
-				.map(doc => new Reminder(doc.data() as iReminder))
-			const draft = snap.docs.find(doc => doc.id === "draft")
-			this.draft = draft ? new Reminder(draft.data() as iReminder) : undefined
-		})
+		this.ref
+			.collection("reminders")
+			.withConverter(new ReminderConverter())
+			.onSnapshot(snaps => {
+				const data = snaps.docs.map(doc => doc.data())
+				this.reminders = data.filter(doc => doc.id !== "draft")
+				this.draft = data.find(doc => doc.id === "draft")
+			})
 	}
 
 	/**
@@ -41,16 +42,16 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 
 		// Remove expired reminders
 		for (const reminder of this.reminders) {
-			if (reminder.value.due_date < Date.now()) {
-				this.reminders = this.reminders.filter(rem => rem.value.id !== reminder.value.id)
-				await this.getReminderDoc(reminder.value.id).delete()
+			if (reminder.due_date < Date.now()) {
+				this.reminders = this.reminders.filter(rem => rem.id !== reminder.id)
+				await this.getReminderDoc(reminder.id).delete()
 				await this.setReminderMessageIds(this.getRemindersMessageIds().slice(1))
 			}
 		}
 
 		const embeds = this.reminders
-			.sort((a, b) => b.value.due_date - a.value.due_date)
-			.map(reminder => reminder.getEmbed(this.guild))
+			.sort((a, b) => b.due_date - a.due_date)
+			.map(reminder => reminder.toMessageEmbed(this.guild))
 
 		let reminderMessageIds = this.getRemindersMessageIds()
 
@@ -110,9 +111,9 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 		if (channel instanceof TextChannel) {
 			channel.send({
 				content: `${reminder.getPingString(this.guild)}\n${
-					reminder.value.title
-				} is due in ${new DateHelper(reminder.value.due_date).getTimeLeft()}!`,
-				embeds: [reminder.getEmbed(this.guild)]
+					reminder.title
+				} is due in ${new DateHelper(reminder.due_date).getTimeLeft()}!`,
+				embeds: [reminder.toMessageEmbed(this.guild)]
 			})
 		}
 	}

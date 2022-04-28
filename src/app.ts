@@ -1,16 +1,15 @@
+import "dotenv/config"
+
 import AfterEvery from "after-every"
-import BotCache from "./data/BotCache"
 import colors from "colors"
-import dotenv from "dotenv"
-import GuildCache from "./data/GuildCache"
+import { Intents } from "discord.js"
 import http from "http"
 import NovaBot from "nova-bot"
 import path from "path"
-import Reminder from "./data/Reminder"
 import Tracer from "tracer"
-import { Intents } from "discord.js"
 
-dotenv.config()
+import BotCache from "./data/BotCache"
+import GuildCache from "./data/GuildCache"
 
 const ONE_SECOND = 1000
 const ONE_MINUTE = 60 * ONE_SECOND
@@ -124,15 +123,15 @@ new NovaBot({
 
 			AfterEvery(1).minutes(() => {
 				for (const reminder of cache.reminders) {
-					const timeDiff = reminder.value.due_date - Date.now()
+					const timeDiff = reminder.due_date - Date.now()
 
-					if (reminder.value.priority === Reminder.PRIORITY_LOW) {
+					if (reminder.priority === 0) {
 						if (approximately(timeDiff, 0)) {
 							cache.updatePingChannel(reminder)
 						}
 					}
 
-					if (reminder.value.priority === Reminder.PRIORITY_MEDIUM) {
+					if (reminder.priority === 1) {
 						if (
 							approximately(timeDiff, ONE_DAY) ||
 							approximately(timeDiff, 2 * ONE_HOUR) ||
@@ -142,7 +141,7 @@ new NovaBot({
 						}
 					}
 
-					if (reminder.value.priority === Reminder.PRIORITY_HIGH) {
+					if (reminder.priority === 2) {
 						if (
 							approximately(timeDiff, 7 * ONE_DAY) ||
 							approximately(timeDiff, ONE_DAY) ||

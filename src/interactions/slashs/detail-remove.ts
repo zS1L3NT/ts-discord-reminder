@@ -1,8 +1,9 @@
 import admin from "firebase-admin"
+import { Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
+
 import Entry from "../../data/Entry"
 import GuildCache from "../../data/GuildCache"
 import Reminder from "../../data/Reminder"
-import { Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
 
 const file: iSlashSubFile<Entry, GuildCache> = {
 	defer: true,
@@ -45,15 +46,13 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 		const position = helper.integer("position")! - 1
 
 		if (reminderId) {
-			const reminder = helper.cache.reminders.find(
-				reminder => reminder.value.id === reminderId
-			)
+			const reminder = helper.cache.reminders.find(reminder => reminder.id === reminderId)
 			if (!reminder) {
 				return helper.respond(new ResponseBuilder(Emoji.BAD, "Reminder doesn't exist"))
 			}
 
-			if (position < reminder.value.details.length) {
-				const string = reminder.value.details.splice(position, 1)[0]
+			if (position < reminder.details.length) {
+				const string = reminder.details.splice(position, 1)[0]
 				await helper.cache
 					.getReminderDoc(reminderId)
 					.set(
@@ -73,8 +72,8 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 				return helper.respond(new ResponseBuilder(Emoji.BAD, "No draft to edit"))
 			}
 
-			if (position < draft.value.details.length) {
-				const string = draft.value.details.splice(position, 1)[0]
+			if (position < draft.details.length) {
+				const string = draft.details.splice(position, 1)[0]
 				await helper.cache
 					.getDraftDoc()
 					.set(
@@ -85,7 +84,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 				helper.respond({
 					embeds: [
 						new ResponseBuilder(Emoji.GOOD, `Draft detail removed`).build(),
-						Reminder.getDraftEmbed(draft, helper.cache.guild)
+						Reminder.toDraftMessageEmbed(draft, helper.cache.guild)
 					]
 				})
 			} else {

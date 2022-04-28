@@ -1,7 +1,8 @@
 import admin from "firebase-admin"
+import { Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
+
 import Entry from "../../data/Entry"
 import GuildCache from "../../data/GuildCache"
-import { Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
 
 const file: iSlashSubFile<Entry, GuildCache> = {
 	defer: true,
@@ -30,13 +31,13 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 	},
 	execute: async helper => {
 		const reminderId = helper.string("reminder-id")!
-		const reminder = helper.cache.reminders.find(reminder => reminder.value.id === reminderId)
+		const reminder = helper.cache.reminders.find(reminder => reminder.id === reminderId)
 		if (!reminder) {
 			return helper.respond(new ResponseBuilder(Emoji.BAD, `Reminder does not exist`))
 		}
 
 		helper.cache.reminders = helper.cache.reminders.filter(
-			reminder => reminder.value.id !== reminderId
+			reminder => reminder.id !== reminderId
 		)
 		await helper.cache.ref.set(
 			{

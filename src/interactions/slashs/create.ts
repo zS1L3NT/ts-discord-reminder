@@ -1,7 +1,8 @@
+import { Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
+
 import Entry from "../../data/Entry"
 import GuildCache from "../../data/GuildCache"
 import Reminder from "../../data/Reminder"
-import { Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
 
 const file: iSlashSubFile<Entry, GuildCache> = {
 	defer: true,
@@ -25,15 +26,15 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 		}
 
 		const reminder = Reminder.getEmpty()
-		reminder.value.id = "draft"
+		reminder.id = "draft"
 
-		await helper.cache.getDraftDoc().set(reminder.value)
+		await helper.cache.getDraftDoc().set(reminder)
 		helper.cache.draft = reminder
 
 		helper.respond({
 			embeds: [
 				new ResponseBuilder(Emoji.GOOD, `Created draft`).build(),
-				Reminder.getDraftEmbed(helper.cache.draft, helper.cache.guild)
+				Reminder.toDraftMessageEmbed(helper.cache.draft, helper.cache.guild)
 			]
 		})
 	}

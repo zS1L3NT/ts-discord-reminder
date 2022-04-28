@@ -1,8 +1,9 @@
+import { GuildMember, Role } from "discord.js"
 import admin from "firebase-admin"
+import { Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
+
 import Entry from "../../data/Entry"
 import GuildCache from "../../data/GuildCache"
-import { Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
-import { GuildMember, Role } from "discord.js"
 
 const file: iSlashSubFile<Entry, GuildCache> = {
 	defer: true,
@@ -45,16 +46,14 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 		const memberOrRole = helper.mentionable("member-or-role") as Role | GuildMember
 
 		if (reminderId) {
-			const reminder = helper.cache.reminders.find(
-				reminder => reminder.value.id === reminderId
-			)
+			const reminder = helper.cache.reminders.find(reminder => reminder.id === reminderId)
 			if (!reminder) {
 				return helper.respond(new ResponseBuilder(Emoji.BAD, "Reminder doesn't exist"))
 			}
 
 			const id = memberOrRole.id
 			if (memberOrRole instanceof Role) {
-				if (!reminder.value.pings.roles.includes(id)) {
+				if (!reminder.pings.roles.includes(id)) {
 					return helper.respond(new ResponseBuilder(Emoji.BAD, "Role not being pinged!"))
 				}
 
@@ -69,7 +68,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 			}
 
 			if (memberOrRole instanceof GuildMember) {
-				if (!reminder.value.pings.members.includes(id)) {
+				if (!reminder.pings.members.includes(id)) {
 					return helper.respond(
 						new ResponseBuilder(Emoji.BAD, "Member not being pinged!")
 					)
@@ -92,11 +91,11 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 
 			const id = memberOrRole.id
 			if (memberOrRole instanceof Role) {
-				if (!draft.value.pings.roles.includes(id)) {
+				if (!draft.pings.roles.includes(id)) {
 					return helper.respond(new ResponseBuilder(Emoji.BAD, "Role not being pinged!"))
 				}
 
-				draft.value.pings.roles = draft.value.pings.roles.filter(r => r !== id)
+				draft.pings.roles = draft.pings.roles.filter(r => r !== id)
 				await helper.cache
 					.getDraftDoc()
 					.set(
@@ -108,13 +107,13 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 			}
 
 			if (memberOrRole instanceof GuildMember) {
-				if (!draft.value.pings.members.includes(id)) {
+				if (!draft.pings.members.includes(id)) {
 					return helper.respond(
 						new ResponseBuilder(Emoji.BAD, "Member not being pinged!")
 					)
 				}
 
-				draft.value.pings.members = draft.value.pings.members.filter(m => m !== id)
+				draft.pings.members = draft.pings.members.filter(m => m !== id)
 				await helper.cache
 					.getDraftDoc()
 					.set(

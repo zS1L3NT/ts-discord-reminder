@@ -1,7 +1,8 @@
 import admin from "firebase-admin"
+import { Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
+
 import Entry from "../../data/Entry"
 import GuildCache from "../../data/GuildCache"
-import { Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
 
 const file: iSlashSubFile<Entry, GuildCache> = {
 	defer: true,
@@ -19,7 +20,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 			return helper.respond(new ResponseBuilder(Emoji.BAD, "No draft to post"))
 		}
 
-		if (draft.value.due_date < Date.now()) {
+		if (draft.due_date < Date.now()) {
 			return helper.respond(
 				new ResponseBuilder(
 					Emoji.BAD,
@@ -28,12 +29,12 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 			)
 		}
 
-		if (draft.value.title === "") {
+		if (draft.title === "") {
 			return helper.respond(new ResponseBuilder(Emoji.BAD, "Existing draft has no title"))
 		}
 
 		const doc = helper.cache.getReminderDoc()
-		draft.value.id = doc.id
+		draft.id = doc.id
 		await helper.cache.ref.set(
 			{
 				// @ts-ignore
@@ -41,7 +42,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 			},
 			{ merge: true }
 		)
-		await doc.set(draft.value)
+		await doc.set(draft)
 		delete helper.cache.draft
 		await helper.cache.getDraftDoc().delete()
 
