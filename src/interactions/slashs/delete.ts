@@ -1,6 +1,6 @@
 import admin from "firebase-admin"
-import Entry from "../../../data/Entry"
-import GuildCache from "../../../data/GuildCache"
+import Entry from "../../data/Entry"
+import GuildCache from "../../data/GuildCache"
 import { Emoji, iSlashSubFile, ResponseBuilder } from "nova-bot"
 
 const file: iSlashSubFile<Entry, GuildCache> = {
