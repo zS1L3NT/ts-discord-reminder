@@ -42,15 +42,15 @@ global.logger = Tracer.colorConsole({
 	},
 	preprocess: data => {
 		data.path = data.path
+			.replaceAll("\\", "/")
 			.split("nova-bot")
 			.at(-1)!
-			.replace(/^(\/|\\)dist/, "nova-bot")
-			.replaceAll("\\", "/")
+			.replace(/^\/dist/, "nova-bot")
 		data.path = data.path
+			.replaceAll("\\", "/")
 			.split("ts-discord-reminder")
 			.at(-1)!
-			.replace(/^(\/|\\)(dist|src)/, "src")
-			.replaceAll("\\", "/")
+			.replace(/^\/(dist|src)/, "src")
 	}
 })
 
