@@ -52,32 +52,32 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 		const embeds = this.reminders
 			.sort((a, b) => b.due_date - a.due_date)
 			.map(reminder => reminder.toMessageEmbed(this.guild))
-
+		const requiredMessages = Math.ceil(embeds.length / 10)
 		let reminderMessageIds = this.getReminderMessageIds()
 
-		if (reminderMessageIds.length > embeds.length) {
-			const diff = reminderMessageIds.length - embeds.length
+		if (reminderMessageIds.length > requiredMessages) {
+			const diff = reminderMessageIds.length - requiredMessages
 			await this.setReminderMessageIds(reminderMessageIds.slice(diff))
 			reminderMessageIds = this.getReminderMessageIds()
 		}
 
-		if (embeds.length > reminderMessageIds.length) {
-			const diff = embeds.length - reminderMessageIds.length
+		if (reminderMessageIds.length < requiredMessages) {
+			const diff = requiredMessages - reminderMessageIds.length
 			await this.setReminderMessageIds([...reminderMessageIds, ...Array(diff).fill("")])
 			reminderMessageIds = this.getReminderMessageIds()
 		}
 
 		const [err, messages] = await useTryAsync(async () => {
-			const remindersMessageIds = this.getReminderMessageIds()
 			const cleaner = new ChannelCleaner<Entry, GuildCache>(
 				this,
 				remindersChannelId,
-				remindersMessageIds
+				reminderMessageIds
 			)
 			await cleaner.clean()
 
-			if (!equal(remindersMessageIds, this.getReminderMessageIds())) {
-				await this.setReminderMessageIds(remindersMessageIds)
+			if (!equal(reminderMessageIds, this.getReminderMessageIds())) {
+				await this.setReminderMessageIds(reminderMessageIds)
+				reminderMessageIds = this.getReminderMessageIds()
 			}
 
 			return cleaner.getMessages()
@@ -96,11 +96,10 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 			throw err
 		}
 
-		for (let i = 0; i < embeds.length; i++) {
-			const messageId = this.getReminderMessageIds()[i]!
-			const embed = embeds[i]!
+		for (let i = 0; i < Math.ceil(embeds.length / 10); i++) {
+			const messageId = reminderMessageIds[i]!
 			const message = messages.get(messageId)
-			message?.edit({ embeds: [embed] })
+			message?.edit({ embeds: embeds.slice(i * 10, (i + 1) * 10) })
 		}
 	}
 
