@@ -18,7 +18,7 @@ Furthermore, only one person needs to add and edit reminders so everyone can see
 
 -   Reminders and Drafts
     -   Add reminders by creating a Reminder draft first, which is a Reminder but with in need of modification.
-    -   Edit the draft with commands until you're satisfied and use `/reminder post` to convert the draft to a full Reminder
+    -   Edit the draft with commands until you're satisfied and use `/post` to convert the draft to a full Reminder
 -   Reminders Channel
     -   Reminder bot needs a dedicated text channel to post reminders in. Reminder bot will automatically remove any messages that are irrelevant.
 -   Ping Channel
@@ -39,18 +39,18 @@ Furthermore, only one person needs to add and edit reminders so everyone can see
             -   The moment the reminer is due
 -   Discord Commands (Interactivity)
     -   Reminders
-        -   `/reminder create` - Create a draft
-        -   `/reminder show` - Show the current Reminder draft
-        -   `/reminder delete` - Delete a Reminder or draft
-        -   `/reminder discard` - Discard the Reminder draft
-        -   `/reminder post` - Convert a Reminder draft to a Reminder that appears in the reminders channel
-        -   `/reminder title` - Change a title of a Reminder or draft
-        -   `/reminder ping-add` - Add the users to ping when the reminder is due soon to either a Reminder or draft
-        -   `/reminder ping-remove` - Remove the users to ping when the reminder is due soon to either a Reminder or draft
-        -   `/reminder priority` - Change the priority (how often the bot pings the users in `pinging`) of a Reminder or draft
-        -   `/reminder due-date` - Change the due date of a Reminder or draft
-        -   `/reminder detail-add` - Add a line of details to a Reminder or draft
-        -   `/reminder detail-remove` - Remove a line of details from a Reminder or draft
+        -   `/create` - Create a draft
+        -   `/show` - Show the current Reminder draft
+        -   `/delete` - Delete a Reminder or draft
+        -   `/discard` - Discard the Reminder draft
+        -   `/post` - Convert a Reminder draft to a Reminder that appears in the reminders channel
+        -   `/title` - Change a title of a Reminder or draft
+        -   `/ping-add` - Add the users to ping when the reminder is due soon to either a Reminder or draft
+        -   `/ping-remove` - Remove the users to ping when the reminder is due soon to either a Reminder or draft
+        -   `/priority` - Change the priority (how often the bot pings the users in `pinging`) of a Reminder or draft
+        -   `/due-date` - Change the due date of a Reminder or draft
+        -   `/detail-add` - Add a line of details to a Reminder or draft
+        -   `/detail-remove` - Remove a line of details from a Reminder or draft
     -   Admin
         -   `/set ping-channel` - Set the channel where Reminder bot will ping users about reminders
         -   `/set reminders-channel` - Set the dedicated channel for Reminder bot to post reminders in
