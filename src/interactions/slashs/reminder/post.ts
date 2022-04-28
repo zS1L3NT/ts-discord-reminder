@@ -37,7 +37,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 		await helper.cache.ref.set(
 			{
 				// @ts-ignore
-				reminders_message_ids: admin.firestore.FieldValue.arrayUnion("")
+				reminder_message_ids: admin.firestore.FieldValue.arrayUnion("")
 			},
 			{ merge: true }
 		)

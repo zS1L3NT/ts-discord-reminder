@@ -41,7 +41,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 		await helper.cache.ref.set(
 			{
 				// @ts-ignore
-				reminders_message_ids: admin.firestore.FieldValue.arrayRemove(
+				reminder_message_ids: admin.firestore.FieldValue.arrayRemove(
 					helper.cache.getRemindersMessageIds()[0]
 				)
 			},

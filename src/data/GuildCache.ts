@@ -44,7 +44,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 			if (reminder.value.due_date < Date.now()) {
 				this.reminders = this.reminders.filter(rem => rem.value.id !== reminder.value.id)
 				await this.getReminderDoc(reminder.value.id).delete()
-				await this.setRemindersMessageIds(this.getRemindersMessageIds().slice(1))
+				await this.setReminderMessageIds(this.getRemindersMessageIds().slice(1))
 			}
 		}
 
@@ -52,18 +52,18 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 			.sort((a, b) => b.value.due_date - a.value.due_date)
 			.map(reminder => reminder.getEmbed(this.guild))
 
-		let remindersMessageIds = this.getRemindersMessageIds()
+		let reminderMessageIds = this.getRemindersMessageIds()
 
-		if (remindersMessageIds.length > embeds.length) {
-			const diff = remindersMessageIds.length - embeds.length
-			await this.setRemindersMessageIds(remindersMessageIds.slice(diff))
-			remindersMessageIds = this.getRemindersMessageIds()
+		if (reminderMessageIds.length > embeds.length) {
+			const diff = reminderMessageIds.length - embeds.length
+			await this.setReminderMessageIds(reminderMessageIds.slice(diff))
+			reminderMessageIds = this.getRemindersMessageIds()
 		}
 
-		if (embeds.length > remindersMessageIds.length) {
-			const diff = embeds.length - remindersMessageIds.length
-			await this.setRemindersMessageIds([...remindersMessageIds, ...Array(diff).fill("")])
-			remindersMessageIds = this.getRemindersMessageIds()
+		if (embeds.length > reminderMessageIds.length) {
+			const diff = embeds.length - reminderMessageIds.length
+			await this.setReminderMessageIds([...reminderMessageIds, ...Array(diff).fill("")])
+			reminderMessageIds = this.getRemindersMessageIds()
 		}
 
 		const [err, messages] = await useTryAsync(async () => {
@@ -76,7 +76,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 			await cleaner.clean()
 
 			if (!equal(remindersMessageIds, this.getRemindersMessageIds())) {
-				await this.setRemindersMessageIds(remindersMessageIds)
+				await this.setReminderMessageIds(remindersMessageIds)
 			}
 
 			return cleaner.getMessages()
@@ -137,12 +137,12 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 	}
 
 	public getRemindersMessageIds() {
-		return [...this.entry.reminders_message_ids]
+		return [...this.entry.reminder_message_ids]
 	}
 
-	public async setRemindersMessageIds(reminders_message_ids: string[]) {
-		this.entry.reminders_message_ids = reminders_message_ids
-		await this.ref.update({ reminders_message_ids })
+	public async setReminderMessageIds(reminder_message_ids: string[]) {
+		this.entry.reminder_message_ids = reminder_message_ids
+		await this.ref.update({ reminder_message_ids })
 	}
 
 	public getPingChannelId() {

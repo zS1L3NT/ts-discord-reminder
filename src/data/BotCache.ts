@@ -31,7 +31,7 @@ export default class BotCache extends BaseBotCache<Entry, GuildCache> {
 	public getEmptyEntry(): Entry {
 		return {
 			reminders_channel_id: "",
-			reminders_message_ids: [],
+			reminder_message_ids: [],
 			ping_channel_id: "",
 			aliases: {}
 		}
