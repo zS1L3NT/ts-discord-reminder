@@ -43,7 +43,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 			{
 				// @ts-ignore
 				reminder_message_ids: admin.firestore.FieldValue.arrayRemove(
-					helper.cache.getRemindersMessageIds()[0]
+					helper.cache.getReminderMessageIds()[0]
 				)
 			},
 			{ merge: true }

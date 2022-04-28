@@ -45,7 +45,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 			if (reminder.due_date < Date.now()) {
 				this.reminders = this.reminders.filter(rem => rem.id !== reminder.id)
 				await this.getReminderDoc(reminder.id).delete()
-				await this.setReminderMessageIds(this.getRemindersMessageIds().slice(1))
+				await this.setReminderMessageIds(this.getReminderMessageIds().slice(1))
 			}
 		}
 
@@ -53,22 +53,22 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 			.sort((a, b) => b.due_date - a.due_date)
 			.map(reminder => reminder.toMessageEmbed(this.guild))
 
-		let reminderMessageIds = this.getRemindersMessageIds()
+		let reminderMessageIds = this.getReminderMessageIds()
 
 		if (reminderMessageIds.length > embeds.length) {
 			const diff = reminderMessageIds.length - embeds.length
 			await this.setReminderMessageIds(reminderMessageIds.slice(diff))
-			reminderMessageIds = this.getRemindersMessageIds()
+			reminderMessageIds = this.getReminderMessageIds()
 		}
 
 		if (embeds.length > reminderMessageIds.length) {
 			const diff = embeds.length - reminderMessageIds.length
 			await this.setReminderMessageIds([...reminderMessageIds, ...Array(diff).fill("")])
-			reminderMessageIds = this.getRemindersMessageIds()
+			reminderMessageIds = this.getReminderMessageIds()
 		}
 
 		const [err, messages] = await useTryAsync(async () => {
-			const remindersMessageIds = this.getRemindersMessageIds()
+			const remindersMessageIds = this.getReminderMessageIds()
 			const cleaner = new ChannelCleaner<Entry, GuildCache>(
 				this,
 				remindersChannelId,
@@ -76,7 +76,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 			)
 			await cleaner.clean()
 
-			if (!equal(remindersMessageIds, this.getRemindersMessageIds())) {
+			if (!equal(remindersMessageIds, this.getReminderMessageIds())) {
 				await this.setReminderMessageIds(remindersMessageIds)
 			}
 
@@ -97,10 +97,10 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 		}
 
 		for (let i = 0; i < embeds.length; i++) {
-			const messageId = this.getRemindersMessageIds()[i]!
+			const messageId = this.getReminderMessageIds()[i]!
 			const embed = embeds[i]!
-			const message = messages.get(messageId)!
-			message.edit({ embeds: [embed] })
+			const message = messages.get(messageId)
+			message?.edit({ embeds: [embed] })
 		}
 	}
 
@@ -137,7 +137,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 		await this.ref.update({ reminders_channel_id })
 	}
 
-	public getRemindersMessageIds() {
+	public getReminderMessageIds() {
 		return [...this.entry.reminder_message_ids]
 	}
 
