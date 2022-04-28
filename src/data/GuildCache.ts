@@ -1,10 +1,10 @@
-import admin from "firebase-admin"
-import Entry from "./Entry"
 import equal from "deep-equal"
-import Reminder, { iReminder } from "./Reminder"
-import { BaseGuildCache, ChannelCleaner, DateHelper } from "nova-bot"
 import { TextChannel } from "discord.js"
 import { useTryAsync } from "no-try"
+import { BaseGuildCache, ChannelCleaner, DateHelper } from "nova-bot"
+
+import Entry from "./Entry"
+import Reminder, { iReminder } from "./Reminder"
 
 export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 	public reminders: Reminder[] = []
@@ -15,7 +15,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 	public resolve(resolve: (cache: GuildCache) => void): void {
 		this.ref.onSnapshot(snap => {
 			if (snap.exists) {
-				this.entry = snap.data() as Entry
+				this.entry = snap.data()!
 				resolve(this)
 			}
 		})
@@ -37,7 +37,34 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 
 	public async updateRemindersChannel() {
 		const remindersChannelId = this.getRemindersChannelId()
-		if (remindersChannelId === "") return
+		if (!remindersChannelId) return
+
+		// Remove expired reminders
+		for (const reminder of this.reminders) {
+			if (reminder.value.due_date < Date.now()) {
+				this.reminders = this.reminders.filter(rem => rem.value.id !== reminder.value.id)
+				await this.getReminderDoc(reminder.value.id).delete()
+				await this.setRemindersMessageIds(this.getRemindersMessageIds().slice(1))
+			}
+		}
+
+		const embeds = this.reminders
+			.sort((a, b) => b.value.due_date - a.value.due_date)
+			.map(reminder => reminder.getEmbed(this.guild))
+
+		let remindersMessageIds = this.getRemindersMessageIds()
+
+		if (remindersMessageIds.length > embeds.length) {
+			const diff = remindersMessageIds.length - embeds.length
+			await this.setRemindersMessageIds(remindersMessageIds.slice(diff))
+			remindersMessageIds = this.getRemindersMessageIds()
+		}
+
+		if (embeds.length > remindersMessageIds.length) {
+			const diff = embeds.length - remindersMessageIds.length
+			await this.setRemindersMessageIds([...remindersMessageIds, ...Array(diff).fill("")])
+			remindersMessageIds = this.getRemindersMessageIds()
+		}
 
 		const [err, messages] = await useTryAsync(async () => {
 			const remindersMessageIds = this.getRemindersMessageIds()
@@ -49,7 +76,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 			await cleaner.clean()
 
 			if (!equal(remindersMessageIds, this.getRemindersMessageIds())) {
-				this.setRemindersMessageIds(remindersMessageIds)
+				await this.setRemindersMessageIds(remindersMessageIds)
 			}
 
 			return cleaner.getMessages()
@@ -68,43 +95,11 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 			throw err
 		}
 
-		// Remove expired reminders
-		for (const reminder of this.reminders) {
-			if (reminder.value.due_date < Date.now()) {
-				this.reminders = this.reminders.filter(rem => rem.value.id !== reminder.value.id)
-				await this.getReminderDoc(reminder.value.id).delete()
-				await this.setRemindersMessageIds(this.getRemindersMessageIds().slice(1))
-			}
-		}
-
-		const embeds = this.reminders
-			.sort((a, b) => b.value.due_date - a.value.due_date)
-			.map(reminder => reminder.getEmbed(this.guild))
-
-		let remindersMessageIds = this.getRemindersMessageIds()
-
-		// Happened many times, needs a fix
-		// If reminderMessageIds > embeds, the bot will break
-		if (remindersMessageIds.length > embeds.length) {
-			const diff = remindersMessageIds.length - embeds.length
-			await this.setRemindersMessageIds(remindersMessageIds.slice(diff))
-			remindersMessageIds = this.getRemindersMessageIds()
-		}
-
-		if (embeds.length === remindersMessageIds.length) {
-			for (let i = 0; i < embeds.length; i++) {
-				const messageId = remindersMessageIds[i]!
-				const embed = embeds[i]!
-				const message = messages.get(messageId)!
-				message.edit({ embeds: [embed] })
-			}
-		} else {
-			logger.error(
-				"Embed count doesn't match up to Reminder message id count!",
-				embeds.length > remindersMessageIds.length
-					? "Embeds > Message IDs"
-					: "Message IDs > Embeds"
-			)
+		for (let i = 0; i < embeds.length; i++) {
+			const messageId = this.getRemindersMessageIds()[i]!
+			const embed = embeds[i]!
+			const message = messages.get(messageId)!
+			message.edit({ embeds: [embed] })
 		}
 	}
 
