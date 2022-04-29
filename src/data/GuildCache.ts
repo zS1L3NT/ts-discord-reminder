@@ -122,9 +122,8 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 	}
 
 	public getReminderDoc(reminderId?: string) {
-		return reminderId
-			? this.ref.collection("reminders").doc(reminderId)
-			: this.ref.collection("reminders").doc()
+		const collection = this.ref.collection("reminders").withConverter(new ReminderConverter())
+		return reminderId ? collection.doc(reminderId) : collection.doc()
 	}
 
 	public getRemindersChannelId() {
