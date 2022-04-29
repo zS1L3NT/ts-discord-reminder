@@ -59,10 +59,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 
 				await helper.cache
 					.getReminderDoc(reminderId)
-					.set(
-						{ pings: { roles: admin.firestore.FieldValue.arrayRemove(id) } },
-						{ merge: true }
-					)
+					.update({ pings: { roles: admin.firestore.FieldValue.arrayRemove(id) } })
 
 				helper.respond(new ResponseBuilder(Emoji.GOOD, "Role removed from ping list"))
 			}
@@ -76,10 +73,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 
 				await helper.cache
 					.getReminderDoc(reminderId)
-					.set(
-						{ pings: { members: admin.firestore.FieldValue.arrayRemove(id) } },
-						{ merge: true }
-					)
+					.update({ pings: { members: admin.firestore.FieldValue.arrayRemove(id) } })
 
 				helper.respond(new ResponseBuilder(Emoji.GOOD, "Member removed from ping list"))
 			}
@@ -98,10 +92,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 				draft.pings.roles = draft.pings.roles.filter(r => r !== id)
 				await helper.cache
 					.getDraftDoc()
-					.set(
-						{ pings: { roles: admin.firestore.FieldValue.arrayRemove(id) } },
-						{ merge: true }
-					)
+					.update({ pings: { roles: admin.firestore.FieldValue.arrayRemove(id) } })
 
 				helper.respond(new ResponseBuilder(Emoji.GOOD, "Role removed from ping list"))
 			}
@@ -116,10 +107,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 				draft.pings.members = draft.pings.members.filter(m => m !== id)
 				await helper.cache
 					.getDraftDoc()
-					.set(
-						{ pings: { members: admin.firestore.FieldValue.arrayRemove(id) } },
-						{ merge: true }
-					)
+					.update({ pings: { members: admin.firestore.FieldValue.arrayRemove(id) } })
 
 				helper.respond(new ResponseBuilder(Emoji.GOOD, "Member removed from ping list"))
 			}

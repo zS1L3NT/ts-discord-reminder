@@ -129,9 +129,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 				return helper.respond(new ResponseBuilder(Emoji.BAD, `${err.message}`))
 			}
 
-			await helper.cache
-				.getReminderDoc(reminderId)
-				.set({ due_date: dueDate }, { merge: true })
+			await helper.cache.getReminderDoc(reminderId).update({ due_date: dueDate })
 
 			helper.respond(new ResponseBuilder(Emoji.GOOD, "Reminder due date updated"))
 		} else {
@@ -162,7 +160,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 			}
 
 			draft.due_date = dueDate
-			await helper.cache.getDraftDoc().set({ due_date: dueDate }, { merge: true })
+			await helper.cache.getDraftDoc().update({ due_date: dueDate })
 
 			helper.respond({
 				embeds: [

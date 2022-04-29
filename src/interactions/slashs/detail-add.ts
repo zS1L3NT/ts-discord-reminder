@@ -53,7 +53,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 
 			await helper.cache
 				.getReminderDoc(reminderId)
-				.set({ details: admin.firestore.FieldValue.arrayUnion(detail) }, { merge: true })
+				.update({ details: admin.firestore.FieldValue.arrayUnion(detail) })
 
 			helper.respond(new ResponseBuilder(Emoji.GOOD, `Reminder detail added`))
 		} else {
@@ -65,7 +65,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 			draft.details.push(detail)
 			await helper.cache
 				.getDraftDoc()
-				.set({ details: admin.firestore.FieldValue.arrayUnion(detail) }, { merge: true })
+				.update({ details: admin.firestore.FieldValue.arrayUnion(detail) })
 
 			helper.respond({
 				embeds: [

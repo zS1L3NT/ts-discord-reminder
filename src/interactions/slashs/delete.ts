@@ -39,15 +39,11 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 		helper.cache.reminders = helper.cache.reminders.filter(
 			reminder => reminder.id !== reminderId
 		)
-		await helper.cache.ref.set(
-			{
-				// @ts-ignore
-				reminder_message_ids: admin.firestore.FieldValue.arrayRemove(
-					helper.cache.getReminderMessageIds()[0]
-				)
-			},
-			{ merge: true }
-		)
+		await helper.cache.ref.update({
+			reminder_message_ids: admin.firestore.FieldValue.arrayRemove(
+				helper.cache.getReminderMessageIds()[0]
+			)
+		})
 		await helper.cache.getReminderDoc(reminderId).delete()
 		helper.cache.updateRemindersChannel()
 

@@ -55,10 +55,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 				const string = reminder.details.splice(position, 1)[0]
 				await helper.cache
 					.getReminderDoc(reminderId)
-					.set(
-						{ details: admin.firestore.FieldValue.arrayRemove(string) },
-						{ merge: true }
-					)
+					.update({ details: admin.firestore.FieldValue.arrayRemove(string) })
 
 				helper.respond(new ResponseBuilder(Emoji.GOOD, `Reminder detail removed`))
 			} else {
@@ -76,10 +73,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 				const string = draft.details.splice(position, 1)[0]
 				await helper.cache
 					.getDraftDoc()
-					.set(
-						{ details: admin.firestore.FieldValue.arrayRemove(string) },
-						{ merge: true }
-					)
+					.update({ details: admin.firestore.FieldValue.arrayRemove(string) })
 
 				helper.respond({
 					embeds: [

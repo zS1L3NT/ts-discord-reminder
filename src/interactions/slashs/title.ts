@@ -50,7 +50,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 				return helper.respond(new ResponseBuilder(Emoji.BAD, "Reminder doesn't exist"))
 			}
 
-			await helper.cache.getReminderDoc(reminderId).set({ title }, { merge: true })
+			await helper.cache.getReminderDoc(reminderId).update({ title })
 
 			helper.respond(new ResponseBuilder(Emoji.GOOD, "Reminder title updated"))
 		} else {
@@ -60,7 +60,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 			}
 
 			draft.title = title
-			await helper.cache.getDraftDoc().set({ title }, { merge: true })
+			await helper.cache.getDraftDoc().update({ title })
 
 			helper.respond({
 				embeds: [

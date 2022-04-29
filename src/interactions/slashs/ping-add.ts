@@ -61,10 +61,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 
 				await helper.cache
 					.getReminderDoc(reminderId)
-					.set(
-						{ pings: { roles: admin.firestore.FieldValue.arrayUnion(id) } },
-						{ merge: true }
-					)
+					.update({ pings: { roles: admin.firestore.FieldValue.arrayUnion(id) } })
 
 				helper.respond(new ResponseBuilder(Emoji.GOOD, "Role added to ping list"))
 			}
@@ -78,10 +75,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 
 				await helper.cache
 					.getReminderDoc(reminderId)
-					.set(
-						{ pings: { members: admin.firestore.FieldValue.arrayUnion(id) } },
-						{ merge: true }
-					)
+					.update({ pings: { members: admin.firestore.FieldValue.arrayUnion(id) } })
 
 				helper.respond(new ResponseBuilder(Emoji.GOOD, "Member added to ping list"))
 			}
@@ -102,10 +96,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 				draft.pings.roles.push(id)
 				await helper.cache
 					.getDraftDoc()
-					.set(
-						{ pings: { roles: admin.firestore.FieldValue.arrayUnion(id) } },
-						{ merge: true }
-					)
+					.update({ pings: { roles: admin.firestore.FieldValue.arrayUnion(id) } })
 
 				helper.respond(new ResponseBuilder(Emoji.GOOD, "Role added to ping list"))
 			}
@@ -120,10 +111,7 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 				draft.pings.members.push(id)
 				await helper.cache
 					.getDraftDoc()
-					.set(
-						{ pings: { members: admin.firestore.FieldValue.arrayUnion(id) } },
-						{ merge: true }
-					)
+					.update({ pings: { members: admin.firestore.FieldValue.arrayUnion(id) } })
 
 				helper.respond(new ResponseBuilder(Emoji.GOOD, "Member added to ping list"))
 			}

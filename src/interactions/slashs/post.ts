@@ -35,13 +35,9 @@ const file: iSlashSubFile<Entry, GuildCache> = {
 
 		const doc = helper.cache.getReminderDoc()
 		draft.id = doc.id
-		await helper.cache.ref.set(
-			{
-				// @ts-ignore
-				reminder_message_ids: admin.firestore.FieldValue.arrayUnion("")
-			},
-			{ merge: true }
-		)
+		await helper.cache.ref.update({
+			reminder_message_ids: admin.firestore.FieldValue.arrayUnion("")
+		})
 		await doc.set(draft)
 		delete helper.cache.draft
 		await helper.cache.getDraftDoc().delete()
