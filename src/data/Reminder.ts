@@ -101,7 +101,6 @@ export class ReminderConverter implements FirestoreDataConverter<Reminder> {
 		reminder: Reminder,
 		options?: FirebaseFirestore.SetOptions
 	): FirebaseFirestore.DocumentData {
-		console.log(options)
 		return {
 			id: reminder.id,
 			title: reminder.title,
