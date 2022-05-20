@@ -1,6 +1,7 @@
+import { BaseBotCache } from "nova-bot"
+
 import Entry from "./Entry"
 import GuildCache from "./GuildCache"
-import { BaseBotCache } from "nova-bot"
 
 export default class BotCache extends BaseBotCache<Entry, GuildCache> {
 	public onConstruct(): void {}
@@ -30,10 +31,12 @@ export default class BotCache extends BaseBotCache<Entry, GuildCache> {
 
 	public getEmptyEntry(): Entry {
 		return {
+			prefix: "",
+			aliases: {},
+			log_channel_id: "",
 			reminders_channel_id: "",
 			reminder_message_ids: [],
-			ping_channel_id: "",
-			aliases: {}
+			ping_channel_id: ""
 		}
 	}
 }

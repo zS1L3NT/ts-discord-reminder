@@ -33,7 +33,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 	/**
 	 * Method run every minute
 	 */
-	public async updateMinutely(debug: number) {
+	public async updateMinutely() {
 		await this.updateRemindersChannel()
 	}
 
