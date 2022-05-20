@@ -8,6 +8,7 @@ import path from "path"
 
 import BotCache from "./data/BotCache"
 import GuildCache from "./data/GuildCache"
+import logger from "./logger"
 
 const ONE_SECOND = 1000
 const ONE_MINUTE = 60 * ONE_SECOND

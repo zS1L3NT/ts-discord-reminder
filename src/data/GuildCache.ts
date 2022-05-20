@@ -3,6 +3,7 @@ import { TextChannel } from "discord.js"
 import { useTryAsync } from "no-try"
 import { BaseGuildCache, ChannelCleaner, DateHelper } from "nova-bot"
 
+import logger from "../logger"
 import Entry from "./Entry"
 import Reminder, { ReminderConverter } from "./Reminder"
 
