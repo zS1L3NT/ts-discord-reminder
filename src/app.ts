@@ -25,24 +25,8 @@ new NovaBot({
 	name: "Reminder#2744",
 	intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS],
 	directory: path.join(__dirname, "interactions"),
-	config: {
-		firebase: {
-			service_account: {
-				projectId: process.env.FIREBASE__SERVICE_ACCOUNT__PROJECT_ID,
-				privateKey: process.env.FIREBASE__SERVICE_ACCOUNT__PRIVATE_KEY,
-				clientEmail: process.env.FIREBASE__SERVICE_ACCOUNT__CLIENT_EMAIL
-			},
-			collection: process.env.FIREBASE__COLLECTION
-		},
-		discord: {
-			token: process.env.DISCORD__TOKEN,
-			bot_id: process.env.DISCORD__BOT_ID,
-			dev_id: process.env.DISCORD__DEV_ID
-		}
-	},
-	updatesMinutely: true,
 	//@ts-ignore
-	logger: global.logger,
+	logger,
 
 	help: {
 		message: cache =>
@@ -55,7 +39,10 @@ new NovaBot({
 				"Use `reminder create` to create a Reminder",
 				"Use `reminder post` to send your Reminder draft to the Reminders channel",
 				"Reminders are all editable, just make sure to copy the ID",
-				"Have fun exploring Reminder!"
+				"Have fun exploring Reminder!",
+				cache.prefix
+					? `My prefix for message commands is \`${cache.prefix}\``
+					: `No message command prefix for this server`
 			].join("\n"),
 		icon: "https://cdn.discordapp.com/avatars/848441372666888232/a856fd9303a063ddfca4d50fe780ec1c.webp?size=128"
 	},
