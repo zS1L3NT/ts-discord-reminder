@@ -1,12 +1,10 @@
 import "dotenv/config"
 
 import AfterEvery from "after-every"
-import colors from "colors"
 import { Intents } from "discord.js"
 import http from "http"
 import NovaBot from "nova-bot"
 import path from "path"
-import Tracer from "tracer"
 
 import BotCache from "./data/BotCache"
 import GuildCache from "./data/GuildCache"
@@ -15,44 +13,6 @@ const ONE_SECOND = 1000
 const ONE_MINUTE = 60 * ONE_SECOND
 const ONE_HOUR = 60 * ONE_MINUTE
 const ONE_DAY = 24 * ONE_HOUR
-
-global.logger = Tracer.colorConsole({
-	level: process.env.LOG_LEVEL || "log",
-	format: [
-		"[{{timestamp}}] <{{path}}> {{message}}",
-		{
-			//@ts-ignore
-			alert: "[{{timestamp}}] <{{path}}, Line {{line}}> {{message}}",
-			warn: "[{{timestamp}}] <{{path}}, Line {{line}}> {{message}}",
-			error: "[{{timestamp}}] <{{path}}, Line {{line}} at {{pos}}> {{message}}"
-		}
-	],
-	methods: ["log", "discord", "debug", "info", "alert", "warn", "error"],
-	dateformat: "dd mmm yyyy, hh:MM:sstt",
-	filters: {
-		log: colors.grey,
-		//@ts-ignore
-		discord: colors.cyan,
-		debug: colors.blue,
-		info: colors.green,
-		//@ts-ignore
-		alert: colors.yellow,
-		warn: colors.yellow.bold.italic,
-		error: colors.red.bold.italic
-	},
-	preprocess: data => {
-		data.path = data.path
-			.replaceAll("\\", "/")
-			.split("nova-bot")
-			.at(-1)!
-			.replace(/^\/dist/, "nova-bot")
-		data.path = data.path
-			.replaceAll("\\", "/")
-			.split("ts-discord-reminder")
-			.at(-1)!
-			.replace(/^\/(dist|src)/, "src")
-	}
-})
 
 process.on("uncaughtException", err => {
 	if (err.message !== "The user aborted a request.") {
