@@ -68,10 +68,10 @@ export default class Reminder {
 			.setColor(color)
 			.setTitle(this.title)
 			.setDescription(this.description)
-			.addField("ID", this.id)
 			.addField("Pinging", this.getPingString(guild))
 			.addField("Due date", new DateHelper(this.due_date).getDate())
 			.addField("Due in", new DateHelper(this.due_date).getTimeLeft())
+			.setFooter({ text: this.id })
 	}
 
 	getPriorityString() {
