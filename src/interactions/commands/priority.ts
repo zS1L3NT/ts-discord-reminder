@@ -49,12 +49,12 @@ export default class extends BaseCommand<Entry, GuildCache> {
 	override middleware = [new IsReminderIdValidMiddleware(), new HasDraftMiddleware()]
 
 	override condition(helper: CommandHelper<Entry, GuildCache>) {
-		return helper.isMessageCommand("priority", "more")
+		return helper.isMessageCommand(true)
 	}
 
 	override converter(helper: CommandHelper<Entry, GuildCache>) {
 		const priorities = ["low", "medium", "high"]
-		const priorityStr = helper.input().at(0)?.toLowerCase() || ""
+		const priorityStr = helper.args().at(0)?.toLowerCase() || ""
 		return {
 			priority: priorities.includes(priorityStr) ? priorities.indexOf(priorityStr) : null
 		}

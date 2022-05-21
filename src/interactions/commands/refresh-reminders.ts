@@ -14,7 +14,7 @@ export default class extends BaseCommand<Entry, GuildCache> {
 	override middleware = []
 
 	override condition(helper: CommandHelper<Entry, GuildCache>) {
-		return helper.isMessageCommand("refresh-reminders", "only")
+		return helper.isMessageCommand(false)
 	}
 
 	override converter(helper: CommandHelper<Entry, GuildCache>) {}

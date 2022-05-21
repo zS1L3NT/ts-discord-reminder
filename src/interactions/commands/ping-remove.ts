@@ -34,13 +34,13 @@ export default class extends BaseCommand<Entry, GuildCache> {
 	override middleware = [new IsReminderIdValidMiddleware(), new HasDraftMiddleware()]
 
 	override condition(helper: CommandHelper<Entry, GuildCache>) {
-		return helper.isMessageCommand("ping-remove", "more")
+		return helper.isMessageCommand(true)
 	}
 
 	override converter(helper: CommandHelper<Entry, GuildCache>) {
-		const reminderId = helper.input().at(0)
+		const reminderId = helper.args().at(0)
 		const mentions = helper.message!.mentions
-		console.log(helper.input())
+		console.log(helper.args())
 		return {
 			"reminder-id": reminderId?.match(/^[A-Za-z0-9]{20}$/) ? reminderId : null,
 			"mention-or-role": mentions.members?.at(0) || mentions.roles?.at(0) || null

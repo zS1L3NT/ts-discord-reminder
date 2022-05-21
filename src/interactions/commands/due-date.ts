@@ -72,11 +72,11 @@ export default class extends BaseCommand<Entry, GuildCache> {
 	override middleware = [new IsReminderIdValidMiddleware(), new HasDraftMiddleware()]
 
 	override condition(helper: CommandHelper<Entry, GuildCache>) {
-		return helper.isMessageCommand("due-date", "more")
+		return helper.isMessageCommand(true)
 	}
 
 	override converter(helper: CommandHelper<Entry, GuildCache>) {
-		const args = helper.input()
+		const args = helper.args()
 		return {
 			"reminder-id": args.at(0)?.match(/^[A-Za-z0-9]{20}$/)
 				? args.shift() && args.at(0)

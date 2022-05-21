@@ -36,7 +36,7 @@ export default class extends BaseCommand<Entry, GuildCache> {
 	override condition(helper: CommandHelper<Entry, GuildCache>) {}
 
 	override converter(helper: CommandHelper<Entry, GuildCache>) {
-		const text = helper.input()
+		const text = helper.args()
 		const hasFirebaseId = !!text[0]?.match(/^[A-Za-z0-9]{20}$/)
 		return {
 			"reminder-id": hasFirebaseId ? text[0] : null,

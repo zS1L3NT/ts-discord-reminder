@@ -4,17 +4,14 @@ import Entry from "./Entry"
 import GuildCache from "./GuildCache"
 
 export default class BotCache extends BaseBotCache<Entry, GuildCache> {
-	public onConstruct(): void {}
-	public onSetGuildCache(cache: GuildCache): void {}
-
-	public async registerGuildCache(guildId: string): Promise<void> {
+	override async registerGuildCache(guildId: string): Promise<void> {
 		const doc = await this.ref.doc(guildId).get()
 		if (!doc.exists) {
 			await this.ref.doc(guildId).set(this.getEmptyEntry())
 		}
 	}
 
-	public async eraseGuildCache(guildId: string): Promise<void> {
+	override async eraseGuildCache(guildId: string): Promise<void> {
 		const promises: Promise<any>[] = []
 
 		const doc = await this.ref.doc(guildId).get()
@@ -29,7 +26,7 @@ export default class BotCache extends BaseBotCache<Entry, GuildCache> {
 		}
 	}
 
-	public getEmptyEntry(): Entry {
+	override getEmptyEntry(): Entry {
 		return {
 			prefix: "",
 			aliases: {},

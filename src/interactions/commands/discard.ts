@@ -14,7 +14,7 @@ export default class extends BaseCommand<Entry, GuildCache> {
 	override middleware = [new HasDraftMiddleware()]
 
 	override condition(helper: CommandHelper<Entry, GuildCache>) {
-		return helper.isMessageCommand("discard", "only")
+		return helper.isMessageCommand(false)
 	}
 
 	override converter(helper: CommandHelper<Entry, GuildCache>) {}

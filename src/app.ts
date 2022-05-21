@@ -7,6 +7,7 @@ import NovaBot from "nova-bot"
 import path from "path"
 
 import BotCache from "./data/BotCache"
+import Entry from "./data/Entry"
 import GuildCache from "./data/GuildCache"
 import logger from "./logger"
 
@@ -21,36 +22,36 @@ process.on("uncaughtException", err => {
 	}
 })
 
-new NovaBot({
-	name: "Reminder#2744",
-	intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS],
-	directory: path.join(__dirname, "interactions"),
+class ReminderBot extends NovaBot<Entry, GuildCache, BotCache> {
+	override name = "Reminder#2744"
+	override icon =
+		"https://cdn.discordapp.com/avatars/848441372666888232/a856fd9303a063ddfca4d50fe780ec1c.webp?size=128"
+	override directory = path.join(__dirname, "interactions")
+	override intents = [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS]
+
+	override helpMessage = (cache: GuildCache) =>
+		[
+			"Welcome to Reminder!",
+			"Reminder is like a Calendar but for Discord servers",
+			"Message commands are currently not supported by Reminder",
+			"",
+			"**Make sure to set the Reminder channel with the **`set reminders-channel`** command to see Reminders in a specific channel**",
+			"Use `reminder create` to create a Reminder",
+			"Use `reminder post` to send your Reminder draft to the Reminders channel",
+			"Reminders are all editable, just make sure to copy the ID",
+			"Have fun exploring Reminder!",
+			cache.prefix
+				? `My prefix for message commands is \`${cache.prefix}\``
+				: `No message command prefix for this server`
+		].join("\n")
+
+	override GuildCache = GuildCache
+	override BotCache = BotCache
+
 	//@ts-ignore
-	logger,
+	override logger = logger
 
-	help: {
-		message: cache =>
-			[
-				"Welcome to Reminder!",
-				"Reminder is like a Calendar but for Discord servers",
-				"Message commands are currently not supported by Reminder",
-				"",
-				"**Make sure to set the Reminder channel with the **`set reminders-channel`** command to see Reminders in a specific channel**",
-				"Use `reminder create` to create a Reminder",
-				"Use `reminder post` to send your Reminder draft to the Reminders channel",
-				"Reminders are all editable, just make sure to copy the ID",
-				"Have fun exploring Reminder!",
-				cache.prefix
-					? `My prefix for message commands is \`${cache.prefix}\``
-					: `No message command prefix for this server`
-			].join("\n"),
-		icon: "https://cdn.discordapp.com/avatars/848441372666888232/a856fd9303a063ddfca4d50fe780ec1c.webp?size=128"
-	},
-
-	GuildCache,
-	BotCache,
-
-	onSetup: async botCache => {
+	override async onSetup(botCache: BotCache) {
 		const approximately = (diff: number, actual: number) => {
 			const high = actual + 45_000
 			const low = actual - 45_000
@@ -106,7 +107,9 @@ new NovaBot({
 			})
 		}
 	}
-})
+}
+
+new ReminderBot().start()
 
 const PORT = process.env.PORT || 8080
 http.createServer((_, res) => {

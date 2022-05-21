@@ -23,11 +23,11 @@ export default class extends BaseCommand<Entry, GuildCache> {
 	override middleware = [new IsReminderIdValidMiddleware()]
 
 	override condition(helper: CommandHelper<Entry, GuildCache>): boolean | void {
-		return helper.isMessageCommand("delete", "more")
+		return helper.isMessageCommand(true)
 	}
 
 	override converter(helper: CommandHelper<Entry, GuildCache>) {
-		const [reminderId] = helper.input()
+		const [reminderId] = helper.args()
 		return {
 			"reminder-id": reminderId || ""
 		}
