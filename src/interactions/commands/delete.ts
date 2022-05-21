@@ -39,7 +39,7 @@ export default class extends BaseCommand<Entry, GuildCache> {
 		helper.cache.reminders = helper.cache.reminders.filter(rm => rm.id !== reminderId)
 		await helper.cache.getReminderDoc(reminderId).delete()
 
-		helper.cache.updateRemindersChannel()
+		helper.cache.updateMinutely()
 		helper.respond(ResponseBuilder.good(`Reminder deleted`))
 	}
 }

@@ -44,7 +44,7 @@ export default class extends BaseCommand<Entry, GuildCache> {
 					break
 				default:
 					await helper.cache.setRemindersChannelId(channel.id)
-					helper.cache.updateRemindersChannel()
+					helper.cache.updateMinutely()
 					helper.respond(
 						ResponseBuilder.good(`Reminders channel reassigned to \`#${channel.name}\``)
 					)

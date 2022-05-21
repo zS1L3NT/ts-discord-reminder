@@ -28,14 +28,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 			})
 	}
 
-	/**
-	 * Method run every minute
-	 */
 	override async updateMinutely() {
-		await this.updateRemindersChannel()
-	}
-
-	async updateRemindersChannel() {
 		const remindersChannelId = this.getRemindersChannelId()
 		if (!remindersChannelId) return
 

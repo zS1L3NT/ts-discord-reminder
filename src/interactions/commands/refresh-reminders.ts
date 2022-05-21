@@ -24,7 +24,7 @@ export default class extends BaseCommand<Entry, GuildCache> {
 			helper.cache.getRemindersChannelId()
 		)
 		if (channel instanceof TextChannel) {
-			await helper.cache.updateRemindersChannel()
+			await helper.cache.updateMinutely()
 			helper.respond(ResponseBuilder.good("Reminders channel refreshed"))
 		} else {
 			helper.respond(ResponseBuilder.bad("No Reminders channel set"))
