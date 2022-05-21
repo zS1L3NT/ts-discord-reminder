@@ -36,21 +36,8 @@ export default class Reminder {
 		const embed = new MessageEmbed().setColor(color).setTitle(reminder ? "Draft" : "No draft")
 
 		if (reminder) {
-			let priority = "?"
-			switch (reminder.priority) {
-				case 0:
-					priority = "LOW"
-					break
-				case 1:
-					priority = "MEDIUM"
-					break
-				case 2:
-					priority = "HIGH"
-					break
-			}
-
 			embed.addField("Title", reminder.title || "\u200B")
-			embed.addField("Priority", priority)
+			embed.addField("Priority", reminder.getPriorityString())
 			embed.addField("Pinging", reminder.getPingString(guild))
 			embed.addField("Date", new DateHelper(reminder.due_date).getDate())
 			embed.addField("Description", reminder.description || "\u200B")
@@ -85,6 +72,19 @@ export default class Reminder {
 			.addField("Pinging", this.getPingString(guild))
 			.addField("Due date", new DateHelper(this.due_date).getDate())
 			.addField("Due in", new DateHelper(this.due_date).getTimeLeft())
+	}
+
+	public getPriorityString() {
+		switch (this.priority) {
+			case 0:
+				return "LOW"
+			case 1:
+				return "MEDIUM"
+			case 2:
+				return "HIGH"
+			default:
+				throw new Error("Invalid priority")
+		}
 	}
 
 	public getPingString(guild: Guild) {
