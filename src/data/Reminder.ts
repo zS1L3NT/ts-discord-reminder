@@ -3,11 +3,11 @@ import { FirestoreDataConverter } from "firebase-admin/firestore"
 import { DateHelper } from "nova-bot"
 
 export default class Reminder {
-	public constructor(
+	constructor(
 		public id: string,
 		public title: string,
+		public description: string,
 		public due_date: number,
-		public details: string[],
 		public priority: 0 | 1 | 2,
 		public pings: {
 			members: string[]
@@ -15,11 +15,11 @@ export default class Reminder {
 		}
 	) {}
 
-	public static getEmpty(): Reminder {
-		return new Reminder("", "", Date.now(), [], 0, { members: [], roles: [] })
+	static getEmpty(): Reminder {
+		return new Reminder("", "", "", Date.now(), 0, { members: [], roles: [] })
 	}
 
-	public static toDraftMessageEmbed(reminder: Reminder | undefined, guild: Guild): MessageEmbed {
+	static toDraftMessageEmbed(reminder: Reminder | undefined, guild: Guild): MessageEmbed {
 		let color: "#5865F2" | "#00FF00" | "#FFFF00" | "#FF0000" = "#5865F2"
 		switch (reminder?.priority ?? -1) {
 			case 0:
@@ -36,24 +36,11 @@ export default class Reminder {
 		const embed = new MessageEmbed().setColor(color).setTitle(reminder ? "Draft" : "No draft")
 
 		if (reminder) {
-			let priority = "?"
-			switch (reminder.priority) {
-				case 0:
-					priority = "LOW"
-					break
-				case 1:
-					priority = "MEDIUM"
-					break
-				case 2:
-					priority = "HIGH"
-					break
-			}
-
 			embed.addField("Title", reminder.title || "\u200B")
-			embed.addField("Priority", priority)
+			embed.addField("Priority", reminder.getPriorityString())
 			embed.addField("Pinging", reminder.getPingString(guild))
 			embed.addField("Date", new DateHelper(reminder.due_date).getDate())
-			embed.addField("Details", reminder.details.join("\n") || "\u200B")
+			embed.addField("Description", reminder.description || "\u200B")
 		}
 
 		return embed
@@ -63,7 +50,7 @@ export default class Reminder {
 	 * Formats reminder into a string
 	 * @returns {string} Formatted reminder
 	 */
-	public toMessageEmbed(guild: Guild): MessageEmbed {
+	toMessageEmbed(guild: Guild): MessageEmbed {
 		let color: "#FFFFFF" | "#00FF00" | "#FFFF00" | "#FF0000" = "#FFFFFF"
 		switch (this.priority) {
 			case 0:
@@ -80,14 +67,27 @@ export default class Reminder {
 		return new MessageEmbed()
 			.setColor(color)
 			.setTitle(this.title)
-			.setDescription(this.details.join("\n"))
-			.addField("ID", this.id)
+			.setDescription(this.description)
 			.addField("Pinging", this.getPingString(guild))
 			.addField("Due date", new DateHelper(this.due_date).getDate())
 			.addField("Due in", new DateHelper(this.due_date).getTimeLeft())
+			.setFooter({ text: this.id })
 	}
 
-	public getPingString(guild: Guild) {
+	getPriorityString() {
+		switch (this.priority) {
+			case 0:
+				return "LOW"
+			case 1:
+				return "MEDIUM"
+			case 2:
+				return "HIGH"
+			default:
+				throw new Error("Invalid priority")
+		}
+	}
+
+	getPingString(guild: Guild) {
 		return (
 			this.pings.roles
 				.map(r => (r === guild.roles.everyone.id ? "@everyone" : `<@&${r}>`))
@@ -105,7 +105,7 @@ export class ReminderConverter implements FirestoreDataConverter<Reminder> {
 			id: reminder.id,
 			title: reminder.title,
 			due_date: reminder.due_date,
-			details: reminder.details,
+			description: reminder.description,
 			priority: reminder.priority,
 			pings: reminder.pings
 		}
@@ -118,8 +118,8 @@ export class ReminderConverter implements FirestoreDataConverter<Reminder> {
 		return new Reminder(
 			data.id,
 			data.title,
+			data.description,
 			data.due_date,
-			data.details,
 			data.priority,
 			data.pings
 		)

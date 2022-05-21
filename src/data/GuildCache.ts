@@ -3,16 +3,15 @@ import { TextChannel } from "discord.js"
 import { useTryAsync } from "no-try"
 import { BaseGuildCache, ChannelCleaner, DateHelper } from "nova-bot"
 
+import logger from "../logger"
 import Entry from "./Entry"
 import Reminder, { ReminderConverter } from "./Reminder"
 
 export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
-	public reminders: Reminder[] = []
-	public draft: Reminder | undefined
+	reminders: Reminder[] = []
+	draft: Reminder | undefined
 
-	public onConstruct(): void {}
-
-	public resolve(resolve: (cache: GuildCache) => void): void {
+	override resolve(resolve: (cache: GuildCache) => void): void {
 		this.ref.onSnapshot(snap => {
 			if (snap.exists) {
 				this.entry = snap.data()!
@@ -29,14 +28,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 			})
 	}
 
-	/**
-	 * Method run every minute
-	 */
-	public async updateMinutely(debug: number) {
-		await this.updateRemindersChannel()
-	}
-
-	public async updateRemindersChannel() {
+	override async updateMinutely() {
 		const remindersChannelId = this.getRemindersChannelId()
 		if (!remindersChannelId) return
 
@@ -46,6 +38,12 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 				this.reminders = this.reminders.filter(rem => rem.id !== reminder.id)
 				await this.getReminderDoc(reminder.id).delete()
 				await this.setReminderMessageIds(this.getReminderMessageIds().slice(1))
+				this.logger.log({
+					title: `Reminder due date past`,
+					description: `Deleting Reminder ${reminder.id} since it's due date is past.`,
+					color: "BLUE",
+					embeds: [reminder.toMessageEmbed(this.guild)]
+				})
 			}
 		}
 
@@ -103,7 +101,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 		}
 	}
 
-	public async updatePingChannel(reminder: Reminder) {
+	async updatePingChannel(reminder: Reminder) {
 		const pingChannelId = this.getPingChannelId()
 
 		const channel = this.guild.channels.cache.get(pingChannelId)
@@ -117,38 +115,38 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 		}
 	}
 
-	public getDraftDoc() {
+	getDraftDoc() {
 		return this.getReminderDoc("draft")
 	}
 
-	public getReminderDoc(reminderId?: string) {
+	getReminderDoc(reminderId?: string) {
 		const collection = this.ref.collection("reminders").withConverter(new ReminderConverter())
 		return reminderId ? collection.doc(reminderId) : collection.doc()
 	}
 
-	public getRemindersChannelId() {
+	getRemindersChannelId() {
 		return this.entry.reminders_channel_id
 	}
 
-	public async setRemindersChannelId(reminders_channel_id: string) {
+	async setRemindersChannelId(reminders_channel_id: string) {
 		this.entry.reminders_channel_id = reminders_channel_id
 		await this.ref.update({ reminders_channel_id })
 	}
 
-	public getReminderMessageIds() {
+	getReminderMessageIds() {
 		return [...this.entry.reminder_message_ids]
 	}
 
-	public async setReminderMessageIds(reminder_message_ids: string[]) {
+	async setReminderMessageIds(reminder_message_ids: string[]) {
 		this.entry.reminder_message_ids = reminder_message_ids
 		await this.ref.update({ reminder_message_ids })
 	}
 
-	public getPingChannelId() {
+	getPingChannelId() {
 		return this.entry.ping_channel_id
 	}
 
-	public async setPingChannelId(ping_channel_id: string) {
+	async setPingChannelId(ping_channel_id: string) {
 		this.entry.ping_channel_id = ping_channel_id
 		await this.ref.update({ ping_channel_id })
 	}

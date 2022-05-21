@@ -1,58 +1,20 @@
 import "dotenv/config"
 
 import AfterEvery from "after-every"
-import colors from "colors"
 import { Intents } from "discord.js"
 import http from "http"
 import NovaBot from "nova-bot"
 import path from "path"
-import Tracer from "tracer"
 
 import BotCache from "./data/BotCache"
+import Entry from "./data/Entry"
 import GuildCache from "./data/GuildCache"
+import logger from "./logger"
 
 const ONE_SECOND = 1000
 const ONE_MINUTE = 60 * ONE_SECOND
 const ONE_HOUR = 60 * ONE_MINUTE
 const ONE_DAY = 24 * ONE_HOUR
-
-global.logger = Tracer.colorConsole({
-	level: process.env.LOG_LEVEL || "log",
-	format: [
-		"[{{timestamp}}] <{{path}}> {{message}}",
-		{
-			//@ts-ignore
-			alert: "[{{timestamp}}] <{{path}}, Line {{line}}> {{message}}",
-			warn: "[{{timestamp}}] <{{path}}, Line {{line}}> {{message}}",
-			error: "[{{timestamp}}] <{{path}}, Line {{line}} at {{pos}}> {{message}}"
-		}
-	],
-	methods: ["log", "discord", "debug", "info", "alert", "warn", "error"],
-	dateformat: "dd mmm yyyy, hh:MM:sstt",
-	filters: {
-		log: colors.grey,
-		//@ts-ignore
-		discord: colors.cyan,
-		debug: colors.blue,
-		info: colors.green,
-		//@ts-ignore
-		alert: colors.yellow,
-		warn: colors.yellow.bold.italic,
-		error: colors.red.bold.italic
-	},
-	preprocess: data => {
-		data.path = data.path
-			.replaceAll("\\", "/")
-			.split("nova-bot")
-			.at(-1)!
-			.replace(/^\/dist/, "nova-bot")
-		data.path = data.path
-			.replaceAll("\\", "/")
-			.split("ts-discord-reminder")
-			.at(-1)!
-			.replace(/^\/(dist|src)/, "src")
-	}
-})
 
 process.on("uncaughtException", err => {
 	if (err.message !== "The user aborted a request.") {
@@ -60,49 +22,36 @@ process.on("uncaughtException", err => {
 	}
 })
 
-new NovaBot({
-	name: "Reminder#2744",
-	intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS],
-	directory: path.join(__dirname, "interactions"),
-	config: {
-		firebase: {
-			service_account: {
-				projectId: process.env.FIREBASE__SERVICE_ACCOUNT__PROJECT_ID,
-				privateKey: process.env.FIREBASE__SERVICE_ACCOUNT__PRIVATE_KEY,
-				clientEmail: process.env.FIREBASE__SERVICE_ACCOUNT__CLIENT_EMAIL
-			},
-			collection: process.env.FIREBASE__COLLECTION
-		},
-		discord: {
-			token: process.env.DISCORD__TOKEN,
-			bot_id: process.env.DISCORD__BOT_ID,
-			dev_id: process.env.DISCORD__DEV_ID
-		}
-	},
-	updatesMinutely: true,
+class ReminderBot extends NovaBot<Entry, GuildCache, BotCache> {
+	override name = "Reminder#2744"
+	override icon =
+		"https://cdn.discordapp.com/avatars/848441372666888232/a856fd9303a063ddfca4d50fe780ec1c.webp?size=128"
+	override directory = path.join(__dirname, "interactions")
+	override intents = [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS]
+
+	override helpMessage = (cache: GuildCache) =>
+		[
+			"Welcome to Reminder!",
+			"Reminder is like a Calendar but for Discord servers",
+			"Message commands are currently not supported by Reminder",
+			"",
+			"**Make sure to set the Reminder channel with the **`set reminders-channel`** command to see Reminders in a specific channel**",
+			"Use `reminder create` to create a Reminder",
+			"Use `reminder post` to send your Reminder draft to the Reminders channel",
+			"Reminders are all editable, just make sure to copy the ID",
+			"Have fun exploring Reminder!",
+			cache.prefix
+				? `My prefix for message commands is \`${cache.prefix}\``
+				: `No message command prefix for this server`
+		].join("\n")
+
+	override GuildCache = GuildCache
+	override BotCache = BotCache
+
 	//@ts-ignore
-	logger: global.logger,
+	override logger = logger
 
-	help: {
-		message: cache =>
-			[
-				"Welcome to Reminder!",
-				"Reminder is like a Calendar but for Discord servers",
-				"Message commands are currently not supported by Reminder",
-				"",
-				"**Make sure to set the Reminder channel with the **`set reminders-channel`** command to see Reminders in a specific channel**",
-				"Use `reminder create` to create a Reminder",
-				"Use `reminder post` to send your Reminder draft to the Reminders channel",
-				"Reminders are all editable, just make sure to copy the ID",
-				"Have fun exploring Reminder!"
-			].join("\n"),
-		icon: "https://cdn.discordapp.com/avatars/848441372666888232/a856fd9303a063ddfca4d50fe780ec1c.webp?size=128"
-	},
-
-	GuildCache,
-	BotCache,
-
-	onSetup: async botCache => {
+	override async onSetup(botCache: BotCache) {
 		const approximately = (diff: number, actual: number) => {
 			const high = actual + 45_000
 			const low = actual - 45_000
@@ -158,7 +107,9 @@ new NovaBot({
 			})
 		}
 	}
-})
+}
+
+new ReminderBot().start()
 
 const PORT = process.env.PORT || 8080
 http.createServer((_, res) => {
