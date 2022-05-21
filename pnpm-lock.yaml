@@ -12,7 +12,7 @@ specifiers:
   firebase-admin: ^10.2.0
   luxon: ^2.4.0
   no-try: ^3.1.0
-  nova-bot: 2.0.0-alpha.26
+  nova-bot: 2.0.0-alpha.27
   tracer: ^1.1.5
   typescript: ^4.6.4
 
@@ -25,7 +25,7 @@ dependencies:
   firebase-admin: 10.2.0
   luxon: 2.4.0
   no-try: 3.1.0
-  nova-bot: 2.0.0-alpha.26
+  nova-bot: 2.0.0-alpha.27
   tracer: 1.1.5
 
 devDependencies:
@@ -53,8 +53,8 @@ packages:
     engines: {node: '>=16.9.0'}
     dev: false
 
-  /@discordjs/collection/0.7.0-dev.1652918980-adf461b:
-    resolution: {integrity: sha512-46X1nBbEAxhUWmb8suTDMEaHxO8MBSvmDYD4i03evS56PYt2U8p60iQrq0Gw5TaP4nR4ANLnTFKLPeho5yf0WQ==}
+  /@discordjs/collection/0.7.0-dev.1653091708-fdeac9d:
+    resolution: {integrity: sha512-21gKkNVlqWMTf5kkZ2uAkfe8kU149w/JXC9Vpu7nNEir6A5AHNPULtd+1FssvXYAfoEnzus7/gZC6pYD5eX/gQ==}
     engines: {node: '>=16.9.0'}
     dev: false
 
@@ -62,14 +62,14 @@ packages:
     resolution: {integrity: sha512-rtWy+AIfNlfjGkAgA2TJLASdqli07aTNQceVGT6RQQiQaEqV0nsfBO4WtDlDzk7PmO3w+InP3dpwEolJI5jz0A==}
     engines: {node: '>=16.9.0'}
     dependencies:
-      '@discordjs/collection': 0.7.0-dev.1652918980-adf461b
+      '@discordjs/collection': 0.7.0-dev.1653091708-fdeac9d
       '@sapphire/async-queue': 1.3.1
       '@sapphire/snowflake': 3.2.2
       '@types/node-fetch': 2.6.1
       discord-api-types: 0.29.0
       form-data: 4.0.0
       node-fetch: 2.6.7
-      tslib: 2.3.1
+      tslib: 2.4.0
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -81,7 +81,7 @@ packages:
       '@firebase/component': 0.5.14
       '@firebase/logger': 0.3.2
       '@firebase/util': 1.6.0
-      tslib: 2.3.1
+      tslib: 2.4.0
     dev: false
 
   /@firebase/app-types/0.7.0:
@@ -95,7 +95,7 @@ packages:
       '@firebase/logger': 0.3.2
       '@firebase/util': 1.6.0
       idb: 7.0.1
-      tslib: 2.3.1
+      tslib: 2.4.0
     dev: false
 
   /@firebase/auth-interop-types/0.1.6_@firebase+util@1.5.2:
@@ -128,7 +128,7 @@ packages:
     resolution: {integrity: sha512-ct2p1MTMV5P/nGIlkC3XjAVwHwjsIZaeo8JVyDAkJCNTROu5mYX3FBK16hjIUIIVJDpgnnzFh9nP74gciL4WrA==}
     dependencies:
       '@firebase/util': 1.6.0
-      tslib: 2.3.1
+      tslib: 2.4.0
     dev: false
 
   /@firebase/database-compat/0.1.8:
@@ -256,8 +256,8 @@ packages:
     dev: false
     optional: true
 
-  /@google-cloud/storage/5.19.4:
-    resolution: {integrity: sha512-Jz7ugcPHhsEmMVvIxM9uoBsdEbKIYwDkh3u07tifsIymEWs47F4/D6+/Tv/W7kLhznqjyOjVJ/0frtBeIC0lJA==}
+  /@google-cloud/storage/5.20.5:
+    resolution: {integrity: sha512-lOs/dCyveVF8TkVFnFSF7IGd0CJrTm91qiK6JLu+Z8qiT+7Ag0RyVhxZIWkhiACqwABo7kSHDm8FdH8p2wxSSw==}
     engines: {node: '>=10'}
     requiresBuild: true
     dependencies:
@@ -269,12 +269,10 @@ packages:
       async-retry: 1.3.3
       compressible: 2.0.18
       configstore: 5.0.1
-      date-and-time: 2.3.0
       duplexify: 4.1.2
       ent: 2.2.0
       extend: 3.0.2
       gaxios: 4.3.2
-      get-stream: 6.0.1
       google-auth-library: 7.14.1
       hash-stream-validation: 0.2.4
       mime: 3.0.0
@@ -282,9 +280,9 @@ packages:
       p-limit: 3.1.0
       pumpify: 2.0.1
       retry-request: 4.2.2
-      snakeize: 0.1.0
       stream-events: 1.0.5
       teeny-request: 7.1.3
+      uuid: 8.3.2
       xdg-basedir: 4.0.0
     transitivePeerDependencies:
       - encoding
@@ -633,11 +631,6 @@ packages:
     engines: {node: '>= 12'}
     dev: false
 
-  /date-and-time/2.3.0:
-    resolution: {integrity: sha512-DY53oj742mykXjZzDxT7NxH5cxwBRb7FsVG5+8pcV96qU9JQd0UhA21pQB18fwwsXOXeSM0RJV4OzgVxu8eatg==}
-    dev: false
-    optional: true
-
   /dateformat/4.5.1:
     resolution: {integrity: sha512-OD0TZ+B7yP7ZgpJf5K2DIbj3FZvFvxgFUuaqA/V5zTjAtAAXZ1E8bktHxmAGs4x5b7PflqA9LeQ84Og7wYtF7Q==}
     dev: false
@@ -865,7 +858,7 @@ packages:
     engines: {node: ^12.20 || >= 14.13}
     dependencies:
       node-domexception: 1.0.0
-      web-streams-polyfill: 3.2.0
+      web-streams-polyfill: 3.2.1
     dev: false
 
   /firebase-admin/10.2.0:
@@ -882,7 +875,7 @@ packages:
       uuid: 8.3.2
     optionalDependencies:
       '@google-cloud/firestore': 4.15.1
-      '@google-cloud/storage': 5.19.4
+      '@google-cloud/storage': 5.20.5
     transitivePeerDependencies:
       - '@firebase/app-compat'
       - '@firebase/app-types'
@@ -904,7 +897,7 @@ packages:
       uuid: 8.3.2
     optionalDependencies:
       '@google-cloud/firestore': 4.15.1
-      '@google-cloud/storage': 5.19.4
+      '@google-cloud/storage': 5.20.5
     transitivePeerDependencies:
       - '@firebase/app-compat'
       - '@firebase/app-types'
@@ -990,12 +983,6 @@ packages:
       has: 1.0.3
       has-symbols: 1.0.3
     dev: false
-
-  /get-stream/6.0.1:
-    resolution: {integrity: sha512-ts6Wi+2j3jQjqi70w5AlN8DFnkSwC+MqmxEzdEALB2qXZYV3X/b1CTfgPLGJNMeAWxdPfU8FO1ms3NUfaHCPYg==}
-    engines: {node: '>=10'}
-    dev: false
-    optional: true
 
   /get-symbol-description/1.0.0:
     resolution: {integrity: sha512-2EmdH1YvIQiZpltCNgkuiUnyukzxM/R6NDJX31Ke3BG1Nq5b0S2PhX59UKi9vZpPDQVdqn+1IcaAwnzTT5vCjw==}
@@ -1518,8 +1505,8 @@ packages:
     engines: {node: '>= 6.13.0'}
     dev: false
 
-  /nova-bot/2.0.0-alpha.26:
-    resolution: {integrity: sha512-YcO8gcHsuFNXYFsY7gVOicLnpkM9jAA4yx2VWdP8G/eFxfXVAFyNY8nxUC8+L3BUwy7bcg7oY+nQ6SlLN51LcA==}
+  /nova-bot/2.0.0-alpha.27:
+    resolution: {integrity: sha512-M7TMewTzfcnV3aRFONqLrYuVyu5HpYZN7mKcTp4N/1z0cSqFEJut8cced0z+QFQCZ7axzKFmXmFtwpLjAopvXw==}
     dependencies:
       '@discordjs/builders': 0.13.0
       '@discordjs/rest': 0.4.1
@@ -1710,11 +1697,6 @@ packages:
     dev: false
     optional: true
 
-  /snakeize/0.1.0:
-    resolution: {integrity: sha1-EMCI2LWOsHazIpu1oE4jLOEmQi0=}
-    dev: false
-    optional: true
-
   /stream-events/1.0.5:
     resolution: {integrity: sha512-E1GUzBSgvct8Jsb3v2X15pjzN1tYebtbLaMg+eBOUOAxgbLoSbT2NS91ckc5lJD1KfLjId+jXJRgo0qnV5Nerg==}
     dependencies:
@@ -1818,6 +1800,10 @@ packages:
     resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
     dev: false
 
+  /tslib/2.4.0:
+    resolution: {integrity: sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==}
+    dev: false
+
   /typedarray-to-buffer/3.1.5:
     resolution: {integrity: sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==}
     dependencies:
@@ -1857,8 +1843,8 @@ packages:
     hasBin: true
     dev: false
 
-  /web-streams-polyfill/3.2.0:
-    resolution: {integrity: sha512-EqPmREeOzttaLRm5HS7io98goBgZ7IVz79aDvqjD0kYXLtFZTc0T/U6wHTPKyIjb+MdN7DFIIX6hgdBEpWmfPA==}
+  /web-streams-polyfill/3.2.1:
+    resolution: {integrity: sha512-e0MO3wdXWKrLbL0DgGnUV7WHVuw9OUvL4hjgnPkIeEvESk74gAITi5G606JtZPp39cd8HA9VQzCIvA49LpPN5Q==}
     engines: {node: '>= 8'}
     dev: false
 
