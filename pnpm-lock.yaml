@@ -12,7 +12,7 @@ specifiers:
   firebase-admin: ^10.2.0
   luxon: ^2.4.0
   no-try: ^3.1.0
-  nova-bot: 2.0.0
+  nova-bot: 2.0.1
   tracer: ^1.1.5
   typescript: ^4.6.4
 
@@ -25,7 +25,7 @@ dependencies:
   firebase-admin: 10.2.0
   luxon: 2.4.0
   no-try: 3.1.0
-  nova-bot: 2.0.0
+  nova-bot: 2.0.1
   tracer: 1.1.5
 
 devDependencies:
@@ -205,7 +205,7 @@ packages:
   /@firebase/logger/0.3.2:
     resolution: {integrity: sha512-lzLrcJp9QBWpo40OcOM9B8QEtBw2Fk1zOZQdvv+rWS6gKmhQBCEMc4SMABQfWdjsylBcDfniD1Q+fUX1dcBTXA==}
     dependencies:
-      tslib: 2.3.1
+      tslib: 2.4.0
     dev: false
 
   /@firebase/util/1.5.2:
@@ -1505,8 +1505,8 @@ packages:
     engines: {node: '>= 6.13.0'}
     dev: false
 
-  /nova-bot/2.0.0:
-    resolution: {integrity: sha512-0jo7jXwuVwW420jEr/uc7jIoZu2xFWDuRwtfgx2HVm9rMnU9sHtNRUPFZmbcolFIu8ZIYQljXyR60V8eFWymeA==}
+  /nova-bot/2.0.1:
+    resolution: {integrity: sha512-gtgr26LkPTy5ynmlUPB17UhaZubQ2kIwADoorQfCi00V63nwND5J6K6dxwkrbreDRvx5G8XeqYMj57QPYoUn7w==}
     dependencies:
       '@discordjs/builders': 0.13.0
       '@discordjs/rest': 0.4.1

@@ -57,7 +57,7 @@ export default class extends BaseCommand<Entry, GuildCache> {
 						title: `Ping channel changed`,
 						description: [
 							`<@${helper.member.id}> changed the ping channel`,
-							`**Old Ping Channel**: <#${oldChannelId}>`,
+							oldChannelId ? `**Old Ping Channel**: <#${oldChannelId}>` : "",
 							`**New Ping Channel**: <#${channel.id}>`
 						].join("\n"),
 						command: "set-ping-channel",
