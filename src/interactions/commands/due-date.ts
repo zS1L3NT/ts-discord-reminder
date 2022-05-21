@@ -5,8 +5,7 @@ import { BaseCommand, CommandHelper, DateHelper, ResponseBuilder } from "nova-bo
 import Entry from "../../data/Entry"
 import GuildCache from "../../data/GuildCache"
 import Reminder from "../../data/Reminder"
-import HasDraftMiddleware from "../../middleware/HasDraftMiddleware"
-import IsReminderIdValidMiddleware from "../../middleware/IsReminderIdValidMiddleware"
+import ReminderOrDraftMiddleware from "../../middleware/ReminderOrDraftMiddleware"
 
 export default class extends BaseCommand<Entry, GuildCache> {
 	override defer = true
@@ -69,7 +68,7 @@ export default class extends BaseCommand<Entry, GuildCache> {
 		]
 	}
 
-	override middleware = [new IsReminderIdValidMiddleware(), new HasDraftMiddleware()]
+	override middleware = [new ReminderOrDraftMiddleware()]
 
 	override condition(helper: CommandHelper<Entry, GuildCache>) {
 		return helper.isMessageCommand(true)

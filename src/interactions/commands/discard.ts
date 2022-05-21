@@ -2,7 +2,7 @@ import { BaseCommand, CommandHelper, ResponseBuilder } from "nova-bot"
 
 import Entry from "../../data/Entry"
 import GuildCache from "../../data/GuildCache"
-import HasDraftMiddleware from "../../middleware/HasDraftMiddleware"
+import ReminderOrDraftMiddleware from "../../middleware/ReminderOrDraftMiddleware"
 
 export default class extends BaseCommand<Entry, GuildCache> {
 	override defer = true
@@ -11,7 +11,7 @@ export default class extends BaseCommand<Entry, GuildCache> {
 		description: "Discards a draft Reminder if it exists"
 	}
 
-	override middleware = [new HasDraftMiddleware()]
+	override middleware = [new ReminderOrDraftMiddleware()]
 
 	override condition(helper: CommandHelper<Entry, GuildCache>) {
 		return helper.isMessageCommand(false)
