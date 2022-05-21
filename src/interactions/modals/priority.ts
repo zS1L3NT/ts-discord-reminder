@@ -16,7 +16,7 @@ export default class extends BaseModal<Entry, GuildCache> {
 
 		const priorities = ["low", "medium", "high"]
 		const message = helper.interaction.message! as Message
-		const reminderId = message.embeds[0]!.footer!.text!.slice(4)
+		const reminderId = message.embeds[0]!.footer!.text!
 
 		const index = priorities.indexOf(priority.toLowerCase()) as -1 | 0 | 1 | 2
 		if (index === -1) {
@@ -33,7 +33,7 @@ export default class extends BaseModal<Entry, GuildCache> {
 				helper.cache.draft!.priority = index
 				await helper.cache.getDraftDoc().update({ priority: index })
 			} else {
-				await helper.cache.getReminderDoc(reminderId).update({ priority: index })
+				await helper.cache.getReminderDoc(reminderId.slice(4)).update({ priority: index })
 			}
 
 			await helper.update({

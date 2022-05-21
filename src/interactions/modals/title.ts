@@ -15,13 +15,13 @@ export default class extends BaseModal<Entry, GuildCache> {
 		const title = helper.text("title")!
 
 		const message = helper.interaction.message! as Message
-		const reminderId = message.embeds[0]!.footer!.text!.slice(4)
+		const reminderId = message.embeds[0]!.footer!.text!
 
 		if (reminderId === "Draft") {
 			helper.cache.draft!.title = title
 			await helper.cache.getDraftDoc().update({ title })
 		} else {
-			await helper.cache.getReminderDoc(reminderId).update({ title })
+			await helper.cache.getReminderDoc(reminderId.slice(4)).update({ title })
 		}
 
 		await helper.update({
