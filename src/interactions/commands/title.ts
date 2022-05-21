@@ -1,24 +1,16 @@
-import { BaseCommand, CommandHelper, ResponseBuilder } from "nova-bot"
+import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js"
+import { BaseCommand, CommandHelper } from "nova-bot"
 
 import Entry from "../../data/Entry"
 import GuildCache from "../../data/GuildCache"
-import Reminder from "../../data/Reminder"
 import ReminderOrDraftMiddleware from "../../middleware/ReminderOrDraftMiddleware"
 
 export default class extends BaseCommand<Entry, GuildCache> {
 	override defer = true
 	override ephemeral = true
 	override data = {
-		name: "title",
-		description: "Changes the title of a Reminder",
+		description: "Edit the title of a Reminder",
 		options: [
-			{
-				name: "title",
-				description: "The title of a Reminder",
-				type: "string" as const,
-				requirements: "Text",
-				required: true
-			},
 			{
 				name: "reminder-id",
 				description: "This is the ID of the Reminder to edit",
@@ -32,36 +24,43 @@ export default class extends BaseCommand<Entry, GuildCache> {
 
 	override middleware = [new ReminderOrDraftMiddleware()]
 
-	override condition(helper: CommandHelper<Entry, GuildCache>) {}
+	override condition(helper: CommandHelper<Entry, GuildCache>) {
+		return helper.isMessageCommand(null)
+	}
 
 	override converter(helper: CommandHelper<Entry, GuildCache>) {
-		const text = helper.args()
-		const hasFirebaseId = !!text[0]?.match(/^[A-Za-z0-9]{20}$/)
+		const [reminderId] = helper.args()
 		return {
-			"reminder-id": hasFirebaseId ? text[0] : null,
-			title: hasFirebaseId ? text.slice(1).join(" ") : text.join(" ")
+			"reminder-id": reminderId
 		}
 	}
 
 	override async execute(helper: CommandHelper<Entry, GuildCache>) {
 		const reminderId = helper.string("reminder-id")
-		const title = helper.string("title")!
+		const reminder = helper.cache.reminders.find(reminder => reminder.id === reminderId)
+		const draft = helper.cache.draft
 
-		if (reminderId) {
-			await helper.cache.getReminderDoc(reminderId).update({ title })
-
-			helper.respond(ResponseBuilder.good("Reminder title updated"))
-		} else {
-			const draft = helper.cache.draft!
-
-			await helper.cache.getDraftDoc().update({ title })
-
-			helper.respond({
+		helper.respond(
+			{
 				embeds: [
-					ResponseBuilder.good("Draft title updated").build(),
-					Reminder.toDraftMessageEmbed(draft, helper.cache.guild)
+					new MessageEmbed()
+						.setColor("DARK_GREEN")
+						.setTitle("Edit Title")
+						.setDescription((reminder || draft)!.title)
+						.setFooter({
+							text: reminderId ? "ID: " + reminderId : "Draft"
+						})
+				],
+				components: [
+					new MessageActionRow().addComponents(
+						new MessageButton()
+							.setCustomId("title")
+							.setLabel("Click to edit")
+							.setStyle("SUCCESS")
+					)
 				]
-			})
-		}
+			},
+			null
+		)
 	}
 }
