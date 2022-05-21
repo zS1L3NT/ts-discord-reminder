@@ -39,5 +39,12 @@ export default class extends BaseCommand<Entry, GuildCache> {
 		await helper.cache.getDraftDoc().delete()
 
 		helper.respond(ResponseBuilder.good("Posted draft to Reminder"))
+		helper.cache.logger.log({
+			member: helper.member,
+			title: `Reminder Posted`,
+			description: `<@${helper.member.id}> posted Reminder ${doc.id}`,
+			command: "post",
+			color: "YELLOW"
+		})
 	}
 }

@@ -38,6 +38,12 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 				this.reminders = this.reminders.filter(rem => rem.id !== reminder.id)
 				await this.getReminderDoc(reminder.id).delete()
 				await this.setReminderMessageIds(this.getReminderMessageIds().slice(1))
+				this.logger.log({
+					title: `Reminder due date past`,
+					description: `Deleting Reminder ${reminder.id} since it's due date is past.`,
+					color: "BLUE",
+					embeds: [reminder.toMessageEmbed(this.guild)]
+				})
 			}
 		}
 

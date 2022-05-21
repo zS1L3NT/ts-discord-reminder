@@ -68,6 +68,13 @@ export default class extends BaseCommand<Entry, GuildCache> {
 					.update({ "pings.roles": admin.firestore.FieldValue.arrayRemove(id) })
 
 				helper.respond(ResponseBuilder.good("Role removed from ping list"))
+				helper.cache.logger.log({
+					member: helper.member,
+					title: `Role removed from ping list`,
+					description: `<@${helper.member.id}> removed <@&${id}> from the ping list of **Reminder ${reminderId}**`,
+					command: "ping-remove",
+					color: "YELLOW"
+				})
 			}
 
 			if (memberOrRole instanceof GuildMember) {
@@ -80,6 +87,13 @@ export default class extends BaseCommand<Entry, GuildCache> {
 					.update({ "pings.members": admin.firestore.FieldValue.arrayRemove(id) })
 
 				helper.respond(ResponseBuilder.good("Member removed from ping list"))
+				helper.cache.logger.log({
+					member: helper.member,
+					title: `Member removed from ping list`,
+					description: `<@${helper.member.id}> removed <@${id}> from the ping list of **Reminder ${reminderId}**`,
+					command: "ping-remove",
+					color: "YELLOW"
+				})
 			}
 		} else {
 			const draft = helper.cache.draft!
@@ -95,6 +109,13 @@ export default class extends BaseCommand<Entry, GuildCache> {
 					.update({ "pings.roles": admin.firestore.FieldValue.arrayRemove(id) })
 
 				helper.respond(ResponseBuilder.good("Role removed from ping list"))
+				helper.cache.logger.log({
+					member: helper.member,
+					title: `Role removed from ping list`,
+					description: `<@${helper.member.id}> removed <@&${id}> from the ping list of the **Draft**`,
+					command: "ping-remove",
+					color: "YELLOW"
+				})
 			}
 
 			if (memberOrRole instanceof GuildMember) {
@@ -108,6 +129,13 @@ export default class extends BaseCommand<Entry, GuildCache> {
 					.update({ "pings.members": admin.firestore.FieldValue.arrayRemove(id) })
 
 				helper.respond(ResponseBuilder.good("Member removed from ping list"))
+				helper.cache.logger.log({
+					member: helper.member,
+					title: `Member removed from ping list`,
+					description: `<@${helper.member.id}> removed <@${id}> from the ping list of the **Draft**`,
+					command: "ping-remove",
+					color: "YELLOW"
+				})
 			}
 		}
 	}

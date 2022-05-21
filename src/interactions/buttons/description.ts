@@ -27,7 +27,7 @@ export default class extends BaseButton<Entry, GuildCache> {
 							.setLabel("Description")
 							.setStyle("PARAGRAPH")
 							.setPlaceholder("Describe the Reminder")
-							.setMaxLength(1000)
+							.setMaxLength(400)
 							.setValue((reminder || draft)!.description)
 					)
 				)

@@ -39,5 +39,12 @@ export default class extends BaseCommand<Entry, GuildCache> {
 				Reminder.toDraftMessageEmbed(helper.cache.draft, helper.cache.guild)
 			]
 		})
+		helper.cache.logger.log({
+			member: helper.member,
+			title: `Draft Created`,
+			description: `<@${helper.member.id}> created a draft`,
+			command: "create",
+			color: "GREEN"
+		})
 	}
 }

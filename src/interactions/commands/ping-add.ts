@@ -68,6 +68,13 @@ export default class extends BaseCommand<Entry, GuildCache> {
 				})
 
 				helper.respond(ResponseBuilder.good("Role added to ping list"))
+				helper.cache.logger.log({
+					member: helper.member,
+					title: `Role added to ping list`,
+					description: `<@${helper.member.id}> added <@&${id}> to the ping list of **Reminder ${reminderId}**`,
+					command: "ping-add",
+					color: "YELLOW"
+				})
 			}
 
 			if (memberOrRole instanceof GuildMember) {
@@ -80,6 +87,13 @@ export default class extends BaseCommand<Entry, GuildCache> {
 				})
 
 				helper.respond(ResponseBuilder.good("Member added to ping list"))
+				helper.cache.logger.log({
+					member: helper.member,
+					title: `Member added to ping list`,
+					description: `<@${helper.member.id}> added <@${id}> to the ping list of **Reminder ${reminderId}**`,
+					command: "ping-add",
+					color: "YELLOW"
+				})
 			}
 		} else {
 			const draft = helper.cache.draft!
@@ -95,6 +109,13 @@ export default class extends BaseCommand<Entry, GuildCache> {
 				})
 
 				helper.respond(ResponseBuilder.good("Role added to ping list"))
+				helper.cache.logger.log({
+					member: helper.member,
+					title: `Role added to ping list`,
+					description: `<@${helper.member.id}> added <@&${id}> to the ping list of the **Draft**`,
+					command: "ping-add",
+					color: "YELLOW"
+				})
 			}
 
 			if (memberOrRole instanceof GuildMember) {
@@ -108,6 +129,13 @@ export default class extends BaseCommand<Entry, GuildCache> {
 				})
 
 				helper.respond(ResponseBuilder.good("Member added to ping list"))
+				helper.cache.logger.log({
+					member: helper.member,
+					title: `Member added to ping list`,
+					description: `<@${helper.member.id}> added <@${id}> to the ping list of the **Draft**`,
+					command: "ping-add",
+					color: "YELLOW"
+				})
 			}
 		}
 	}

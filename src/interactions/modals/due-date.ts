@@ -1,4 +1,4 @@
-import { Message } from "discord.js"
+import { GuildMember, Message } from "discord.js"
 import { useTry } from "no-try"
 import { BaseModal, DateHelper, ModalHelper, ResponseBuilder } from "nova-bot"
 
@@ -13,7 +13,8 @@ export default class extends BaseModal<Entry, GuildCache> {
 	override middleware = []
 
 	override async execute(helper: ModalHelper<Entry, GuildCache>) {
-		const message = helper.interaction.message! as Message
+		const message = helper.interaction.message as Message
+		const member = helper.interaction.member as GuildMember
 		const reminderId = message.embeds[0]!.footer!.text!
 
 		let error = null
@@ -45,16 +46,31 @@ export default class extends BaseModal<Entry, GuildCache> {
 				components: []
 			})
 		} else {
+			let oldDueDate = -1
 			if (reminderId === "Draft") {
+				oldDueDate = helper.cache.draft!.due_date
 				helper.cache.draft!.due_date = dueDate
 				await helper.cache.getDraftDoc().update({ due_date: dueDate })
 			} else {
+				oldDueDate = helper.cache.reminders.find(rm => rm.id === reminderId)!.due_date
 				await helper.cache.getReminderDoc(reminderId.slice(4)).update({ due_date: dueDate })
 			}
 
 			await helper.update({
 				embeds: [ResponseBuilder.good("Draft due date updated").build()],
 				components: []
+			})
+			helper.cache.logger.log({
+				member,
+				title: `Due Date Updated`,
+				description: [
+					`<@${member.id}> changed the due date of a Reminder`,
+					`**Reminder ID**: ${reminderId === "Draft" ? reminderId : reminderId.slice(4)}`,
+					`**Old Due Date**: ${new DateHelper(oldDueDate).getDate()}`,
+					`**New Due Date**: ${new DateHelper(dueDate).getDate()}`
+				].join("\n"),
+				command: "due-date",
+				color: "YELLOW"
 			})
 		}
 

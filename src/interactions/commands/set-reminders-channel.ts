@@ -31,7 +31,9 @@ export default class extends BaseCommand<Entry, GuildCache> {
 	override converter(helper: CommandHelper<Entry, GuildCache>) {}
 
 	override async execute(helper: CommandHelper<Entry, GuildCache>) {
+		const oldChannelId = helper.cache.entry.reminders_channel_id
 		const channel = helper.channel("channel")
+
 		if (channel instanceof TextChannel) {
 			switch (channel.id) {
 				case helper.cache.getRemindersChannelId():
@@ -48,11 +50,29 @@ export default class extends BaseCommand<Entry, GuildCache> {
 					helper.respond(
 						ResponseBuilder.good(`Reminders channel reassigned to \`#${channel.name}\``)
 					)
+					helper.cache.logger.log({
+						member: helper.member,
+						title: `Reminders channel changed`,
+						description: [
+							`<@${helper.member.id}> changed the reminders channel`,
+							`**Old Reminders Channel**: <#${oldChannelId}>`,
+							`**New Reminders Channel**: <#${channel.id}>`
+						].join("\n"),
+						command: "set-reminders-channel",
+						color: "BLUE"
+					})
 					break
 			}
 		} else if (channel === null) {
 			await helper.cache.setRemindersChannelId("")
 			helper.respond(ResponseBuilder.good(`Reminders channel unassigned`))
+			helper.cache.logger.log({
+				member: helper.member,
+				title: `Reminders channel unassigned`,
+				description: `<@${helper.member.id}> unassigned the reminders channel\b**Old Reminders Channel**: <#${oldChannelId}>`,
+				command: "set-reminders-channel",
+				color: "BLUE"
+			})
 		} else {
 			helper.respond(ResponseBuilder.bad(`Please select a text channel`))
 		}

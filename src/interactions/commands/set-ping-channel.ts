@@ -34,7 +34,9 @@ export default class extends BaseCommand<Entry, GuildCache> {
 	override converter(helper: CommandHelper<Entry, GuildCache>) {}
 
 	override async execute(helper: CommandHelper<Entry, GuildCache>) {
+		const oldChannelId = helper.cache.entry.ping_channel_id
 		const channel = helper.channel("channel")
+
 		if (channel instanceof TextChannel) {
 			switch (channel.id) {
 				case helper.cache.getRemindersChannelId():
@@ -50,11 +52,29 @@ export default class extends BaseCommand<Entry, GuildCache> {
 					helper.respond(
 						ResponseBuilder.good(`Pinging channel reassigned to \`#${channel.name}\``)
 					)
+					helper.cache.logger.log({
+						member: helper.member,
+						title: `Ping channel changed`,
+						description: [
+							`<@${helper.member.id}> changed the ping channel`,
+							`**Old Ping Channel**: <#${oldChannelId}>`,
+							`**New Ping Channel**: <#${channel.id}>`
+						].join("\n"),
+						command: "set-ping-channel",
+						color: "BLUE"
+					})
 					break
 			}
 		} else if (channel === null) {
 			await helper.cache.setPingChannelId("")
 			helper.respond(ResponseBuilder.good(`Pinging channel unassigned`))
+			helper.cache.logger.log({
+				member: helper.member,
+				title: `Ping channel unassigned`,
+				description: `<@${helper.member.id}> unassigned the ping channel\b**Old Ping Channel**: <#${oldChannelId}>`,
+				command: "set-ping-channel",
+				color: "BLUE"
+			})
 		} else {
 			helper.respond(ResponseBuilder.bad(`Please select a text channel`))
 		}

@@ -20,9 +20,19 @@ export default class extends BaseCommand<Entry, GuildCache> {
 	override converter(helper: CommandHelper<Entry, GuildCache>) {}
 
 	override async execute(helper: CommandHelper<Entry, GuildCache>) {
+		const embed = helper.cache.draft?.toMessageEmbed(helper.cache.guild)!
+
 		delete helper.cache.draft
 		await helper.cache.getDraftDoc().delete()
 
 		helper.respond(ResponseBuilder.good("Draft discarded"))
+		helper.cache.logger.log({
+			member: helper.member,
+			title: `Draft Discarded`,
+			description: `<@${helper.member.id}> discarded the draft`,
+			command: "discard",
+			color: "RED",
+			embeds: [embed]
+		})
 	}
 }

@@ -35,11 +35,20 @@ export default class extends BaseCommand<Entry, GuildCache> {
 
 	override async execute(helper: CommandHelper<Entry, GuildCache>) {
 		const reminderId = helper.string("reminder-id")!
+		const reminder = helper.cache.reminders.find(rm => rm.id === reminderId)!
 
 		helper.cache.reminders = helper.cache.reminders.filter(rm => rm.id !== reminderId)
 		await helper.cache.getReminderDoc(reminderId).delete()
 
 		helper.cache.updateMinutely()
 		helper.respond(ResponseBuilder.good(`Reminder deleted`))
+		helper.cache.logger.log({
+			member: helper.member,
+			title: `Reminder deleted`,
+			description: `<@${helper.member.id}> deleted a reminder`,
+			command: "delete",
+			color: "RED",
+			embeds: [reminder.toMessageEmbed(helper.cache.guild)]
+		})
 	}
 }
