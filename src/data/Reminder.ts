@@ -6,8 +6,8 @@ export default class Reminder {
 	public constructor(
 		public id: string,
 		public title: string,
+		public description: string,
 		public due_date: number,
-		public details: string[],
 		public priority: 0 | 1 | 2,
 		public pings: {
 			members: string[]
@@ -16,7 +16,7 @@ export default class Reminder {
 	) {}
 
 	public static getEmpty(): Reminder {
-		return new Reminder("", "", Date.now(), [], 0, { members: [], roles: [] })
+		return new Reminder("", "", "", Date.now(), 0, { members: [], roles: [] })
 	}
 
 	public static toDraftMessageEmbed(reminder: Reminder | undefined, guild: Guild): MessageEmbed {
@@ -53,7 +53,7 @@ export default class Reminder {
 			embed.addField("Priority", priority)
 			embed.addField("Pinging", reminder.getPingString(guild))
 			embed.addField("Date", new DateHelper(reminder.due_date).getDate())
-			embed.addField("Details", reminder.details.join("\n") || "\u200B")
+			embed.addField("Description", reminder.description || "\u200B")
 		}
 
 		return embed
@@ -80,7 +80,7 @@ export default class Reminder {
 		return new MessageEmbed()
 			.setColor(color)
 			.setTitle(this.title)
-			.setDescription(this.details.join("\n"))
+			.setDescription(this.description)
 			.addField("ID", this.id)
 			.addField("Pinging", this.getPingString(guild))
 			.addField("Due date", new DateHelper(this.due_date).getDate())
@@ -105,7 +105,7 @@ export class ReminderConverter implements FirestoreDataConverter<Reminder> {
 			id: reminder.id,
 			title: reminder.title,
 			due_date: reminder.due_date,
-			details: reminder.details,
+			description: reminder.description,
 			priority: reminder.priority,
 			pings: reminder.pings
 		}
@@ -118,8 +118,8 @@ export class ReminderConverter implements FirestoreDataConverter<Reminder> {
 		return new Reminder(
 			data.id,
 			data.title,
+			data.description,
 			data.due_date,
-			data.details,
 			data.priority,
 			data.pings
 		)

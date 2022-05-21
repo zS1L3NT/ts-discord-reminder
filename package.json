@@ -18,7 +18,7 @@
 		"firebase-admin": "^10.2.0",
 		"luxon": "^2.4.0",
 		"no-try": "^3.1.0",
-		"nova-bot": "2.0.0-alpha.31",
+		"nova-bot": "2.0.0-alpha.32",
 		"tracer": "^1.1.5"
 	},
 	"devDependencies": {
