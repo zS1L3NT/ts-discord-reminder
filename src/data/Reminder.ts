@@ -3,7 +3,7 @@ import { FirestoreDataConverter } from "firebase-admin/firestore"
 import { DateHelper } from "nova-bot"
 
 export default class Reminder {
-	public constructor(
+	constructor(
 		public id: string,
 		public title: string,
 		public description: string,
@@ -15,11 +15,11 @@ export default class Reminder {
 		}
 	) {}
 
-	public static getEmpty(): Reminder {
+	static getEmpty(): Reminder {
 		return new Reminder("", "", "", Date.now(), 0, { members: [], roles: [] })
 	}
 
-	public static toDraftMessageEmbed(reminder: Reminder | undefined, guild: Guild): MessageEmbed {
+	static toDraftMessageEmbed(reminder: Reminder | undefined, guild: Guild): MessageEmbed {
 		let color: "#5865F2" | "#00FF00" | "#FFFF00" | "#FF0000" = "#5865F2"
 		switch (reminder?.priority ?? -1) {
 			case 0:
@@ -50,7 +50,7 @@ export default class Reminder {
 	 * Formats reminder into a string
 	 * @returns {string} Formatted reminder
 	 */
-	public toMessageEmbed(guild: Guild): MessageEmbed {
+	toMessageEmbed(guild: Guild): MessageEmbed {
 		let color: "#FFFFFF" | "#00FF00" | "#FFFF00" | "#FF0000" = "#FFFFFF"
 		switch (this.priority) {
 			case 0:
@@ -74,7 +74,7 @@ export default class Reminder {
 			.addField("Due in", new DateHelper(this.due_date).getTimeLeft())
 	}
 
-	public getPriorityString() {
+	getPriorityString() {
 		switch (this.priority) {
 			case 0:
 				return "LOW"
@@ -87,7 +87,7 @@ export default class Reminder {
 		}
 	}
 
-	public getPingString(guild: Guild) {
+	getPingString(guild: Guild) {
 		return (
 			this.pings.roles
 				.map(r => (r === guild.roles.everyone.id ? "@everyone" : `<@&${r}>`))
