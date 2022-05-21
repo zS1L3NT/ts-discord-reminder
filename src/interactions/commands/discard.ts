@@ -32,7 +32,7 @@ export default class extends BaseCommand<Entry, GuildCache> {
 			description: `<@${helper.member.id}> discarded the draft`,
 			command: "discard",
 			color: "RED",
-			embeds: [embed]
+			embeds: [embed.setColor("#000000")]
 		})
 	}
 }

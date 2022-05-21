@@ -42,7 +42,7 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 					title: `Reminder due date past`,
 					description: `Deleting Reminder ${reminder.id} since it's due date is past.`,
 					color: "BLUE",
-					embeds: [reminder.toMessageEmbed(this.guild)]
+					embeds: [reminder.toMessageEmbed(this.guild).setColor("#000000")]
 				})
 			}
 		}

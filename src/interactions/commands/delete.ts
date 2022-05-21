@@ -48,7 +48,7 @@ export default class extends BaseCommand<Entry, GuildCache> {
 			description: `<@${helper.member.id}> deleted a reminder`,
 			command: "delete",
 			color: "RED",
-			embeds: [reminder.toMessageEmbed(helper.cache.guild)]
+			embeds: [reminder.toMessageEmbed(helper.cache.guild).setColor("#000000")]
 		})
 	}
 }
