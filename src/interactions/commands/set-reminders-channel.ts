@@ -55,7 +55,7 @@ export default class extends BaseCommand<Entry, GuildCache> {
 						title: `Reminders channel changed`,
 						description: [
 							`<@${helper.member.id}> changed the reminders channel`,
-							oldChannelId ? `**Old Reminders Channel**: <#${oldChannelId}>` : "",
+							oldChannelId ? `**Old Reminders Channel**: <#${oldChannelId}>` : null,
 							`**New Reminders Channel**: <#${channel.id}>`
 						].join("\n"),
 						command: "set-reminders-channel",
