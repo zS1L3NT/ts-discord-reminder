@@ -1,4 +1,3 @@
-import { GuildMember, Message } from "discord.js"
 import { useTry } from "no-try"
 import { BaseModal, DateHelper, ModalHelper, ResponseBuilder } from "nova-bot"
 
@@ -13,9 +12,7 @@ export default class extends BaseModal<Entry, GuildCache> {
 	override middleware = []
 
 	override async execute(helper: ModalHelper<Entry, GuildCache>) {
-		const message = helper.interaction.message as Message
-		const member = helper.interaction.member as GuildMember
-		const reminderId = message.embeds[0]!.footer!.text!
+		const reminderId = helper.message!.embeds[0]!.footer!.text!
 
 		let error = null
 
@@ -61,10 +58,10 @@ export default class extends BaseModal<Entry, GuildCache> {
 				components: []
 			})
 			helper.cache.logger.log({
-				member,
+				member: helper.member,
 				title: `Due Date Updated`,
 				description: [
-					`<@${member.id}> changed the due date of a Reminder`,
+					`<@${helper.member.id}> changed the due date of a Reminder`,
 					`**Reminder ID**: ${reminderId === "Draft" ? reminderId : reminderId.slice(4)}`,
 					`**Old Due Date**: ${new DateHelper(oldDueDate).getDate()}`,
 					`**New Due Date**: ${new DateHelper(dueDate).getDate()}`
@@ -74,9 +71,12 @@ export default class extends BaseModal<Entry, GuildCache> {
 			})
 		}
 
-		if (message.type !== "APPLICATION_COMMAND") {
+		if (helper.message!.type !== "APPLICATION_COMMAND") {
 			setTimeout(
-				() => message.delete().catch(err => logger.log("Failed to delete message", err)),
+				() =>
+					helper
+						.message!.delete()
+						.catch(err => logger.log("Failed to delete message", err)),
 				5000
 			)
 		}

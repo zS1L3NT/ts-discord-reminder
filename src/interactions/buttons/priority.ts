@@ -1,4 +1,4 @@
-import { Message, MessageActionRow, Modal, TextInputComponent } from "discord.js"
+import { MessageActionRow, Modal, TextInputComponent } from "discord.js"
 import { BaseButton, ButtonHelper } from "nova-bot"
 
 import Entry from "../../data/Entry"
@@ -11,8 +11,7 @@ export default class extends BaseButton<Entry, GuildCache> {
 	override middleware = []
 
 	override async execute(helper: ButtonHelper<Entry, GuildCache>) {
-		const message = helper.interaction.message as Message
-		const reminderId = message.embeds[0]!.footer!.text!.slice(4)
+		const reminderId = helper.message.embeds[0]!.footer!.text!.slice(4)
 		const reminder = helper.cache.reminders.find(reminder => reminder.id === reminderId)
 		const draft = helper.cache.draft
 

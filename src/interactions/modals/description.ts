@@ -1,4 +1,3 @@
-import { GuildMember, Message } from "discord.js"
 import { BaseModal, ModalHelper, ResponseBuilder } from "nova-bot"
 
 import Entry from "../../data/Entry"
@@ -14,9 +13,7 @@ export default class extends BaseModal<Entry, GuildCache> {
 	override async execute(helper: ModalHelper<Entry, GuildCache>) {
 		const description = helper.text("description")!
 
-		const message = helper.interaction.message as Message
-		const member = helper.interaction.member as GuildMember
-		const reminderId = message.embeds[0]!.footer!.text!
+		const reminderId = helper.message!.embeds[0]!.footer!.text!
 
 		let oldDescription = ""
 		if (reminderId === "Draft") {
@@ -33,10 +30,10 @@ export default class extends BaseModal<Entry, GuildCache> {
 			components: []
 		})
 		helper.cache.logger.log({
-			member,
+			member: helper.member,
 			title: `Description Changed`,
 			description: [
-				`<@${member.id}> changed the description of a Reminder`,
+				`<@${helper.member.id}> changed the description of a Reminder`,
 				`**Reminder ID**: ${reminderId === "Draft" ? reminderId : reminderId.slice(4)}`,
 				`**Old Description**:`,
 				`${oldDescription}`,
@@ -47,9 +44,12 @@ export default class extends BaseModal<Entry, GuildCache> {
 			color: "YELLOW"
 		})
 
-		if (message.type !== "APPLICATION_COMMAND") {
+		if (helper.message!.type !== "APPLICATION_COMMAND") {
 			setTimeout(
-				() => message.delete().catch(err => logger.log("Failed to delete message", err)),
+				() =>
+					helper
+						.message!.delete()
+						.catch(err => logger.log("Failed to delete message", err)),
 				5000
 			)
 		}

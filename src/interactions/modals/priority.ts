@@ -1,4 +1,3 @@
-import { GuildMember, Message } from "discord.js"
 import { BaseModal, ModalHelper, ResponseBuilder } from "nova-bot"
 
 import Entry from "../../data/Entry"
@@ -15,9 +14,7 @@ export default class extends BaseModal<Entry, GuildCache> {
 		const priority = helper.text("priority")!
 
 		const priorities = ["low", "medium", "high"]
-		const message = helper.interaction.message as Message
-		const member = helper.interaction.member as GuildMember
-		const reminderId = message.embeds[0]!.footer!.text!
+		const reminderId = helper.message!.embeds[0]!.footer!.text!
 
 		const index = priorities.indexOf(priority.toLowerCase()) as -1 | 0 | 1 | 2
 		if (index === -1) {
@@ -45,10 +42,10 @@ export default class extends BaseModal<Entry, GuildCache> {
 				components: []
 			})
 			helper.cache.logger.log({
-				member,
+				member: helper.member,
 				title: `Priority Updated`,
 				description: [
-					`<@${member.id}> changed the priority of a Reminder`,
+					`<@${helper.member.id}> changed the priority of a Reminder`,
 					`**Reminder ID**: ${reminderId === "Draft" ? reminderId : reminderId.slice(4)}`,
 					`**Old Priority**: ${priorities[oldIndex]}`,
 					`**New Priority**: ${priorities[index]}`
@@ -58,9 +55,12 @@ export default class extends BaseModal<Entry, GuildCache> {
 			})
 		}
 
-		if (message.type !== "APPLICATION_COMMAND") {
+		if (helper.message!.type !== "APPLICATION_COMMAND") {
 			setTimeout(
-				() => message.delete().catch(err => logger.log("Failed to delete message", err)),
+				() =>
+					helper
+						.message!.delete()
+						.catch(err => logger.log("Failed to delete message", err)),
 				5000
 			)
 		}
