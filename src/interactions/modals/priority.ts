@@ -14,7 +14,7 @@ export default class extends BaseModal<Entry, GuildCache> {
 		const priority = helper.text("priority")!
 
 		const priorities = ["low", "medium", "high"]
-		const reminderId = helper.message!.embeds[0]!.footer!.text!
+		const footerText = helper.message!.embeds[0]!.footer!.text!
 
 		const index = priorities.indexOf(priority.toLowerCase()) as -1 | 0 | 1 | 2
 		if (index === -1) {
@@ -28,13 +28,14 @@ export default class extends BaseModal<Entry, GuildCache> {
 			})
 		} else {
 			let oldIndex = -1
-			if (reminderId === "Draft") {
+			if (footerText === "Draft") {
 				oldIndex = helper.cache.draft!.priority
 				helper.cache.draft!.priority = index
 				await helper.cache.getDraftDoc().update({ priority: index })
 			} else {
+				const reminderId = footerText.slice(4)
 				oldIndex = helper.cache.reminders.find(rm => rm.id === reminderId)!.priority
-				await helper.cache.getReminderDoc(reminderId.slice(4)).update({ priority: index })
+				await helper.cache.getReminderDoc(reminderId).update({ priority: index })
 			}
 
 			await helper.update({
@@ -46,7 +47,7 @@ export default class extends BaseModal<Entry, GuildCache> {
 				title: `Priority Updated`,
 				description: [
 					`<@${helper.member.id}> changed the priority of a Reminder`,
-					`**Reminder ID**: ${reminderId === "Draft" ? reminderId : reminderId.slice(4)}`,
+					`**Reminder ID**: ${footerText === "Draft" ? footerText : footerText.slice(4)}`,
 					`**Old Priority**: ${priorities[oldIndex]}`,
 					`**New Priority**: ${priorities[index]}`
 				].join("\n"),

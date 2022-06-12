@@ -13,16 +13,17 @@ export default class extends BaseModal<Entry, GuildCache> {
 	override async execute(helper: ModalHelper<Entry, GuildCache>) {
 		const description = helper.text("description")!
 
-		const reminderId = helper.message!.embeds[0]!.footer!.text!
+		const footerText = helper.message!.embeds[0]!.footer!.text!
 
 		let oldDescription = ""
-		if (reminderId === "Draft") {
+		if (footerText === "Draft") {
 			oldDescription = helper.cache.draft!.description
 			helper.cache.draft!.description = description
 			await helper.cache.getDraftDoc().update({ description })
 		} else {
+			const reminderId = footerText.slice(4)
 			oldDescription = helper.cache.reminders.find(rm => rm.id === reminderId)!.description
-			await helper.cache.getReminderDoc(reminderId.slice(4)).update({ description })
+			await helper.cache.getReminderDoc(reminderId).update({ description })
 		}
 
 		await helper.update({
@@ -34,7 +35,7 @@ export default class extends BaseModal<Entry, GuildCache> {
 			title: `Description Changed`,
 			description: [
 				`<@${helper.member.id}> changed the description of a Reminder`,
-				`**Reminder ID**: ${reminderId === "Draft" ? reminderId : reminderId.slice(4)}`,
+				`**Reminder ID**: ${footerText === "Draft" ? footerText : footerText.slice(4)}`,
 				`**Old Description**:`,
 				`${oldDescription}`,
 				`**New Description**:`,

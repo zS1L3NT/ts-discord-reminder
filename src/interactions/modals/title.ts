@@ -13,16 +13,17 @@ export default class extends BaseModal<Entry, GuildCache> {
 	override async execute(helper: ModalHelper<Entry, GuildCache>) {
 		const title = helper.text("title")!
 
-		const reminderId = helper.message!.embeds[0]!.footer!.text!
+		const footerText = helper.message!.embeds[0]!.footer!.text!
 
 		let oldTitle = ""
-		if (reminderId === "Draft") {
+		if (footerText === "Draft") {
 			oldTitle = helper.cache.draft!.title
 			helper.cache.draft!.title = title
 			await helper.cache.getDraftDoc().update({ title })
 		} else {
+			const reminderId = footerText.slice(4)
 			oldTitle = helper.cache.reminders.find(rm => rm.id === reminderId)!.title
-			await helper.cache.getReminderDoc(reminderId.slice(4)).update({ title })
+			await helper.cache.getReminderDoc(reminderId).update({ title })
 		}
 
 		await helper.update({
@@ -34,7 +35,7 @@ export default class extends BaseModal<Entry, GuildCache> {
 			title: `Title Updated`,
 			description: [
 				`<@${helper.member.id}> changed the title of a Reminder`,
-				`**Reminder ID**: ${reminderId === "Draft" ? reminderId : reminderId.slice(4)}`,
+				`**Reminder ID**: ${footerText === "Draft" ? footerText : footerText.slice(4)}`,
 				`**Old Title**: ${oldTitle}`,
 				`**New Title**: ${title}`
 			].join("\n"),

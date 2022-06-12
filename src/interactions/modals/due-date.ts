@@ -12,7 +12,7 @@ export default class extends BaseModal<Entry, GuildCache> {
 	override middleware = []
 
 	override async execute(helper: ModalHelper<Entry, GuildCache>) {
-		const reminderId = helper.message!.embeds[0]!.footer!.text!
+		const footerText = helper.message!.embeds[0]!.footer!.text!
 
 		let error = null
 
@@ -44,13 +44,14 @@ export default class extends BaseModal<Entry, GuildCache> {
 			})
 		} else {
 			let oldDueDate = -1
-			if (reminderId === "Draft") {
+			if (footerText === "Draft") {
 				oldDueDate = helper.cache.draft!.due_date
 				helper.cache.draft!.due_date = dueDate
 				await helper.cache.getDraftDoc().update({ due_date: dueDate })
 			} else {
+				const reminderId = footerText.slice(4)
 				oldDueDate = helper.cache.reminders.find(rm => rm.id === reminderId)!.due_date
-				await helper.cache.getReminderDoc(reminderId.slice(4)).update({ due_date: dueDate })
+				await helper.cache.getReminderDoc(reminderId).update({ due_date: dueDate })
 			}
 
 			await helper.update({
@@ -62,7 +63,7 @@ export default class extends BaseModal<Entry, GuildCache> {
 				title: `Due Date Updated`,
 				description: [
 					`<@${helper.member.id}> changed the due date of a Reminder`,
-					`**Reminder ID**: ${reminderId === "Draft" ? reminderId : reminderId.slice(4)}`,
+					`**Reminder ID**: ${footerText === "Draft" ? footerText : footerText.slice(4)}`,
 					`**Old Due Date**: ${new DateHelper(oldDueDate).getDate()}`,
 					`**New Due Date**: ${new DateHelper(dueDate).getDate()}`
 				].join("\n"),
