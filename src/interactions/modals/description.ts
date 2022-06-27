@@ -27,7 +27,11 @@ export default class extends BaseModal<Entry, GuildCache> {
 		}
 
 		await helper.update({
-			embeds: [ResponseBuilder.good("Draft description updated").build()],
+			embeds: [
+				ResponseBuilder.good(
+					`${footerText === "Draft" ? "Draft" : "Reminder"} description updated`
+				).build()
+			],
 			components: []
 		})
 		helper.cache.logger.log({
