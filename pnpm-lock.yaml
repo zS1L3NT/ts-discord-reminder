@@ -12,7 +12,7 @@ specifiers:
   firebase-admin: ^10.2.0
   luxon: ^2.4.0
   no-try: ^3.1.0
-  nova-bot: 2.1.2
+  nova-bot: 2.1.3
   tracer: ^1.1.5
   typescript: ^4.6.4
 
@@ -25,7 +25,7 @@ dependencies:
   firebase-admin: 10.2.0
   luxon: 2.4.0
   no-try: 3.1.0
-  nova-bot: 2.1.2
+  nova-bot: 2.1.3
   tracer: 1.1.5
 
 devDependencies:
@@ -53,8 +53,8 @@ packages:
     engines: {node: '>=16.9.0'}
     dev: false
 
-  /@discordjs/collection/0.7.0-dev.1653091708-fdeac9d:
-    resolution: {integrity: sha512-21gKkNVlqWMTf5kkZ2uAkfe8kU149w/JXC9Vpu7nNEir6A5AHNPULtd+1FssvXYAfoEnzus7/gZC6pYD5eX/gQ==}
+  /@discordjs/collection/0.7.0:
+    resolution: {integrity: sha512-R5i8Wb8kIcBAFEPLLf7LVBQKBDYUL+ekb23sOgpkpyGT+V4P7V83wTxcsqmX+PbqHt4cEHn053uMWfRqh/Z/nA==}
     engines: {node: '>=16.9.0'}
     dev: false
 
@@ -62,10 +62,10 @@ packages:
     resolution: {integrity: sha512-rtWy+AIfNlfjGkAgA2TJLASdqli07aTNQceVGT6RQQiQaEqV0nsfBO4WtDlDzk7PmO3w+InP3dpwEolJI5jz0A==}
     engines: {node: '>=16.9.0'}
     dependencies:
-      '@discordjs/collection': 0.7.0-dev.1653091708-fdeac9d
+      '@discordjs/collection': 0.7.0
       '@sapphire/async-queue': 1.3.1
       '@sapphire/snowflake': 3.2.2
-      '@types/node-fetch': 2.6.1
+      '@types/node-fetch': 2.6.2
       discord-api-types: 0.29.0
       form-data: 4.0.0
       node-fetch: 2.6.7
@@ -74,13 +74,13 @@ packages:
       - encoding
     dev: false
 
-  /@firebase/app-compat/0.1.25:
-    resolution: {integrity: sha512-FdCnYwIM3R+OuRE7nrAdVT5oNlvSAHQHN1ictB/gjCFs58lXMCe0DCIRDrA7zxaOFIKeWPtx35ZNXv3EdPFNpQ==}
+  /@firebase/app-compat/0.1.28:
+    resolution: {integrity: sha512-yo1A32zMSaFv+hG9XcSkquA1GD8ph+Hx6hxOp8XQjtzkXA+TJzA0ehvDp1YCL6owBXn9RXphUC6mofPdDEFJKQ==}
     dependencies:
-      '@firebase/app': 0.7.24
-      '@firebase/component': 0.5.14
-      '@firebase/logger': 0.3.2
-      '@firebase/util': 1.6.0
+      '@firebase/app': 0.7.27
+      '@firebase/component': 0.5.16
+      '@firebase/logger': 0.3.3
+      '@firebase/util': 1.6.2
       tslib: 2.4.0
     dev: false
 
@@ -88,12 +88,12 @@ packages:
     resolution: {integrity: sha512-6fbHQwDv2jp/v6bXhBw2eSRbNBpxHcd1NBF864UksSMVIqIyri9qpJB1Mn6sGZE+bnDsSQBC5j2TbMxYsJQkQg==}
     dev: false
 
-  /@firebase/app/0.7.24:
-    resolution: {integrity: sha512-HIbAhayEykbCez1Rl6pmzAWbIx63Mc9+t3ngWKqZdkMnBNAAJvYaUdx7Krus7O9XHUKNw/gzBUETAEYt93jusA==}
+  /@firebase/app/0.7.27:
+    resolution: {integrity: sha512-gLxy9wHymCsPAWuIWg2S/gOWoAN/Nbpto+IWSXPHzjVUtPRvmuBrr9rvh8D2V2zHxNb1WigoZVLy5acRAf2rHg==}
     dependencies:
-      '@firebase/component': 0.5.14
-      '@firebase/logger': 0.3.2
-      '@firebase/util': 1.6.0
+      '@firebase/component': 0.5.16
+      '@firebase/logger': 0.3.3
+      '@firebase/util': 1.6.2
       idb: 7.0.1
       tslib: 2.4.0
     dev: false
@@ -124,10 +124,10 @@ packages:
       tslib: 2.3.1
     dev: false
 
-  /@firebase/component/0.5.14:
-    resolution: {integrity: sha512-ct2p1MTMV5P/nGIlkC3XjAVwHwjsIZaeo8JVyDAkJCNTROu5mYX3FBK16hjIUIIVJDpgnnzFh9nP74gciL4WrA==}
+  /@firebase/component/0.5.16:
+    resolution: {integrity: sha512-/pkl77mN9PT7dTSzNu1CrvIvd+z1CdePnEl+VITaeSBs9Ko7ZVvSIlzQLbSwqksXX3bAHpxej0Mg6mVKQiRVSw==}
     dependencies:
-      '@firebase/util': 1.6.0
+      '@firebase/util': 1.6.2
       tslib: 2.4.0
     dev: false
 
@@ -146,12 +146,12 @@ packages:
       - '@firebase/app-types'
     dev: false
 
-  /@firebase/database-compat/0.1.8_rpd4ipbmnh3eak32lkxgflhihy:
+  /@firebase/database-compat/0.1.8_sugc3ykejlyaz4scz7d67fdh3m:
     resolution: {integrity: sha512-dhXr5CSieBuKNdU96HgeewMQCT9EgOIkfF1GNy+iRrdl7BWLxmlKuvLfK319rmIytSs/vnCzcD9uqyxTeU/A3A==}
     peerDependencies:
       '@firebase/app-compat': 0.x
     dependencies:
-      '@firebase/app-compat': 0.1.25
+      '@firebase/app-compat': 0.1.28
       '@firebase/component': 0.5.13
       '@firebase/database': 0.12.8_@firebase+app-types@0.7.0
       '@firebase/database-types': 0.9.7
@@ -208,6 +208,12 @@ packages:
       tslib: 2.4.0
     dev: false
 
+  /@firebase/logger/0.3.3:
+    resolution: {integrity: sha512-POTJl07jOKTOevLXrTvJD/VZ0M6PnJXflbAh5J9VGkmtXPXNG6MdZ9fmRgqYhXKTaDId6AQenQ262uwgpdtO0Q==}
+    dependencies:
+      tslib: 2.4.0
+    dev: false
+
   /@firebase/util/1.5.2:
     resolution: {integrity: sha512-YvBH2UxFcdWG2HdFnhxZptPl2eVFlpOyTH66iDo13JPEYraWzWToZ5AMTtkyRHVmu7sssUpQlU9igy1KET7TOw==}
     dependencies:
@@ -218,6 +224,12 @@ packages:
     resolution: {integrity: sha512-6+hhqb4Zzjoo12xofTDHPkgW3FnN4ydBsjd5X2KuQI268DR3W3Ld64W/gkKPZrKRgUxeNeb+pykfP3qRe7q+vA==}
     dependencies:
       tslib: 2.3.1
+    dev: false
+
+  /@firebase/util/1.6.2:
+    resolution: {integrity: sha512-VYDqEf/+mS7n0nPj6qJDJYFtKIEfOaTtQeNDsd3x+xp8HWvrbygWOexzeGicLP1dvEzrKr3eQGcJmmmYN3TIsA==}
+    dependencies:
+      tslib: 2.4.0
     dev: false
 
   /@google-cloud/firestore/4.15.1:
@@ -462,8 +474,19 @@ packages:
       form-data: 3.0.1
     dev: false
 
+  /@types/node-fetch/2.6.2:
+    resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==}
+    dependencies:
+      '@types/node': 17.0.45
+      form-data: 3.0.1
+    dev: false
+
   /@types/node/17.0.35:
     resolution: {integrity: sha512-vu1SrqBjbbZ3J6vwY17jBs8Sr/BKA+/a/WtjRG+whKg1iuLFOosq872EXS0eXWILdO36DHQQeku/ZcL6hz2fpg==}
+
+  /@types/node/17.0.45:
+    resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
+    dev: false
 
   /@types/qs/6.9.7:
     resolution: {integrity: sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==}
@@ -883,11 +906,11 @@ packages:
       - supports-color
     dev: false
 
-  /firebase-admin/10.2.0_rpd4ipbmnh3eak32lkxgflhihy:
+  /firebase-admin/10.2.0_sugc3ykejlyaz4scz7d67fdh3m:
     resolution: {integrity: sha512-6ehn5J9UEFgi4+naqYvozmGpnZae3cJLdwSkSsDc8/Y0eTBjVMFdf9N2ft7N81UNHA0N5DknOyXhlsdAdyBLCA==}
     engines: {node: '>=12.7.0'}
     dependencies:
-      '@firebase/database-compat': 0.1.8_rpd4ipbmnh3eak32lkxgflhihy
+      '@firebase/database-compat': 0.1.8_sugc3ykejlyaz4scz7d67fdh3m
       '@firebase/database-types': 0.9.8
       '@types/node': 17.0.35
       dicer: 0.3.1
@@ -1491,8 +1514,8 @@ packages:
       whatwg-url: 5.0.0
     dev: false
 
-  /node-fetch/3.2.4:
-    resolution: {integrity: sha512-WvYJRN7mMyOLurFR2YpysQGuwYrJN+qrrpHjJDuKMcSPdfFccRUla/kng2mz6HWSBxJcqPbvatS6Gb4RhOzCJw==}
+  /node-fetch/3.2.6:
+    resolution: {integrity: sha512-LAy/HZnLADOVkVPubaxHDft29booGglPFDr2Hw0J1AercRh01UiVFm++KMDnJeH9sHgNB4hsXPii7Sgym/sTbw==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       data-uri-to-buffer: 4.0.0
@@ -1505,24 +1528,24 @@ packages:
     engines: {node: '>= 6.13.0'}
     dev: false
 
-  /nova-bot/2.1.2:
-    resolution: {integrity: sha512-EoU9VM03G1Z45890+oSooB2i/bTsFl42hNVt7Pge8f7Jv+m4P8G7tHfJFuRHZjPVSHPDnNCC+NKFxF2B8bfwTg==}
+  /nova-bot/2.1.3:
+    resolution: {integrity: sha512-XNC1XolLLYBWRTcEaxUznX9ZCS0EBMPVEQpfMXR/W72tvzPjFLmrZxVAl1kQZFJv+8eHoYaV758EfmdKZ9huHw==}
     dependencies:
       '@discordjs/builders': 0.13.0
       '@discordjs/rest': 0.4.1
-      '@firebase/app-compat': 0.1.25
+      '@firebase/app-compat': 0.1.28
       '@firebase/app-types': 0.7.0
       '@types/luxon': 2.3.2
-      '@types/node': 17.0.35
-      '@types/node-fetch': 2.6.1
+      '@types/node': 17.0.45
+      '@types/node-fetch': 2.6.2
       after-every: 1.0.4
       discord-api-types: 0.33.0
       discord.js: 13.7.0
       escape-string-regexp: 4.0.0
-      firebase-admin: 10.2.0_rpd4ipbmnh3eak32lkxgflhihy
+      firebase-admin: 10.2.0_sugc3ykejlyaz4scz7d67fdh3m
       luxon: 2.4.0
       no-try: 3.1.0
-      node-fetch: 3.2.4
+      node-fetch: 3.2.6
       typescript: 4.6.4
     transitivePeerDependencies:
       - bufferutil
