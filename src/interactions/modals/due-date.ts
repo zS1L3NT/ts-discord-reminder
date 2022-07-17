@@ -22,9 +22,9 @@ export default class extends BaseModal<Entry, GuildCache> {
 		const hourStr = helper.text("hour")!
 		const minuteStr = helper.text("minute")!
 
-		const monthIndex = DateHelper.nameOfMonths
+		const monthIndex = (DateHelper.nameOfMonths
 			.map(m => m.toLowerCase())
-			.indexOf(monthStr.toLowerCase())
+			.indexOf(monthStr.toLowerCase())) + 1
 		const day = isNaN(+dayStr) ? ((error = "Day must be a number"), -1) : +dayStr
 		const month = monthIndex === -1 ? ((error = "Month is not valid"), -1) : monthIndex
 		const year = isNaN(+yearStr) ? ((error = "Year must be a number"), -1) : +yearStr
