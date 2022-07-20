@@ -12,7 +12,7 @@ specifiers:
   firebase-admin: ^10.2.0
   luxon: ^2.4.0
   no-try: ^3.1.0
-  nova-bot: 2.1.3
+  nova-bot: 2.1.4
   tracer: ^1.1.5
   typescript: ^4.6.4
 
@@ -25,7 +25,7 @@ dependencies:
   firebase-admin: 10.2.0
   luxon: 2.4.0
   no-try: 3.1.0
-  nova-bot: 2.1.3
+  nova-bot: 2.1.4
   tracer: 1.1.5
 
 devDependencies:
@@ -56,6 +56,7 @@ packages:
   /@discordjs/collection/0.7.0:
     resolution: {integrity: sha512-R5i8Wb8kIcBAFEPLLf7LVBQKBDYUL+ekb23sOgpkpyGT+V4P7V83wTxcsqmX+PbqHt4cEHn053uMWfRqh/Z/nA==}
     engines: {node: '>=16.9.0'}
+    deprecated: no longer supported
     dev: false
 
   /@discordjs/rest/0.4.1:
@@ -307,7 +308,7 @@ packages:
     engines: {node: ^8.13.0 || >=10.10.0}
     dependencies:
       '@grpc/proto-loader': 0.6.9
-      '@types/node': 17.0.35
+      '@types/node': 17.0.45
     dev: false
     optional: true
 
@@ -412,13 +413,13 @@ packages:
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 17.0.35
+      '@types/node': 17.0.45
     dev: false
 
   /@types/connect/3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 17.0.35
+      '@types/node': 17.0.45
     dev: false
 
   /@types/deep-equal/1.0.1:
@@ -435,7 +436,7 @@ packages:
   /@types/express-serve-static-core/4.17.28:
     resolution: {integrity: sha512-P1BJAEAW3E2DJUlkgq4tOL3RyMunoWXqbSCygWo5ZIWTjUgN1YnaXWW4VWl/oc8vs/XoYibEGBKP0uZyF4AHig==}
     dependencies:
-      '@types/node': 17.0.35
+      '@types/node': 17.0.45
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
     dev: false
@@ -500,7 +501,7 @@ packages:
     resolution: {integrity: sha512-nCkHGI4w7ZgAdNkrEu0bv+4xNV/XDqW+DydknebMOQwkpDGx8G+HTlj7R7ABI8i8nKxVw0wtKPi1D+lPOkh4YQ==}
     dependencies:
       '@types/mime': 1.3.2
-      '@types/node': 17.0.35
+      '@types/node': 17.0.45
     dev: false
 
   /@types/ws/8.5.3:
@@ -1528,8 +1529,8 @@ packages:
     engines: {node: '>= 6.13.0'}
     dev: false
 
-  /nova-bot/2.1.3:
-    resolution: {integrity: sha512-XNC1XolLLYBWRTcEaxUznX9ZCS0EBMPVEQpfMXR/W72tvzPjFLmrZxVAl1kQZFJv+8eHoYaV758EfmdKZ9huHw==}
+  /nova-bot/2.1.4:
+    resolution: {integrity: sha512-uNUzV1i/qZJQZNE/ItXLZDpg3vbFI4wBZcJLZx3nN/1ofHeX+Raz+f1ykoFls/bg2kW+gycv1wtK4fILZYqQOQ==}
     dependencies:
       '@discordjs/builders': 0.13.0
       '@discordjs/rest': 0.4.1
@@ -1625,7 +1626,7 @@ packages:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/long': 4.0.1
-      '@types/node': 17.0.35
+      '@types/node': 17.0.45
       long: 4.0.0
     dev: false
     optional: true
