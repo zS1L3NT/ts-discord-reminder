@@ -80,12 +80,14 @@ $ npm run dev
     -   [![typescript](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/dev/typescript?style=flat-square)](https://npmjs.com/package/typescript)
 -   DiscordJS
     -   [![discord.js](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/discord.js?style=flat-square)](https://npmjs.com/package/discord.js)
+-	Prisma
+    -   [![@prisma/client](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/@prisma/client?style=flat-square)](https://npmjs.com/package/@prisma/client)
+    -   [![prisma](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/prisma?style=flat-square)](https://npmjs.com/package/prisma)
 -   Miscellaneous
     -   [![after-every](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/after-every?style=flat-square)](https://npmjs.com/package/after-every)
     -   [![colors](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/colors?style=flat-square)](https://npmjs.com/package/colors)
     -   [![deep-equal](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/deep-equal?style=flat-square)](https://npmjs.com/package/deep-equal)
     -   [![dotenv](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/dotenv?style=flat-square)](https://npmjs.com/package/dotenv)
-    -   [![firebase-admin](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/firebase-admin?style=flat-square)](https://npmjs.com/package/firebase-admin)
     -   [![luxon](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/luxon?style=flat-square)](https://npmjs.com/package/luxon)
     -   [![no-try](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/no-try?style=flat-square)](https://npmjs.com/package/no-try)
     -   [![nova-bot](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/nova-bot?style=flat-square)](https://npmjs.com/package/nova-bot)
