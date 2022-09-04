@@ -1,0 +1,56 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model Alias {
+    guild_id String
+    alias    String
+    command  String
+
+    @@id([guild_id, alias, command])
+}
+
+model Entry {
+    guild_id             String   @id
+    prefix               String?
+    log_channel_id       String?
+    ping_channel_id      String?
+    reminders_channel_id String?
+    reminder_message_ids String[]
+}
+
+model Reminder {
+    id          String
+    guild_id    String
+    title       String
+    description String
+    due_date    DateTime
+    priority    Priority
+
+    @@id([id, guild_id])
+}
+
+enum Priority {
+    High
+    Medium
+    Low
+}
+
+model Ping {
+    guild_id     String
+    reminder_id  String
+    reference_id String
+    type         PingType
+
+    @@id([guild_id, reminder_id, reference_id, type])
+}
+
+enum PingType {
+    Member
+    Role
+}
