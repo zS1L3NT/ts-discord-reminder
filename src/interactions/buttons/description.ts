@@ -1,30 +1,32 @@
-import { MessageActionRow, Modal, TextInputComponent } from "discord.js"
+import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js"
 import { BaseButton, ButtonHelper } from "nova-bot"
 
-import Entry from "../../data/Entry"
-import GuildCache from "../../data/GuildCache"
+import { Entry } from "@prisma/client"
 
-export default class extends BaseButton<Entry, GuildCache> {
+import GuildCache from "../../data/GuildCache"
+import prisma from "../../prisma"
+
+export default class extends BaseButton<typeof prisma, Entry, GuildCache> {
 	override defer = false
 	override ephemeral = false
 
 	override middleware = []
 
-	override async execute(helper: ButtonHelper<Entry, GuildCache>) {
+	override async execute(helper: ButtonHelper<typeof prisma, Entry, GuildCache>) {
 		const reminderId = helper.message.embeds[0]!.footer!.text!.slice(4)
-		const reminder = helper.cache.reminders.find(reminder => reminder.id === reminderId)
+		const reminder = helper.cache.reminders.find(r => r.id === reminderId)
 		const draft = helper.cache.draft
 
 		await helper.interaction.showModal(
-			new Modal()
+			new ModalBuilder()
 				.setCustomId("description")
 				.setTitle("Edit Description")
 				.addComponents(
-					new MessageActionRow<TextInputComponent>().addComponents(
-						new TextInputComponent()
+					new ActionRowBuilder<TextInputBuilder>().addComponents(
+						new TextInputBuilder()
 							.setCustomId("description")
 							.setLabel("Description")
-							.setStyle("PARAGRAPH")
+							.setStyle(TextInputStyle.Paragraph)
 							.setPlaceholder("Describe the Reminder")
 							.setMaxLength(400)
 							.setValue((reminder || draft)!.description)

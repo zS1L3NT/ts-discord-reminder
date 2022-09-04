@@ -1,10 +1,12 @@
 import { TextChannel } from "discord.js"
 import { BaseCommand, CommandHelper, ResponseBuilder } from "nova-bot"
 
-import Entry from "../../data/Entry"
-import GuildCache from "../../data/GuildCache"
+import { Entry } from "@prisma/client"
 
-export default class extends BaseCommand<Entry, GuildCache> {
+import GuildCache from "../../data/GuildCache"
+import prisma from "../../prisma"
+
+export default class extends BaseCommand<typeof prisma, Entry, GuildCache> {
 	override defer = true
 	override ephemeral = true
 	override data = {
@@ -13,15 +15,15 @@ export default class extends BaseCommand<Entry, GuildCache> {
 
 	override middleware = []
 
-	override condition(helper: CommandHelper<Entry, GuildCache>) {
+	override condition(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {
 		return helper.isMessageCommand(false)
 	}
 
-	override converter(helper: CommandHelper<Entry, GuildCache>) {}
+	override converter(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {}
 
-	override async execute(helper: CommandHelper<Entry, GuildCache>) {
+	override async execute(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {
 		const channel = await helper.cache.guild.channels.fetch(
-			helper.cache.getRemindersChannelId()
+			helper.cache.entry.reminders_channel_id ?? ""
 		)
 		if (channel instanceof TextChannel) {
 			await helper.cache.updateMinutely()

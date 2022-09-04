@@ -1,10 +1,13 @@
+import { Colors } from "discord.js"
 import { BaseCommand, CommandHelper, CommandType, ResponseBuilder } from "nova-bot"
 
-import Entry from "../../data/Entry"
+import { Entry, Priority } from "@prisma/client"
+
 import GuildCache from "../../data/GuildCache"
 import ReminderOrDraftMiddleware from "../../middleware/ReminderOrDraftMiddleware"
+import prisma from "../../prisma"
 
-export default class extends BaseCommand<Entry, GuildCache> {
+export default class extends BaseCommand<typeof prisma, Entry, GuildCache> {
 	override defer = true
 	override ephemeral = true
 	override data = {
@@ -13,22 +16,22 @@ export default class extends BaseCommand<Entry, GuildCache> {
 			{
 				name: "priority",
 				description:
-					"Can either be HIGH(7d, 1d, 12h, 2h, 1h, 30m), MEDIUM(1d, 2h) or LOW priority",
-				type: "number" as const,
+					"Can either be High(7d, 1d, 12h, 2h, 1h, 30m), Medium(1d, 2h) or Low priority",
+				type: "string" as const,
 				requirements: "Valid Priority",
 				required: true,
 				choices: [
 					{
-						name: "LOW",
-						value: 0
+						name: "Low",
+						value: "Low"
 					},
 					{
-						name: "MEDIUM",
-						value: 1
+						name: "Medium",
+						value: "Medium"
 					},
 					{
-						name: "HIGH",
-						value: 2
+						name: "High",
+						value: "High"
 					}
 				]
 			},
@@ -47,28 +50,48 @@ export default class extends BaseCommand<Entry, GuildCache> {
 
 	override middleware = [new ReminderOrDraftMiddleware()]
 
-	override condition(helper: CommandHelper<Entry, GuildCache>) {}
+	override condition(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {}
 
-	override converter(helper: CommandHelper<Entry, GuildCache>) {}
+	override converter(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {}
 
-	override async execute(helper: CommandHelper<Entry, GuildCache>) {
+	override async execute(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {
 		const reminderId = helper.string("reminder-id")
-		const index = helper.integer("priority") as 0 | 1 | 2 | null
+		const priority = helper.string("priority") as Priority | null
 
-		if (index === null) {
+		if (priority === null) {
 			return helper.respond(
 				ResponseBuilder.bad('Invalid priority, must be either "low", "medium" or "high"')
 			)
 		}
 
-		let oldIndex = -1
+		let oldPriority: Priority
 		if (reminderId) {
-			oldIndex = helper.cache.reminders.find(rm => rm.id === reminderId)!.priority
-			await helper.cache.getReminderDoc(reminderId).update({ priority: index })
+			oldPriority = helper.cache.reminders.find(r => r.id === reminderId)!.priority
+			await helper.cache.prisma.reminder.update({
+				where: {
+					id_guild_id: {
+						id: reminderId,
+						guild_id: helper.cache.guild.id
+					}
+				},
+				data: {
+					priority
+				}
+			})
 		} else {
-			oldIndex = helper.cache.draft!.priority
-			helper.cache.draft!.priority = index
-			await helper.cache.getDraftDoc().update({ priority: index })
+			oldPriority = helper.cache.draft!.priority
+			helper.cache.draft!.priority = priority
+			await helper.cache.prisma.reminder.update({
+				where: {
+					id_guild_id: {
+						id: "draft",
+						guild_id: helper.cache.guild.id
+					}
+				},
+				data: {
+					priority
+				}
+			})
 		}
 
 		await helper.respond({
@@ -76,22 +99,20 @@ export default class extends BaseCommand<Entry, GuildCache> {
 				ResponseBuilder.good(
 					`${reminderId ? "Reminder" : "Draft"} priority updated`
 				).build()
-			],
-			components: []
+			]
 		})
 
-		const priorities = ["LOW", "MEDIUM", "HIGH"]
 		helper.cache.logger.log({
 			member: helper.member,
 			title: `Priority Updated`,
 			description: [
 				`<@${helper.member.id}> changed the priority of a Reminder`,
 				`**Reminder ID**: ${reminderId ?? "Draft"}`,
-				`**Old Priority**: ${priorities[oldIndex]}`,
-				`**New Priority**: ${priorities[index]}`
+				`**Old Priority**: ${oldPriority}`,
+				`**New Priority**: ${priority}`
 			].join("\n"),
 			command: "priority",
-			color: "YELLOW"
+			color: Colors.Yellow
 		})
 	}
 }

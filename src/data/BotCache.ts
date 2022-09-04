@@ -1,39 +1,28 @@
 import { BaseBotCache } from "nova-bot"
 
-import Entry from "./Entry"
+import { Entry } from "@prisma/client"
+
+import prisma from "../prisma"
 import GuildCache from "./GuildCache"
 
-export default class BotCache extends BaseBotCache<Entry, GuildCache> {
+export default class BotCache extends BaseBotCache<typeof prisma, Entry, GuildCache> {
 	override async registerGuildCache(guildId: string): Promise<void> {
-		const doc = await this.ref.doc(guildId).get()
-		if (!doc.exists) {
-			await this.ref.doc(guildId).set(this.getEmptyEntry())
-		}
+		await this.prisma.entry.create({
+			data: {
+				guild_id: guildId,
+				prefix: null,
+				log_channel_id: null,
+				ping_channel_id: null,
+				reminders_channel_id: null,
+				reminder_message_ids: []
+			}
+		})
 	}
 
 	override async eraseGuildCache(guildId: string): Promise<void> {
-		const promises: Promise<any>[] = []
-
-		const doc = await this.ref.doc(guildId).get()
-		if (doc.exists) {
-			const doc = this.ref.doc(guildId)
-			;(await doc.collection("reminders").get()).forEach(snap => {
-				promises.push(doc.collection("reminders").doc(snap.id).delete())
-			})
-			promises.push(doc.delete())
-
-			await Promise.allSettled(promises)
-		}
-	}
-
-	override getEmptyEntry(): Entry {
-		return {
-			prefix: "",
-			aliases: {},
-			log_channel_id: "",
-			reminders_channel_id: "",
-			reminder_message_ids: [],
-			ping_channel_id: ""
-		}
+		await this.prisma.entry.delete({ where: { guild_id: guildId } })
+		await this.prisma.alias.deleteMany({ where: { guild_id: guildId } })
+		await this.prisma.reminder.deleteMany({ where: { guild_id: guildId } })
+		await this.prisma.ping.deleteMany({ where: { guild_id: guildId } })
 	}
 }

@@ -1,12 +1,14 @@
-import { TextChannel } from "discord.js"
+import { Colors, TextChannel } from "discord.js"
 import {
 	BaseCommand, CommandHelper, CommandType, IsAdminMiddleware, ResponseBuilder
 } from "nova-bot"
 
-import Entry from "../../data/Entry"
-import GuildCache from "../../data/GuildCache"
+import { Entry } from "@prisma/client"
 
-export default class extends BaseCommand<Entry, GuildCache> {
+import GuildCache from "../../data/GuildCache"
+import prisma from "../../prisma"
+
+export default class extends BaseCommand<typeof prisma, Entry, GuildCache> {
 	override defer = true
 	override ephemeral = true
 	override data = {
@@ -29,26 +31,26 @@ export default class extends BaseCommand<Entry, GuildCache> {
 	override only = CommandType.Slash
 	override middleware = [new IsAdminMiddleware()]
 
-	override condition(helper: CommandHelper<Entry, GuildCache>) {}
+	override condition(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {}
 
-	override converter(helper: CommandHelper<Entry, GuildCache>) {}
+	override converter(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {}
 
-	override async execute(helper: CommandHelper<Entry, GuildCache>) {
+	override async execute(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {
 		const oldChannelId = helper.cache.entry.ping_channel_id
 		const channel = helper.channel("channel")
 
 		if (channel instanceof TextChannel) {
 			switch (channel.id) {
-				case helper.cache.getRemindersChannelId():
+				case helper.cache.entry.reminders_channel_id:
 					helper.respond(
 						ResponseBuilder.bad("This channel is already the Reminders channel!")
 					)
 					break
-				case helper.cache.getPingChannelId():
+				case helper.cache.entry.ping_channel_id:
 					helper.respond(ResponseBuilder.bad("This channel is already the ping channel!"))
 					break
 				default:
-					await helper.cache.setPingChannelId(channel.id)
+					await helper.cache.update({ ping_channel_id: channel.id })
 					helper.respond(
 						ResponseBuilder.good(`Pinging channel reassigned to \`#${channel.name}\``)
 					)
@@ -61,19 +63,19 @@ export default class extends BaseCommand<Entry, GuildCache> {
 							`**New Ping Channel**: <#${channel.id}>`
 						].join("\n"),
 						command: "set-ping-channel",
-						color: "BLUE"
+						color: Colors.Blue
 					})
 					break
 			}
 		} else if (channel === null) {
-			await helper.cache.setPingChannelId("")
+			await helper.cache.update({ ping_channel_id: null })
 			helper.respond(ResponseBuilder.good(`Pinging channel unassigned`))
 			helper.cache.logger.log({
 				member: helper.member,
 				title: `Ping channel unassigned`,
 				description: `<@${helper.member.id}> unassigned the ping channel\b**Old Ping Channel**: <#${oldChannelId}>`,
 				command: "set-ping-channel",
-				color: "BLUE"
+				color: Colors.Blue
 			})
 		} else {
 			helper.respond(ResponseBuilder.bad(`Please select a text channel`))

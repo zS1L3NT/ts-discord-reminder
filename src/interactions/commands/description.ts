@@ -1,11 +1,13 @@
-import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js"
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Colors, EmbedBuilder } from "discord.js"
 import { BaseCommand, CommandHelper } from "nova-bot"
 
-import Entry from "../../data/Entry"
+import { Entry } from "@prisma/client"
+
 import GuildCache from "../../data/GuildCache"
 import ReminderOrDraftMiddleware from "../../middleware/ReminderOrDraftMiddleware"
+import prisma from "../../prisma"
 
-export default class extends BaseCommand<Entry, GuildCache> {
+export default class extends BaseCommand<typeof prisma, Entry, GuildCache> {
 	override defer = true
 	override ephemeral = true
 	override data = {
@@ -24,27 +26,27 @@ export default class extends BaseCommand<Entry, GuildCache> {
 
 	override middleware = [new ReminderOrDraftMiddleware()]
 
-	override condition(helper: CommandHelper<Entry, GuildCache>) {
+	override condition(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {
 		return helper.isMessageCommand(null)
 	}
 
-	override converter(helper: CommandHelper<Entry, GuildCache>) {
+	override converter(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {
 		const [reminderId] = helper.args()
 		return {
 			"reminder-id": reminderId
 		}
 	}
 
-	override async execute(helper: CommandHelper<Entry, GuildCache>) {
+	override async execute(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {
 		const reminderId = helper.string("reminder-id")
-		const reminder = helper.cache.reminders.find(reminder => reminder.id === reminderId)
+		const reminder = helper.cache.reminders.find(r => r.id === reminderId)
 		const draft = helper.cache.draft
 
 		helper.respond(
 			{
 				embeds: [
-					new MessageEmbed()
-						.setColor("DARK_GREEN")
+					new EmbedBuilder()
+						.setColor(Colors.DarkGreen)
 						.setTitle("Edit Description")
 						.setDescription((reminder || draft)!.description)
 						.setFooter({
@@ -52,11 +54,11 @@ export default class extends BaseCommand<Entry, GuildCache> {
 						})
 				],
 				components: [
-					new MessageActionRow().addComponents(
-						new MessageButton()
+					new ActionRowBuilder<ButtonBuilder>().addComponents(
+						new ButtonBuilder()
 							.setCustomId("description")
 							.setLabel("Click to edit")
-							.setStyle("SUCCESS")
+							.setStyle(ButtonStyle.Success)
 					)
 				]
 			},

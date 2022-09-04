@@ -1,10 +1,13 @@
+import { Colors } from "discord.js"
 import { BaseCommand, CommandHelper, CommandType, ResponseBuilder } from "nova-bot"
 
-import Entry from "../../data/Entry"
+import { Entry } from "@prisma/client"
+
 import GuildCache from "../../data/GuildCache"
 import ReminderOrDraftMiddleware from "../../middleware/ReminderOrDraftMiddleware"
+import prisma from "../../prisma"
 
-export default class extends BaseCommand<Entry, GuildCache> {
+export default class extends BaseCommand<typeof prisma, Entry, GuildCache> {
 	override defer = true
 	override ephemeral = true
 	override data = {
@@ -32,29 +35,47 @@ export default class extends BaseCommand<Entry, GuildCache> {
 
 	override middleware = [new ReminderOrDraftMiddleware()]
 
-	override condition(helper: CommandHelper<Entry, GuildCache>) {}
+	override condition(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {}
 
-	override converter(helper: CommandHelper<Entry, GuildCache>) {}
+	override converter(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {}
 
-	override async execute(helper: CommandHelper<Entry, GuildCache>) {
+	override async execute(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {
 		const reminderId = helper.string("reminder-id")
 		const title = helper.string("title")!
 
-		let oldTitle = ""
+		let oldTitle: string
 		if (reminderId) {
-			oldTitle = helper.cache.reminders.find(rm => rm.id === reminderId)!.title
-			await helper.cache.getReminderDoc(reminderId).update({ title })
+			oldTitle = helper.cache.reminders.find(r => r.id === reminderId)!.title
+			await helper.cache.prisma.reminder.update({
+				where: {
+					id_guild_id: {
+						id: reminderId,
+						guild_id: helper.cache.guild.id
+					}
+				},
+				data: {
+					title
+				}
+			})
 		} else {
 			oldTitle = helper.cache.draft!.title
 			helper.cache.draft!.title = title
-			await helper.cache.getDraftDoc().update({ title })
+			await helper.cache.prisma.reminder.update({
+				where: {
+					id_guild_id: {
+						id: "draft",
+						guild_id: helper.cache.guild.id
+					}
+				},
+				data: {
+					title
+				}
+			})
 		}
 
 		await helper.respond({
 			embeds: [
-				ResponseBuilder.good(
-					`${reminderId ? "Reminder" : "Draft"} title updated`
-				).build()
+				ResponseBuilder.good(`${reminderId ? "Reminder" : "Draft"} title updated`).build()
 			],
 			components: []
 		})
@@ -68,7 +89,7 @@ export default class extends BaseCommand<Entry, GuildCache> {
 				`**New Title**: ${title}`
 			].join("\n"),
 			command: "title",
-			color: "YELLOW"
+			color: Colors.Yellow
 		})
 	}
 }

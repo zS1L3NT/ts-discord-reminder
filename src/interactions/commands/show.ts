@@ -1,10 +1,12 @@
 import { BaseCommand, CommandHelper } from "nova-bot"
 
-import Entry from "../../data/Entry"
-import GuildCache from "../../data/GuildCache"
-import Reminder from "../../data/Reminder"
+import { Entry } from "@prisma/client"
 
-export default class extends BaseCommand<Entry, GuildCache> {
+import GuildCache from "../../data/GuildCache"
+import Reminder from "../../data/ReminderFull"
+import prisma from "../../prisma"
+
+export default class extends BaseCommand<typeof prisma, Entry, GuildCache> {
 	override defer = true
 	override ephemeral = true
 	override data = {
@@ -14,15 +16,15 @@ export default class extends BaseCommand<Entry, GuildCache> {
 
 	override middleware = []
 
-	override condition(helper: CommandHelper<Entry, GuildCache>) {
+	override condition(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {
 		return helper.isMessageCommand(false)
 	}
 
-	override converter(helper: CommandHelper<Entry, GuildCache>) {}
+	override converter(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {}
 
-	override async execute(helper: CommandHelper<Entry, GuildCache>) {
+	override async execute(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {
 		helper.respond({
-			embeds: [Reminder.toDraftMessageEmbed(helper.cache.draft, helper.cache.guild)]
+			embeds: [Reminder.toDraftEmbedBuilder(helper.cache.draft, helper.cache.guild)]
 		})
 	}
 }

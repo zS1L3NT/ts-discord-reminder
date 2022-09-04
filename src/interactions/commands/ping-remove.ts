@@ -1,12 +1,13 @@
-import { GuildMember, Role } from "discord.js"
-import admin from "firebase-admin"
+import { Colors, GuildMember, Role } from "discord.js"
 import { BaseCommand, CommandHelper, ResponseBuilder } from "nova-bot"
 
-import Entry from "../../data/Entry"
+import { Entry, PingType } from "@prisma/client"
+
 import GuildCache from "../../data/GuildCache"
 import ReminderOrDraftMiddleware from "../../middleware/ReminderOrDraftMiddleware"
+import prisma from "../../prisma"
 
-export default class extends BaseCommand<Entry, GuildCache> {
+export default class extends BaseCommand<typeof prisma, Entry, GuildCache> {
 	override defer = true
 	override ephemeral = true
 	override data = {
@@ -32,11 +33,11 @@ export default class extends BaseCommand<Entry, GuildCache> {
 
 	override middleware = [new ReminderOrDraftMiddleware()]
 
-	override condition(helper: CommandHelper<Entry, GuildCache>) {
+	override condition(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {
 		return helper.isMessageCommand(true)
 	}
 
-	override converter(helper: CommandHelper<Entry, GuildCache>) {
+	override converter(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {
 		const reminderId = helper.args().at(0)
 		const mentions = helper.message!.mentions
 		console.log(helper.args())
@@ -46,7 +47,7 @@ export default class extends BaseCommand<Entry, GuildCache> {
 		}
 	}
 
-	override async execute(helper: CommandHelper<Entry, GuildCache>) {
+	override async execute(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {
 		const reminderId = helper.string("reminder-id")
 		const memberOrRole = helper.mentionable("member-or-role") as Role | GuildMember | null
 
@@ -55,88 +56,69 @@ export default class extends BaseCommand<Entry, GuildCache> {
 		}
 
 		const id = memberOrRole.id
+		const pingType = memberOrRole instanceof Role ? PingType.Role : PingType.Member
 		if (reminderId) {
-			const reminder = helper.cache.reminders.find(reminder => reminder.id === reminderId)!
-
-			if (memberOrRole instanceof Role) {
-				if (!reminder.pings.roles.includes(id)) {
-					return helper.respond(ResponseBuilder.bad("Role not being pinged!"))
-				}
-
-				await helper.cache
-					.getReminderDoc(reminderId)
-					.update({ "pings.roles": admin.firestore.FieldValue.arrayRemove(id) })
-
-				helper.respond(ResponseBuilder.good("Role removed from ping list"))
-				helper.cache.logger.log({
-					member: helper.member,
-					title: `Role removed from ping list`,
-					description: `<@${helper.member.id}> removed <@&${id}> from the ping list of **Reminder ${reminderId}**`,
-					command: "ping-remove",
-					color: "YELLOW"
-				})
+			const reminder = helper.cache.reminders.find(r => r.id === reminderId)!
+			const index = reminder.pings.findIndex(
+				p => p.type === pingType && p.reference_id === id
+			)
+			if (index === -1) {
+				return helper.respond(ResponseBuilder.bad(`${pingType} not being pinged!`))
 			}
 
-			if (memberOrRole instanceof GuildMember) {
-				if (!reminder.pings.members.includes(id)) {
-					return helper.respond(ResponseBuilder.bad("Member not being pinged!"))
+			reminder.pings.splice(index, 1)
+			await helper.cache.prisma.ping.delete({
+				where: {
+					guild_id_reminder_id_reference_id_type: {
+						guild_id: helper.cache.guild.id,
+						reminder_id: reminderId,
+						reference_id: id,
+						type: pingType
+					}
 				}
+			})
 
-				await helper.cache
-					.getReminderDoc(reminderId)
-					.update({ "pings.members": admin.firestore.FieldValue.arrayRemove(id) })
-
-				helper.respond(ResponseBuilder.good("Member removed from ping list"))
-				helper.cache.logger.log({
-					member: helper.member,
-					title: `Member removed from ping list`,
-					description: `<@${helper.member.id}> removed <@${id}> from the ping list of **Reminder ${reminderId}**`,
-					command: "ping-remove",
-					color: "YELLOW"
-				})
-			}
+			helper.respond(ResponseBuilder.good(`${pingType} removed from ping list`))
+			helper.cache.logger.log({
+				member: helper.member,
+				title: `${pingType} removed from ping list`,
+				description: `<@${helper.member.id}> removed <@${
+					pingType === "Role" ? "&" : ""
+				}${id}> from the ping list of **Reminder ${reminderId}**`,
+				command: "ping-remove",
+				color: Colors.Yellow
+			})
 		} else {
 			const draft = helper.cache.draft!
-
-			if (memberOrRole instanceof Role) {
-				if (!draft.pings.roles.includes(id)) {
-					return helper.respond(ResponseBuilder.bad("Role not being pinged!"))
-				}
-
-				draft.pings.roles = draft.pings.roles.filter(r => r !== id)
-				await helper.cache
-					.getDraftDoc()
-					.update({ "pings.roles": admin.firestore.FieldValue.arrayRemove(id) })
-
-				helper.respond(ResponseBuilder.good("Role removed from ping list"))
-				helper.cache.logger.log({
-					member: helper.member,
-					title: `Role removed from ping list`,
-					description: `<@${helper.member.id}> removed <@&${id}> from the ping list of the **Draft**`,
-					command: "ping-remove",
-					color: "YELLOW"
-				})
+			const index = draft.pings.findIndex(
+				p => p.type === PingType.Role && p.reference_id === id
+			)
+			if (index === -1) {
+				return helper.respond(ResponseBuilder.bad(`${pingType} not being pinged!`))
 			}
 
-			if (memberOrRole instanceof GuildMember) {
-				if (!draft.pings.members.includes(id)) {
-					return helper.respond(ResponseBuilder.bad("Member not being pinged!"))
+			draft.pings.splice(index, 1)
+			await helper.cache.prisma.ping.delete({
+				where: {
+					guild_id_reminder_id_reference_id_type: {
+						guild_id: helper.cache.guild.id,
+						reminder_id: "draft",
+						reference_id: id,
+						type: pingType
+					}
 				}
+			})
 
-				draft.pings.members = draft.pings.members.filter(m => m !== id)
-				await helper.cache
-					.getDraftDoc()
-					.update({ "pings.members": admin.firestore.FieldValue.arrayRemove(id) })
-
-				helper.respond(ResponseBuilder.good("Member removed from ping list"))
-				helper.cache.logger.log({
-					member: helper.member,
-					title: `Member removed from ping list`,
-					description: `<@${helper.member.id}> removed <@${id}> from the ping list of the **Draft**`,
-					command: "ping-remove",
-					color: "YELLOW"
-				})
-			}
+			helper.respond(ResponseBuilder.good(`${pingType} removed from ping list`))
+			helper.cache.logger.log({
+				member: helper.member,
+				title: `${pingType} removed from ping list`,
+				description: `<@${helper.member.id}> removed <@${
+					pingType === "Role" ? "&" : ""
+				}${id}> from the ping list of the **Draft**`,
+				command: "ping-remove",
+				color: Colors.Yellow
+			})
 		}
 	}
 }

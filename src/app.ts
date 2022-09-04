@@ -1,15 +1,17 @@
 import "dotenv/config"
 
 import AfterEvery from "after-every"
-import { Intents } from "discord.js"
+import { ActivityType, GatewayIntentBits } from "discord.js"
 import http from "http"
 import NovaBot from "nova-bot"
 import path from "path"
 
+import { Entry, Priority } from "@prisma/client"
+
 import BotCache from "./data/BotCache"
-import Entry from "./data/Entry"
 import GuildCache from "./data/GuildCache"
 import logger from "./logger"
+import prisma from "./prisma"
 
 const ONE_SECOND = 1000
 const ONE_MINUTE = 60 * ONE_SECOND
@@ -22,12 +24,12 @@ process.on("uncaughtException", err => {
 	}
 })
 
-class ReminderBot extends NovaBot<Entry, GuildCache, BotCache> {
+class ReminderBot extends NovaBot<typeof prisma, Entry, GuildCache, BotCache> {
 	override name = "Reminder#2744"
 	override icon =
 		"https://cdn.discordapp.com/avatars/848441372666888232/a856fd9303a063ddfca4d50fe780ec1c.webp?size=128"
 	override directory = path.join(__dirname, "interactions")
-	override intents = [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS]
+	override intents = [GatewayIntentBits.GuildMessages, GatewayIntentBits.Guilds]
 
 	override helpMessage = (cache: GuildCache) =>
 		[
@@ -51,6 +53,8 @@ class ReminderBot extends NovaBot<Entry, GuildCache, BotCache> {
 	//@ts-ignore
 	override logger = logger
 
+	override prisma = prisma
+
 	override async onSetup(botCache: BotCache) {
 		const approximately = (diff: number, actual: number) => {
 			const high = actual + 45_000
@@ -62,7 +66,7 @@ class ReminderBot extends NovaBot<Entry, GuildCache, BotCache> {
 			activities: [
 				{
 					name: "/help",
-					type: "LISTENING"
+					type: ActivityType.Listening
 				}
 			]
 		})
@@ -72,15 +76,15 @@ class ReminderBot extends NovaBot<Entry, GuildCache, BotCache> {
 
 			AfterEvery(1).minutes(() => {
 				for (const reminder of cache.reminders) {
-					const timeDiff = reminder.due_date - Date.now()
+					const timeDiff = reminder.due_date.getTime() - Date.now()
 
-					if (reminder.priority === 0) {
+					if (reminder.priority === Priority.Low) {
 						if (approximately(timeDiff, 0)) {
 							cache.updatePingChannel(reminder)
 						}
 					}
 
-					if (reminder.priority === 1) {
+					if (reminder.priority === Priority.Medium) {
 						if (
 							approximately(timeDiff, ONE_DAY) ||
 							approximately(timeDiff, 2 * ONE_HOUR) ||
@@ -90,7 +94,7 @@ class ReminderBot extends NovaBot<Entry, GuildCache, BotCache> {
 						}
 					}
 
-					if (reminder.priority === 2) {
+					if (reminder.priority === Priority.High) {
 						if (
 							approximately(timeDiff, 7 * ONE_DAY) ||
 							approximately(timeDiff, ONE_DAY) ||

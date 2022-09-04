@@ -1,29 +1,52 @@
+import { Colors, MessageType } from "discord.js"
 import { BaseModal, ModalHelper, ResponseBuilder } from "nova-bot"
 
-import Entry from "../../data/Entry"
+import { Entry } from "@prisma/client"
+
 import GuildCache from "../../data/GuildCache"
 import logger from "../../logger"
+import prisma from "../../prisma"
 
-export default class extends BaseModal<Entry, GuildCache> {
+export default class extends BaseModal<typeof prisma, Entry, GuildCache> {
 	override defer = false
 	override ephemeral = false
 
 	override middleware = []
 
-	override async execute(helper: ModalHelper<Entry, GuildCache>) {
+	override async execute(helper: ModalHelper<typeof prisma, Entry, GuildCache>) {
 		const description = helper.text("description")!
 
 		const footerText = helper.message!.embeds[0]!.footer!.text!
 
-		let oldDescription = ""
+		let oldDescription: string
 		if (footerText === "Draft") {
 			oldDescription = helper.cache.draft!.description
 			helper.cache.draft!.description = description
-			await helper.cache.getDraftDoc().update({ description })
+			await helper.cache.prisma.reminder.update({
+				where: {
+					id_guild_id: {
+						id: "draft",
+						guild_id: helper.cache.guild.id
+					}
+				},
+				data: {
+					description
+				}
+			})
 		} else {
 			const reminderId = footerText.slice(4)
-			oldDescription = helper.cache.reminders.find(rm => rm.id === reminderId)!.description
-			await helper.cache.getReminderDoc(reminderId).update({ description })
+			oldDescription = helper.cache.reminders.find(r => r.id === reminderId)!.description
+			await helper.cache.prisma.reminder.update({
+				where: {
+					id_guild_id: {
+						id: reminderId,
+						guild_id: helper.cache.guild.id
+					}
+				},
+				data: {
+					description
+				}
+			})
 		}
 
 		await helper.update({
@@ -31,8 +54,7 @@ export default class extends BaseModal<Entry, GuildCache> {
 				ResponseBuilder.good(
 					`${footerText === "Draft" ? "Draft" : "Reminder"} description updated`
 				).build()
-			],
-			components: []
+			]
 		})
 		helper.cache.logger.log({
 			member: helper.member,
@@ -46,10 +68,10 @@ export default class extends BaseModal<Entry, GuildCache> {
 				`${description}`
 			].join("\n"),
 			command: "description",
-			color: "YELLOW"
+			color: Colors.Yellow
 		})
 
-		if (helper.message!.type !== "APPLICATION_COMMAND") {
+		if (helper.message!.type !== MessageType.ChatInputCommand) {
 			setTimeout(
 				() =>
 					helper

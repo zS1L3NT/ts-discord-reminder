@@ -1,81 +1,118 @@
 import equal from "deep-equal"
-import { TextChannel } from "discord.js"
+import { Colors, TextChannel } from "discord.js"
 import { useTryAsync } from "no-try"
 import { BaseGuildCache, ChannelCleaner, DateHelper } from "nova-bot"
 
+import { Entry } from "@prisma/client"
+
 import logger from "../logger"
-import Entry from "./Entry"
-import Reminder, { ReminderConverter } from "./Reminder"
+import prisma from "../prisma"
+import ReminderFull from "./ReminderFull"
 
-export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
-	reminders: Reminder[] = []
-	draft: Reminder | undefined
+export default class GuildCache extends BaseGuildCache<typeof prisma, Entry, GuildCache> {
+	reminders: ReminderFull[] = []
+	draft: ReminderFull | undefined
 
-	override resolve(resolve: (cache: GuildCache) => void): void {
-		this.ref.onSnapshot(snap => {
-			if (snap.exists) {
-				this.entry = snap.data()!
-				resolve(this)
+	override async refresh() {
+		this.entry = await this.prisma.entry.findFirstOrThrow({
+			where: {
+				guild_id: this.guild.id
 			}
 		})
-		this.ref
-			.collection("reminders")
-			.withConverter(new ReminderConverter())
-			.onSnapshot(snaps => {
-				const data = snaps.docs.map(doc => doc.data())
-				this.reminders = data.filter(doc => doc.id !== "draft")
-				this.draft = data.find(doc => doc.id === "draft")
-			})
+		const reminders = await this.prisma.reminder.findMany({
+			where: {
+				guild_id: this.guild.id
+			}
+		})
+		const pings = await this.prisma.ping.findMany({
+			where: {
+				guild_id: this.guild.id
+			}
+		})
+		this.draft = reminders
+			.filter(r => r.id === "draft")
+			?.map(
+				draft =>
+					new ReminderFull(
+						draft.guild_id,
+						draft.id,
+						draft.title,
+						draft.description,
+						draft.due_date,
+						draft.priority,
+						pings.filter(ping => ping.reminder_id === "draft")
+					)
+			)[0]
+		this.reminders = reminders
+			.filter(r => r.id !== "draft")
+			.map(
+				reminder =>
+					new ReminderFull(
+						reminder.guild_id,
+						reminder.id,
+						reminder.title,
+						reminder.description,
+						reminder.due_date,
+						reminder.priority,
+						pings.filter(ping => ping.reminder_id === reminder.id)
+					)
+			)
 	}
 
 	override async updateMinutely() {
-		const remindersChannelId = this.getRemindersChannelId()
-		if (!remindersChannelId) return
+		if (!this.entry.reminders_channel_id) return
 
 		// Remove expired reminders
 		for (const reminder of this.reminders) {
-			if (reminder.due_date < Date.now()) {
-				this.reminders = this.reminders.filter(rem => rem.id !== reminder.id)
-				await this.getReminderDoc(reminder.id).delete()
-				await this.setReminderMessageIds(this.getReminderMessageIds().slice(1))
+			if (reminder.due_date.getTime() < Date.now()) {
+				this.reminders = this.reminders.filter(r => r.id !== reminder.id)
+				await this.prisma.reminder.delete({
+					where: { id_guild_id: { id: reminder.id, guild_id: this.guild.id } }
+				})
+				await this.prisma.ping.deleteMany({
+					where: { reminder_id: reminder.id, guild_id: this.guild.id }
+				})
+				await this.update({
+					reminder_message_ids: this.entry.reminder_message_ids.slice(1)
+				})
 				this.logger.log({
 					title: `Reminder due date past`,
 					description: `Deleting Reminder ${reminder.id} since it's due date is past.`,
-					color: "BLUE",
-					embeds: [reminder.toMessageEmbed(this.guild).setColor("#000000")]
+					color: Colors.Blue,
+					embeds: [reminder.toEmbedBuilder(this.guild).setColor("#000000")]
 				})
 			}
 		}
 
 		const embeds = this.reminders
-			.sort((a, b) => b.due_date - a.due_date)
-			.map(reminder => reminder.toMessageEmbed(this.guild))
+			.sort((a, b) => b.due_date.getTime() - a.due_date.getTime())
+			.map(reminder => reminder.toEmbedBuilder(this.guild))
 		const requiredMessages = Math.ceil(embeds.length / 10)
-		let reminderMessageIds = this.getReminderMessageIds()
+		let reminder_message_ids = [...this.entry.reminder_message_ids]
 
-		if (reminderMessageIds.length > requiredMessages) {
-			const diff = reminderMessageIds.length - requiredMessages
-			await this.setReminderMessageIds(reminderMessageIds.slice(diff))
-			reminderMessageIds = this.getReminderMessageIds()
+		if (reminder_message_ids.length > requiredMessages) {
+			const diff = reminder_message_ids.length - requiredMessages
+			reminder_message_ids = reminder_message_ids.slice(diff)
+			await this.update({ reminder_message_ids })
 		}
 
-		if (reminderMessageIds.length < requiredMessages) {
-			const diff = requiredMessages - reminderMessageIds.length
-			await this.setReminderMessageIds([...reminderMessageIds, ...Array(diff).fill("")])
-			reminderMessageIds = this.getReminderMessageIds()
+		if (reminder_message_ids.length < requiredMessages) {
+			const diff = requiredMessages - reminder_message_ids.length
+			reminder_message_ids = [...reminder_message_ids, ...Array(diff).fill("")]
+			await this.update({ reminder_message_ids })
 		}
 
 		const [err, messages] = await useTryAsync(async () => {
-			const cleaner = new ChannelCleaner<Entry, GuildCache>(
+			const cleaner = new ChannelCleaner<typeof prisma, Entry, GuildCache>(
 				this,
-				remindersChannelId,
-				reminderMessageIds
+				this.entry.reminders_channel_id!,
+				reminder_message_ids
 			)
 			await cleaner.clean()
 
-			if (!equal(reminderMessageIds, this.getReminderMessageIds())) {
-				await this.setReminderMessageIds(reminderMessageIds)
-				reminderMessageIds = this.getReminderMessageIds()
+			if (!equal(reminder_message_ids, this.entry.reminder_message_ids)) {
+				reminder_message_ids = []
+				await this.update({ reminder_message_ids })
 			}
 
 			return cleaner.getMessages()
@@ -83,8 +120,10 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 
 		if (err) {
 			if (err.message === "no-channel") {
-				logger.warn(`Guild(${this.guild.name}) has no Channel(${remindersChannelId})`)
-				await this.setRemindersChannelId("")
+				logger.warn(
+					`Guild(${this.guild.name}) has no Channel(${this.entry.reminders_channel_id})`
+				)
+				await this.update({ reminders_channel_id: "" })
 				return
 			}
 			if (err.name === "HTTPError") {
@@ -95,59 +134,32 @@ export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 		}
 
 		for (let i = 0; i < Math.ceil(embeds.length / 10); i++) {
-			const messageId = reminderMessageIds[i]!
+			const messageId = reminder_message_ids[i]!
 			const message = messages.get(messageId)
 			message?.edit({ embeds: embeds.slice(i * 10, (i + 1) * 10) })
 		}
 	}
 
-	async updatePingChannel(reminder: Reminder) {
-		const pingChannelId = this.getPingChannelId()
+	override getEmptyEntry(): Entry {
+		return {
+			guild_id: "",
+			prefix: null,
+			log_channel_id: null,
+			ping_channel_id: null,
+			reminders_channel_id: null,
+			reminder_message_ids: []
+		}
+	}
 
-		const channel = this.guild.channels.cache.get(pingChannelId)
+	async updatePingChannel(reminder: ReminderFull) {
+		const channel = this.guild.channels.cache.get(this.entry.ping_channel_id ?? "")
 		if (channel instanceof TextChannel) {
 			channel.send({
 				content: `${reminder.getPingString(this.guild)}\n${
 					reminder.title
-				} is due in ${new DateHelper(reminder.due_date).getTimeLeft()}!`,
-				embeds: [reminder.toMessageEmbed(this.guild)]
+				} is due in ${new DateHelper(reminder.due_date.getTime()).getTimeLeft()}!`,
+				embeds: [reminder.toEmbedBuilder(this.guild)]
 			})
 		}
-	}
-
-	getDraftDoc() {
-		return this.getReminderDoc("draft")
-	}
-
-	getReminderDoc(reminderId?: string) {
-		const collection = this.ref.collection("reminders").withConverter(new ReminderConverter())
-		return reminderId ? collection.doc(reminderId) : collection.doc()
-	}
-
-	getRemindersChannelId() {
-		return this.entry.reminders_channel_id
-	}
-
-	async setRemindersChannelId(reminders_channel_id: string) {
-		this.entry.reminders_channel_id = reminders_channel_id
-		await this.ref.update({ reminders_channel_id })
-	}
-
-	getReminderMessageIds() {
-		return [...this.entry.reminder_message_ids]
-	}
-
-	async setReminderMessageIds(reminder_message_ids: string[]) {
-		this.entry.reminder_message_ids = reminder_message_ids
-		await this.ref.update({ reminder_message_ids })
-	}
-
-	getPingChannelId() {
-		return this.entry.ping_channel_id
-	}
-
-	async setPingChannelId(ping_channel_id: string) {
-		this.entry.ping_channel_id = ping_channel_id
-		await this.ref.update({ ping_channel_id })
 	}
 }

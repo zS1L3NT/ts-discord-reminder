@@ -1,14 +1,16 @@
 import { CommandHelper, CommandMiddleware, ResponseBuilder } from "nova-bot"
 
-import Entry from "../data/Entry"
-import GuildCache from "../data/GuildCache"
+import { Entry } from "@prisma/client"
 
-export default class extends CommandMiddleware<Entry, GuildCache> {
-	override handler(helper: CommandHelper<Entry, GuildCache>) {
+import GuildCache from "../data/GuildCache"
+import prisma from "../prisma"
+
+export default class extends CommandMiddleware<typeof prisma, Entry, GuildCache> {
+	override handler(helper: CommandHelper<typeof prisma, Entry, GuildCache>) {
 		const reminderId = helper.string("reminder-id")
 
 		if (reminderId) {
-			const reminder = helper.cache.reminders.find(rm => rm.id === reminderId)
+			const reminder = helper.cache.reminders.find(r => r.id === reminderId)
 			if (!reminder) {
 				helper.respond(ResponseBuilder.bad("Reminder with that ID doesn't exist"))
 				return false
