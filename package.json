@@ -18,7 +18,7 @@
 		"dotenv": "^16.0.2",
 		"luxon": "^3.0.3",
 		"no-try": "^3.1.0",
-		"nova-bot": "file:..\\ts-npm-nova-bot\\nova-bot-3.0.0-alpha.8.tgz",
+		"nova-bot": "^3.0.0",
 		"prisma": "^4.3.1",
 		"tracer": "^1.1.6"
 	},
