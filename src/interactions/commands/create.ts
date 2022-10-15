@@ -35,7 +35,7 @@ export default class extends BaseCommand<typeof prisma, Entry, GuildCache> {
 		reminder.id = "draft"
 
 		helper.cache.draft = reminder
-		await helper.cache.prisma.reminder.create({ data: reminder })
+		await helper.cache.prisma.reminder.create({ data: reminder.getReminder() })
 
 		helper.respond({
 			embeds: [
