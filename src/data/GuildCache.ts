@@ -1,6 +1,5 @@
 import equal from "deep-equal"
-import { Colors, TextChannel } from "discord.js"
-import { useTryAsync } from "no-try"
+import { Collection, Colors, Message, TextChannel } from "discord.js"
 import { BaseGuildCache, ChannelCleaner, DateHelper } from "nova-bot"
 
 import { Entry } from "@prisma/client"
@@ -98,11 +97,15 @@ export default class GuildCache extends BaseGuildCache<typeof prisma, Entry, Gui
 
 		if (reminder_message_ids.length < requiredMessages) {
 			const diff = requiredMessages - reminder_message_ids.length
-			reminder_message_ids = [...reminder_message_ids, ...Array(diff).fill("")]
+			reminder_message_ids = [
+				...reminder_message_ids,
+				...Array(diff).fill("" + Math.random())
+			]
 			await this.update({ reminder_message_ids })
 		}
 
-		const [err, messages] = await useTryAsync(async () => {
+		let messages!: Collection<string, Message>
+		try {
 			const cleaner = new ChannelCleaner<typeof prisma, Entry, GuildCache>(
 				this,
 				this.entry.reminders_channel_id!,
@@ -111,14 +114,11 @@ export default class GuildCache extends BaseGuildCache<typeof prisma, Entry, Gui
 			await cleaner.clean()
 
 			if (!equal(reminder_message_ids, this.entry.reminder_message_ids)) {
-				reminder_message_ids = []
 				await this.update({ reminder_message_ids })
 			}
 
-			return cleaner.getMessages()
-		})
-
-		if (err) {
+			messages = cleaner.getMessages()
+		} catch (err: any) {
 			if (err.message === "no-channel") {
 				logger.warn(
 					`Guild(${this.guild.name}) has no Channel(${this.entry.reminders_channel_id})`
