@@ -78,8 +78,8 @@ export default class ReminderFull implements Reminder {
 
 		return new EmbedBuilder()
 			.setColor(color)
-			.setTitle(this.title ?? null)
-			.setDescription(this.description ?? null)
+			.setTitle(this.title || null)
+			.setDescription(this.description || null)
 			.addFields(
 				{ name: "Pinging", value: this.getPingString(guild) },
 				{ name: "Due date", value: new DateHelper(this.due_date.getTime()).getDate() },
