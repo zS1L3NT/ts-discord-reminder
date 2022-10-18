@@ -5,8 +5,9 @@
 	"author": "zS1L3NT",
 	"license": "GPL-3.0",
 	"scripts": {
-		"start": "pnpx ts-node --files src/app.ts",
-		"dev": "ts-node --files src/app.ts"
+		"start": "node dist/app.js",
+		"dev": "ts-node --files src/app.ts",
+		"build": "tsc"
 	},
 	"dependencies": {
 		"@prisma/client": "^4.3.1",
