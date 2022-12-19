@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  ts-discord-reminder:
+    build: .
+    working_dir: /home/ts-discord-reminder
+    container_name: ts-discord-reminder
+    image: zs1l3nt/ts-discord-reminder
+    env_file:
+        - .env
