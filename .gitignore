@@ -2,5 +2,6 @@
 **/.idea
 **/dist
 **/.env
+**/.secrets
 **/*.test.ts
 **/.vscode

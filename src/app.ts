@@ -115,7 +115,7 @@ class ReminderBot extends NovaBot<typeof prisma, Entry, GuildCache, BotCache> {
 
 new ReminderBot().start()
 
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT || 80
 http.createServer((_, res) => {
 	res.writeHead(200, { "Content-Type": "text/plain" })
 	res.write("Reminder running!")

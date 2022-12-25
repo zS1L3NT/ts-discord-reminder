@@ -1,0 +1,33 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - src/**
+      - .github/workflows/deploy.yml
+      - docker-compose.yml
+      - Dockerfile
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Run update command
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            cd /home/admin
+            [ ! -d ts-discord-reminder ] && git clone https://github.com/zS1L3NT/ts-discord-reminder
+            cd ts-discord-reminder
+            echo DATABASE_URL="${{ secrets.DATABASE_URL }}" > .env
+            echo DISCORD__TOKEN="${{ secrets.DISCORD__TOKEN }}" >> .env
+            echo DISCORD__BOT_ID="${{ secrets.DISCORD__BOT_ID }}" >> .env
+            echo DISCORD__DEV_ID="${{ secrets.DISCORD__DEV_ID }}" >> .env
+            git pull origin main
+            docker-compose up -d --build

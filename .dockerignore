@@ -1,8 +1,8 @@
-/migrations
-/node_modules
-.editorconfig
-.env.example
-.gitignore
-.prettierrc
-LICENCE
-README.md
+**/node_modules
+**/.editorconfig
+**/.env
+**/.env.example
+**/.gitignore
+**/.prettierrc
+**/LICENCE
+**/README.md
