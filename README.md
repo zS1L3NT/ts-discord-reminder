@@ -4,8 +4,6 @@
 
 Reminder Bot is a Discord bot that can store reminders you want to keep, in the server that you add it too. Reminder bot needs a dedicated text channel to place all reminders into. For every reminder, Reminder bot will update the `Due in` on the embed to let you know how soon the reminder is due in. Reminder Bot was the first bot among all my Discord Bots to make use of a Bot Cache and Guild Cache system, which lead to the creation of [Nova Bot](https://github.com/zS1L3NT/ts-npm-nova-bot)
 
-You can add it to your own server using [this](https://reminder-bot.zectan.com) link, just make sure to give it admin permissions. Reminder Bot is built on top of the [Nova Bot](https://github.com/zS1L3NT/ts-npm-nova-bot) Discord bot framework.
-
 This is an example of a reminder that Reminder bot stores<br>
 ![Example](https://i.ibb.co/rtB0DMx/reminer.png)
 
@@ -72,23 +70,24 @@ $ npm run dev
 
 ## Built with
 
--   TypeScript
-    -   [![@types/deep-equal](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/dev/@types/deep-equal?style=flat-square)](https://npmjs.com/package/@types/deep-equal)
-    -   [![@types/dotenv](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/dev/@types/dotenv?style=flat-square)](https://npmjs.com/package/@types/dotenv)
-    -   [![@types/luxon](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/dev/@types/luxon?style=flat-square)](https://npmjs.com/package/@types/luxon)
-    -   [![@types/node](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/dev/@types/node?style=flat-square)](https://npmjs.com/package/@types/node)
-    -   [![typescript](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/dev/typescript?style=flat-square)](https://npmjs.com/package/typescript)
--   DiscordJS
-    -   [![discord.js](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/discord.js?style=flat-square)](https://npmjs.com/package/discord.js)
--	Prisma
-    -   [![@prisma/client](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/@prisma/client?style=flat-square)](https://npmjs.com/package/@prisma/client)
-    -   [![prisma](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/prisma?style=flat-square)](https://npmjs.com/package/prisma)
--   Miscellaneous
-    -   [![after-every](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/after-every?style=flat-square)](https://npmjs.com/package/after-every)
-    -   [![colors](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/colors?style=flat-square)](https://npmjs.com/package/colors)
-    -   [![deep-equal](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/deep-equal?style=flat-square)](https://npmjs.com/package/deep-equal)
-    -   [![dotenv](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/dotenv?style=flat-square)](https://npmjs.com/package/dotenv)
-    -   [![luxon](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/luxon?style=flat-square)](https://npmjs.com/package/luxon)
-    -   [![no-try](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/no-try?style=flat-square)](https://npmjs.com/package/no-try)
-    -   [![nova-bot](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/nova-bot?style=flat-square)](https://npmjs.com/package/nova-bot)
-    -   [![tracer](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-discord-reminder/tracer?style=flat-square)](https://npmjs.com/package/tracer)
+-   NodeJS
+    -   TypeScript
+        -   [![@types/deep-equal](https://img.shields.io/badge/%40types%2Fdeep--equal-%5E1.0.1-red?style=flat-square)](https://npmjs.com/package/@types/deep-equal/v/1.0.1)
+        -   [![@types/luxon](https://img.shields.io/badge/%40types%2Fluxon-%5E3.0.1-red?style=flat-square)](https://npmjs.com/package/@types/luxon/v/3.0.1)
+        -   [![@types/node](https://img.shields.io/badge/%40types%2Fnode-latest-red?style=flat-square)](https://npmjs.com/package/@types/node/v/latest)
+        -   [![ts-node](https://img.shields.io/badge/ts--node-latest-red?style=flat-square)](https://npmjs.com/package/ts-node/v/latest)
+        -   [![typescript](https://img.shields.io/badge/typescript-latest-red?style=flat-square)](https://npmjs.com/package/typescript/v/latest)
+    -   DiscordJS
+        -   [![discord.js](https://img.shields.io/badge/discord.js-%5E14.3.0-red?style=flat-square)](https://npmjs.com/package/discord.js/v/14.3.0)
+    -   Prisma
+        -   [![@prisma/client](https://img.shields.io/badge/%40prisma%2Fclient-%5E4.3.1-red?style=flat-square)](https://npmjs.com/package/@prisma/client/v/4.3.1)
+        -   [![prisma](https://img.shields.io/badge/prisma-%5E4.3.1-red?style=flat-square)](https://npmjs.com/package/prisma/v/4.3.1)
+    -   Miscellaneous
+        -   [![after-every](https://img.shields.io/badge/after--every-%5E1.0.4-red?style=flat-square)](https://npmjs.com/package/after-every/v/1.0.4)
+        -   [![colors](https://img.shields.io/badge/colors-%5E1.4.0-red?style=flat-square)](https://npmjs.com/package/colors/v/1.4.0)
+        -   [![deep-equal](https://img.shields.io/badge/deep--equal-%5E2.0.5-red?style=flat-square)](https://npmjs.com/package/deep-equal/v/2.0.5)
+        -   [![dotenv](https://img.shields.io/badge/dotenv-%5E16.0.2-red?style=flat-square)](https://npmjs.com/package/dotenv/v/16.0.2)
+        -   [![luxon](https://img.shields.io/badge/luxon-%5E3.0.3-red?style=flat-square)](https://npmjs.com/package/luxon/v/3.0.3)
+        -   [![no-try](https://img.shields.io/badge/no--try-%5E3.1.0-red?style=flat-square)](https://npmjs.com/package/no-try/v/3.1.0)
+        -   [![nova-bot](https://img.shields.io/badge/nova--bot-%5E3.0.0-red?style=flat-square)](https://npmjs.com/package/nova-bot/v/3.0.0)
+        -   [![tracer](https://img.shields.io/badge/tracer-%5E1.1.6-red?style=flat-square)](https://npmjs.com/package/tracer/v/1.1.6)
