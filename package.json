@@ -5,27 +5,26 @@
 	"author": "zS1L3NT <zechariahtan144@gmail.com> (https://www.zectan.com)",
 	"license": "GPL-3.0",
 	"scripts": {
-		"start": "ts-node -T src/app.ts",
-		"dev": "ts-node --files src/app.ts"
+		"start": "tsx src/app.ts"
 	},
 	"dependencies": {
-		"@prisma/client": "^4.3.1",
+		"@prisma/client": "^4.12.0",
 		"after-every": "^1.0.4",
 		"colors": "^1.4.0",
-		"deep-equal": "^2.0.5",
-		"discord.js": "^14.3.0",
-		"dotenv": "^16.0.2",
-		"luxon": "^3.0.3",
+		"deep-equal": "^2.2.0",
+		"discord.js": "^14.9.0",
+		"dotenv": "^16.0.3",
+		"luxon": "^3.3.0",
 		"no-try": "^3.1.0",
-		"nova-bot": "^3.0.0",
-		"prisma": "^4.3.1",
+		"nova-bot": "^3.0.1",
+		"prisma": "^4.12.0",
 		"tracer": "^1.1.6"
 	},
 	"devDependencies": {
 		"@types/deep-equal": "^1.0.1",
-		"@types/luxon": "^3.0.1",
+		"@types/luxon": "^3.3.0",
 		"@types/node": "latest",
-		"ts-node": "latest",
+		"tsx": "^3.12.6",
 		"typescript": "latest"
 	}
 }
