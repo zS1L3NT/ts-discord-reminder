@@ -92,11 +92,11 @@ export default class ReminderFull implements Reminder {
 		return (
 			this.pings
 				.filter(ping => ping.type === PingType.Role)
-				.map(r => (r.reference_id === guild.roles.everyone.id ? "@everyone" : `<@&${r}>`))
+				.map(r => (r.reference_id === guild.roles.everyone.id ? "@everyone" : `<@&${r.reference_id}>`))
 				.join("") +
 				this.pings
 					.filter(ping => ping.type === PingType.Member)
-					.map(m => `<@!${m}>`)
+					.map(m => `<@!${m.reference_id}>`)
 					.join("") || "Not pinging anyone"
 		)
 	}
