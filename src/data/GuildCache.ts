@@ -154,12 +154,20 @@ export default class GuildCache extends BaseGuildCache<typeof prisma, Entry, Gui
 	async updatePingChannel(reminder: ReminderFull) {
 		const channel = this.guild.channels.cache.get(this.entry.ping_channel_id ?? "")
 		if (channel instanceof TextChannel) {
-			channel.send({
-				content: `${reminder.getPingString(this.guild)}\n${
-					reminder.title
-				} is due in ${new DateHelper(reminder.due_date.getTime()).getTimeLeft()}!`,
-				embeds: [reminder.toEmbedBuilder(this.guild)]
-			})
+			channel
+				.send({
+					content: `${reminder.getPingString(this.guild)}\n${
+						reminder.title
+					} is due in ${new DateHelper(reminder.due_date.getTime()).getTimeLeft()}!`,
+					embeds: [reminder.toEmbedBuilder(this.guild)]
+				})
+				.then(message => {
+					setTimeout(async () => {
+						await message.reactions
+							.removeAll()
+							.catch(err => logger.log("Failed to delete reactions", err))
+					}, 15_000)
+				})
 		}
 	}
 }
