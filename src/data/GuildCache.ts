@@ -166,7 +166,7 @@ export default class GuildCache extends BaseGuildCache<typeof prisma, Entry, Gui
 						await message.reactions
 							.removeAll()
 							.catch(err => logger.log("Failed to delete reactions", err))
-					}, 15_000)
+					}, 60_000)
 				})
 		}
 	}
