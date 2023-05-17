@@ -5,3 +5,4 @@
 **/.secrets
 **/*.test.ts
 **/.vscode
+**/key.pem

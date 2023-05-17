@@ -5,7 +5,8 @@
 	"author": "zS1L3NT <zechariahtan144@gmail.com> (https://www.zectan.com)",
 	"license": "GPL-3.0",
 	"scripts": {
-		"start": "tsx src/app.ts"
+		"start": "tsx src/app.ts",
+		"ssh": "ssh -i key.pem admin@$EC2_HOST"
 	},
 	"dependencies": {
 		"@prisma/client": "^4.12.0",

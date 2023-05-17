@@ -1,15 +1,14 @@
 import colors from "colors"
 import Tracer from "tracer"
-import {} from "discord.js"
 
 export default Tracer.colorConsole({
 	level: process.env.LOG_LEVEL || "log",
 	format: [
-		"[{{timestamp}}] <{{path}}> {{message}}",
+		"[{{timestamp}}] {{message}}",
 		{
-			alert: "[{{timestamp}}] <{{path}}, Line {{line}}> {{message}}",
-			warn: "[{{timestamp}}] <{{path}}, Line {{line}}> {{message}}",
-			error: "[{{timestamp}}] <{{path}}, Line {{line}} at {{pos}}> {{message}}"
+			alert: "[{{timestamp}}] {{message}}",
+			warn: "[{{timestamp}}] {{message}}",
+			error: "[{{timestamp}}] {{message}}"
 		}
 	],
 	methods: ["log", "discord", "debug", "info", "alert", "warn", "error"],
@@ -22,17 +21,5 @@ export default Tracer.colorConsole({
 		alert: colors.yellow,
 		warn: colors.yellow.bold.italic,
 		error: colors.red.bold.italic
-	},
-	preprocess: data => {
-		data.path = data.path
-			.replaceAll("\\", "/")
-			.split("nova-bot")
-			.at(-1)!
-			.replace(/^\/dist/, "nova-bot")
-		data.path = data.path
-			.replaceAll("\\", "/")
-			.split("ts-discord-reminder")
-			.at(-1)!
-			.replace(/^\/(dist|src)/, "src")
 	}
 })

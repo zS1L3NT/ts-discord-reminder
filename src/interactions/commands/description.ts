@@ -48,7 +48,7 @@ export default class extends BaseCommand<typeof prisma, Entry, GuildCache> {
 					new EmbedBuilder()
 						.setColor(Colors.DarkGreen)
 						.setTitle("Edit Description")
-						.setDescription((reminder || draft)!.description)
+						.setDescription((reminder || draft)!.description || null)
 						.setFooter({
 							text: reminderId ? "ID: " + reminderId : "Draft"
 						})
