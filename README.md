@@ -38,21 +38,21 @@ Furthermore, only one person needs to add and edit reminders so everyone can see
 -   Reminders Channel
     -   Reminder bot needs a dedicated text channel to post reminders in. Reminder bot will automatically remove any messages that are irrelevant.
 -   Ping Channel
-    -   Reminder bot will ping users in the ping channel, which can be set with `/set ping-channel`. Depending on the priority of the reminder, Reminer bot will ping users at different times. These are the times reminder bot will ping about a reminder:
+    -   Reminder bot will ping users in the ping channel, which can be set with `/set ping-channel`. Depending on the priority of the reminder, Reminder bot will ping users at different times. These are the times reminder bot will ping about a reminder:
         -   High Priority
-            -   7 days before the reminer is due
-            -   1 day before the reminer is due
-            -   12 hours before the reminer is due
-            -   2 hours before the reminer is due
-            -   1 hour before the reminer is due
-            -   30 minutes before the reminer is due
-            -   The moment the reminer is due
+            -   7 days before the reminder is due
+            -   1 day before the reminder is due
+            -   12 hours before the reminder is due
+            -   2 hours before the reminder is due
+            -   1 hour before the reminder is due
+            -   30 minutes before the reminder is due
+            -   The moment the reminder is due
         -   Medium Priority
-            -   1 day before the reminer is due
-            -   2 hours before the reminer is due
-            -   The moment the reminer is due
+            -   1 day before the reminder is due
+            -   2 hours before the reminder is due
+            -   The moment the reminder is due
         -   Low Priority
-            -   The moment the reminer is due
+            -   The moment the reminder is due
 -   Message Commands
     -   Other than Using slash commands, all commands above can also be triggered by messages, where `/` is replaced by the defined prefix in the server.
     -   This defined prefix can only be changed with the `/set-prefix` command
