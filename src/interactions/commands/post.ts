@@ -41,6 +41,10 @@ export default class extends BaseCommand<typeof prisma, Entry, GuildCache> {
 			where: { id_guild_id: { id: "draft", guild_id: helper.cache.guild.id } },
 			data: draft.getReminder()
 		})
+		await helper.cache.prisma.ping.updateMany({
+			where: { reminder_id: "draft", guild_id: helper.cache.guild.id },
+			data: { reminder_id: draft.id }
+		})
 
 		delete helper.cache.draft
 		helper.cache.reminders.push(draft)
